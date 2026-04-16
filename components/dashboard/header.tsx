@@ -4,79 +4,46 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Plus } from "lucide-react"
+import { Plus, Terminal, Wifi } from "lucide-react"
 
-interface DashboardHeaderProps {
-  user?: any
-  profile?: any
-}
-
-const pageConfig: Record<string, { title: string; description: string; action?: { label: string; href: string } }> = {
-  "/dashboard": {
-    title: "OVERVIEW",
-    description: "MONITOR_LINKS_AND_PERFORMANCE",
-  },
-  "/dashboard/bio": {
-    title: "BIO_PAGES",
-    description: "MANAGE_BIO_SEGMENTS",
-    action: { label: "NEW_PAGE", href: "/dashboard/bio/new" },
-  },
-  "/dashboard/links": {
-    title: "SHORT_LINKS",
-    description: "MANAGE_ACCESS_NODES",
-    action: { label: "NEW_LINK", href: "/dashboard/links/new" },
-  },
-  "/dashboard/analytics": {
-    title: "METRICS",
-    description: "REDACTED_ANALYTICS_DATA",
-  },
-  "/dashboard/settings": {
-    title: "CONFIGURATION",
-    description: "SYSTEM_PREFERENCES",
-  },
-  "/dashboard/billing": {
-    title: "LOGISTICS",
-    description: "CREDIT_ALLOCATION",
-  },
-}
-
-export function DashboardHeader({ }: DashboardHeaderProps) {
+export function DashboardHeader() {
   const pathname = usePathname()
   
-  const getConfig = () => {
-    if (pageConfig[pathname]) {
-      return pageConfig[pathname]
-    }
-    for (const [path, config] of Object.entries(pageConfig)) {
-      if (pathname.startsWith(path) && path !== "/dashboard") {
-        return config
-      }
-    }
-    return pageConfig["/dashboard"]
+  const getPageTitle = () => {
+    const path = pathname.split('/').pop() || 'OVERVIEW'
+    return path.toUpperCase()
   }
 
-  const config = getConfig()
-
   return (
-    <header className="sticky top-0 z-10 border-b-4 border-primary bg-background/80 backdrop-blur-sm">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <div className="flex items-center gap-4">
-          <SidebarTrigger className="-ml-2 size-8 text-primary hover:bg-primary hover:text-primary-foreground border-2 border-transparent hover:border-primary rounded-none transition-all" />
-          <div className="hidden h-6 w-1 bg-primary sm:block" />
-          <div className="hidden sm:block">
-            <h1 className="text-sm font-black uppercase italic tracking-widest">{config.title}</h1>
+    <header className="flex h-20 items-center justify-between border-b border-white/10 px-8 bg-black/40 backdrop-blur-md">
+      <div className="flex items-center gap-6">
+        <SidebarTrigger className="h-10 w-10 border border-white/10 hover:border-white transition-colors" />
+        <div className="h-6 w-px bg-white/10 hidden md:block" />
+        <div className="flex flex-col">
+          <h1 className="text-xl font-black uppercase italic tracking-tighter leading-none">
+            {getPageTitle()}
+          </h1>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-[8px] font-mono font-bold uppercase tracking-widest opacity-40">NODE_SESSION_ACTIVE</span>
+            <Wifi className="h-2 w-2 text-accent animate-pulse" />
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          {config.action && (
-            <Button size="sm" asChild className="btn-mono !h-10 !px-4">
-              <Link href={config.action.href}>
-                <Plus className="size-4 mr-2" />
-                {config.action.label}
-              </Link>
-            </Button>
-          )}
+      </div>
+
+      <div className="flex items-center gap-6">
+        <div className="hidden lg:flex items-center gap-4 border-x border-white/10 px-6">
+          <Terminal className="h-3 w-3 text-white/20" />
+          <span className="text-[8px] font-mono font-black uppercase tracking-[0.3em] text-white/40">
+            SYSTEM_ENCRYPTION_V2_ACTIVE
+          </span>
         </div>
+        
+        <Button className="btn-mono h-11 px-6 text-[10px]" asChild>
+          <Link href={pathname.includes('bio') ? '/dashboard/bio/new' : '/dashboard/links/new'}>
+            <Plus className="mr-2 h-3.5 w-3.5" />
+            INITIALIZE_NEW
+          </Link>
+        </Button>
       </div>
     </header>
   )

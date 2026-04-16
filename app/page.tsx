@@ -7,228 +7,154 @@ import {
   Zap, 
   Shield,
   ArrowRight,
+  Terminal,
+  Cpu,
+  Fingerprint
 } from "lucide-react"
 import Link from "next/link"
 
-const features = [
-  {
-    icon: Link2,
-    title: "LINK-IN-BIO_SYSTEM",
-    description: "Initialize high-performance bio segments with technical metadata and custom entity blocks."
-  },
-  {
-    icon: Zap,
-    title: "ACCESS_CODE_GENERATOR",
-    description: "Terminate long-form URLs into trackable access points with encryption and decay timers."
-  },
-  {
-    icon: BarChart3,
-    title: "METRIC_ANALYTICS",
-    description: "Deep-node investigation into traffic vectors, geographic origin, and hardware decryption."
-  },
-  {
-    icon: Sparkles,
-    title: "AI_GENERATION",
-    description: "Automated entity description and metadata optimization via neural processing."
-  },
-  {
-    icon: Globe,
-    title: "DOMAIN_OVERWRITE",
-    description: "Inject your own namespace for authoritative brand presence across the global network."
-  },
-  {
-    icon: Shield,
-    title: "ACCESS_SECURITY",
-    description: "Multi-layer protection including gateway locking and temporal segment expiration."
-  }
-]
-
-const plans = [
-  {
-    name: "BASE_TIER",
-    price: "$0",
-    period: "PERPETUAL",
-    description: "Baseline operational capacity",
-    features: [
-      "1 BIO_SEGMENT",
-      "50 SHORT_LINKS / CYCLE",
-      "STANDARD_METRICS",
-      "MONO_CORE_THEMES"
-    ],
-    cta: "GET_STARTED",
-    highlighted: false
-  },
-  {
-    name: "ELITE_TIER",
-    price: "$9",
-    period: "/ CYCLE",
-    description: "Enhanced throughput and logic",
-    features: [
-      "UNLIMITED_BIO_SEGMENTS",
-      "500 SHORT_LINKS / CYCLE",
-      "ADVANCED_METRICS",
-      "CUSTOM_VISUAL_RECOGNITION",
-      "AI_LOGIC_GENERATION",
-      "NULL_BRANDING"
-    ],
-    cta: "INITIALIZE_TRIAL",
-    highlighted: true
-  },
-  {
-    name: "CORE_TIER",
-    price: "$29",
-    period: "/ CYCLE",
-    description: "Full-scale network deployment",
-    features: [
-      "EVERYTHING_IN_ELITE",
-      "UNLIMITED_LINKS",
-      "CUSTOM_NAMESPACE",
-      "TEAM_COLLABORATION",
-      "PRIORITY_RE-SYNC",
-      "RAW_API_ACCESS"
-    ],
-    cta: "CONTACT_OPERATIONS",
-    highlighted: false
-  }
-]
-
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground">
-      {/* Navigation */}
-      <header className="sticky top-0 z-50 w-full border-b-4 border-primary bg-background/95 backdrop-blur">
-        <div className="container mx-auto flex h-20 items-center justify-between px-6">
-          <Link href="/" className="flex items-center gap-4 group">
-            <div className="flex h-10 w-10 items-center justify-center border-4 border-primary bg-primary text-primary-foreground transition-transform group-hover:-rotate-6">
-              <Link2 className="h-6 w-6" />
-            </div>
-            <span className="text-2xl font-black uppercase italic tracking-tighter">LinkForge</span>
-          </Link>
-          <nav className="hidden items-center gap-10 md:flex">
-            {["FEATURES", "PRICING", "NETWORK"].map((item) => (
-              <Link 
-                key={item}
-                href={`#${item.toLowerCase()}`} 
-                className="text-[10px] font-black uppercase tracking-[0.2em] hover:text-primary transition-colors"
-              >
-                {item}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" className="text-[10px] font-black uppercase tracking-widest px-6" asChild>
-              <Link href="/auth/login">SIGN_IN</Link>
-            </Button>
-            <Button className="btn-mono" asChild>
-              <Link href="/auth/sign-up">GET_STARTED</Link>
-            </Button>
+    <div className="relative min-h-screen bg-background overflow-hidden selection:bg-primary selection:text-primary-foreground">
+      {/* Structural Grid Background */}
+      <div className="absolute inset-0 grid-bg-columns opacity-40 pointer-events-none" />
+      
+      {/* Header */}
+      <nav className="relative z-10 flex items-center justify-between px-8 h-24 border-b border-white/10 backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center border-2 border-primary bg-primary text-black transform rotate-3 hover:rotate-0 transition-transform cursor-pointer">
+            <Link2 className="h-6 w-6" />
           </div>
+          <span className="text-2xl font-black uppercase italic tracking-tighter">LinkForge</span>
         </div>
-      </header>
+        
+        <div className="hidden md:flex items-center gap-12">
+          {['FEATURES', 'COLLECTION', 'LOGISTICS', 'DOCS'].map((item) => (
+            <Link 
+              key={item} 
+              href="#" 
+              className="text-[10px] font-black uppercase tracking-[0.3em] hover:text-accent transition-colors"
+            >
+              {item}
+            </Link>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Link href="/auth/login" className="text-[10px] font-black uppercase tracking-[0.3em] hover:text-accent px-4 py-2">
+            LOGIN
+          </Link>
+          <Button variant="outline" className="btn-mono h-12" asChild>
+            <Link href="/auth/login">INITIALIZE_NODE</Link>
+          </Button>
+        </div>
+      </nav>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-32 md:py-48 bg-[url('https://discbot.io/grid.png')] bg-repeat">
-        <div className="mx-auto max-w-4xl text-center">
-          <div className="mb-10 inline-flex items-center gap-3 border-4 border-primary bg-background px-6 py-2 text-[10px] font-black uppercase tracking-[0.3em] italic">
-            <Sparkles className="h-4 w-4" />
-            <span>AI_NEURAL_LOGIC_INTEGRATED</span>
+      <main className="relative z-10 container mx-auto px-8 pt-32 pb-64">
+        <div className="max-w-6xl">
+          <div className="tech-label mb-8">
+            <Cpu className="h-3 w-3" />
+            SYSTEM_V0.1.0_READY
           </div>
-          <h1 className="mb-10 text-6xl font-black uppercase italic tracking-tighter leading-[0.85] sm:text-7xl md:text-8xl">
-            YOUR_LINKS_YOUR_BRAND_<br />
-            <span className="text-primary bg-background border-4 border-primary px-4 mt-2 inline-block -rotate-1">YOUR_WAY</span>
-          </h1>
-          <p className="mx-auto mb-12 max-w-2xl text-[10px] font-mono uppercase tracking-[0.25em] leading-relaxed opacity-70">
-            Initialize high-performance bio segments, generate encrypted access points with deep-node analytics, and build authoritative network presence — all within a unified monochromatic architecture.
-          </p>
-          <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
-            <Button size="lg" className="h-16 px-10 text-xl font-black uppercase italic tracking-widest border-4 border-primary bg-primary text-primary-foreground hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all hover:-translate-x-1 hover:-translate-y-1 active:translate-y-1" asChild>
-              <Link href="/auth/sign-up">
-                BEGIN_SEQUENCE
-                <ArrowRight className="ml-4 h-6 w-6" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" className="h-16 px-10 text-xl font-black uppercase italic tracking-widest border-4 border-primary rounded-none hover:bg-primary hover:text-primary-foreground transition-all" asChild>
-              <Link href="#features">VIEW_SYSTEM</Link>
-            </Button>
-          </div>
-        </div>
 
-        {/* Hero Visual */}
-        <div className="mt-32 mx-auto max-w-5xl">
-          <div className="relative border-4 border-primary p-4 bg-background shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
-            <div className="border-2 border-primary p-12 bg-muted/10">
-              <div className="grid gap-8 md:grid-cols-3">
-                <div className="border-4 border-primary bg-background p-6">
-                  <div className="mb-6 flex items-center gap-3">
-                    <div className="h-10 w-10 border-2 border-primary bg-primary" />
-                    <div className="space-y-2">
-                      <div className="h-2 w-20 bg-primary" />
-                      <div className="h-2 w-14 bg-primary opacity-50" />
-                    </div>
+          <h1 className="text-9xl-condensed mb-12">
+            BUILD <span className="text-white/40">WITHOUT</span><br />
+            LIMITS
+          </h1>
+
+          <div className="grid md:grid-cols-2 gap-24 items-start">
+            <div className="space-y-12">
+              <p className="text-xl text-white/60 font-medium leading-relaxed max-w-lg">
+                The tactical edge for your digital presence. Create high-performance bio segments, 
+                secure redirection nodes, and analyzed links in seconds.
+              </p>
+              
+              <div className="flex flex-wrap gap-6 pt-6">
+                <Button className="btn-mono group h-16 px-10 text-base" asChild>
+                  <Link href="/auth/login">
+                    GET_STARTED
+                    <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-2" />
+                  </Link>
+                </Button>
+                <Button variant="outline" className="btn-ghost-mono h-16 px-10 text-base" asChild>
+                  <Link href="#features">VIEW_STREAMS</Link>
+                </Button>
+              </div>
+
+              {/* Status Widgets */}
+              <div className="flex gap-4 pt-12">
+                <div className="border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+                    <span className="text-[8px] font-mono font-bold uppercase tracking-widest opacity-60">LATENCY</span>
                   </div>
-                  <div className="space-y-3">
-                    <div className="h-12 border-2 border-primary bg-muted/20" />
-                    <div className="h-12 border-2 border-primary bg-muted/20" />
-                    <div className="h-12 border-2 border-primary bg-muted/20" />
+                  <div className="text-xl font-black italic tracking-tighter">12MS</div>
+                </div>
+                <div className="border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-sm">
+                  <div className="text-[8px] font-mono font-bold uppercase tracking-widest opacity-60 mb-1">UPTIME</div>
+                  <div className="text-xl font-black italic tracking-tighter">99.98%</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Code Preview Widget */}
+            <div className="relative">
+              <div className="absolute -inset-1 bg-gradient-to-r from-accent/20 to-transparent blur-2xl opacity-50" />
+              <div className="relative card-mono border-white/20">
+                <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
+                  <div className="flex items-center gap-2">
+                    <Terminal className="h-4 w-4 text-white/40" />
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-white/40">LINK_INSTANCE.TS</span>
+                  </div>
+                  <div className="flex gap-1.5">
+                    <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
+                    <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
+                    <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
                   </div>
                 </div>
-                <div className="border-4 border-primary bg-background p-6">
-                  <div className="mb-4 text-[10px] font-black uppercase tracking-widest">METRIC_STREAM</div>
-                  <div className="flex h-32 items-end gap-2">
-                    {[40, 65, 45, 80, 55, 90, 70].map((height, i) => (
-                      <div 
-                        key={i} 
-                        className="flex-1 bg-primary hover:opacity-80 transition-opacity" 
-                        style={{ height: `${height}%` }} 
-                      />
-                    ))}
-                  </div>
-                </div>
-                <div className="border-4 border-primary bg-background p-6">
-                  <div className="mb-4 text-[10px] font-black uppercase tracking-widest">ACCESS_NODES</div>
-                  <div className="space-y-3 font-mono text-[10px] uppercase tracking-widest">
-                    <div className="flex items-center justify-between border-2 border-primary p-2">
-                      <span>/L/PORTFOLIO</span>
-                      <span className="font-black">1.2K</span>
-                    </div>
-                    <div className="flex items-center justify-between border-2 border-primary p-2 bg-primary text-primary-foreground italic">
-                      <span>/L/CORE_NODE</span>
-                      <span className="font-black">847</span>
-                    </div>
-                    <div className="flex items-center justify-between border-2 border-primary p-2">
-                      <span>/L/DEMO_SEGMENT</span>
-                      <span className="font-black">523</span>
-                    </div>
+                <div className="font-mono text-sm space-y-2 text-white/80 leading-relaxed">
+                  <p><span className="text-accent">const</span> project = <span className="text-accent">new</span> LinkForge({'{'}</p>
+                  <p className="pl-4">node: <span className="text-amber-200">'PRODUCTION'</span>,</p>
+                  <p className="pl-4">analytics: <span className="text-emerald-300">true</span>,</p>
+                  <p className="pl-4">encryption: <span className="text-emerald-300">true</span></p>
+                  <p>{'}'});</p>
+                  <p className="pt-4 text-white/40">// Initialize redirect sequence</p>
+                  <p>project.deploy({'{'} </p>
+                  <p className="pl-4">target: <span className="text-amber-200">'https://domain.com/bio'</span></p>
+                  <p>{'}'});</p>
+                  <div className="pt-6 border-t border-white/10 mt-6 flex items-center justify-between">
+                    <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/40">SYSTEM_OPERATIONAL</span>
+                    <Fingerprint className="h-4 w-4 text-white/20" />
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </main>
 
       {/* Features Section */}
-      <section id="features" className="border-y-4 border-primary bg-muted/5 py-32">
-        <div className="container mx-auto px-6">
-          <div className="mx-auto max-w-2xl text-center mb-24">
-            <h2 className="mb-6 text-4xl font-black uppercase italic tracking-tighter">
-              SYSTEM_DEPLOYMENT_TOOLS
-            </h2>
-            <p className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-60">
-              LinkForge provides the critical infrastructure for digital entity presence and redirection.
-            </p>
+      <section id="features" className="relative z-10 border-y border-white/10 bg-white/[0.02] py-48">
+        <div className="container mx-auto px-8">
+          <div className="max-w-2xl mb-24">
+            <h2 className="text-4xl-condensed mb-6 italic">HIGH_CORE_FLUX</h2>
+            <p className="text-lg text-white/60 font-medium">Advanced protocols for superior digital management.</p>
           </div>
-          <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature) => (
-              <div key={feature.title} className="group relative">
-                <div className="absolute inset-0 bg-primary translate-x-2 translate-y-2 opacity-0 group-hover:opacity-100 transition-all" />
-                <div className="relative z-10 border-4 border-primary bg-background p-10 transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1">
-                  <div className="mb-6 flex h-14 w-14 items-center justify-center border-4 border-primary bg-muted/20">
-                    <feature.icon className="h-8 w-8" />
-                  </div>
-                  <h3 className="mb-4 text-xl font-black uppercase italic tracking-tight">{feature.title}</h3>
-                  <p className="text-[10px] font-mono text-muted-foreground uppercase leading-relaxed tracking-widest">{feature.description}</p>
+          
+          <div className="grid md:grid-cols-3 gap-px bg-white/10 border border-white/10">
+            {[
+              { icon: Zap, label: "01", title: "INSTANT_BUFFER", desc: "Redirection latency optimized to the physical limit. Your users don't wait." },
+              { icon: Shield, label: "02", title: "HARDWARE_LOCK", desc: "Military-grade encryption for your sensitive redirections. Total security." },
+              { icon: BarChart3, label: "03", title: "RAW_STREAM_DATA", desc: "Unfiltered analytics stream. See exactly how your traffic flows through the network." },
+            ].map((f) => (
+              <div key={f.label} className="bg-black p-12 space-y-8 hover:bg-white/[0.03] transition-colors group">
+                <div className="flex items-center justify-between">
+                  <f.icon className="h-8 w-8 text-primary group-hover:text-accent transition-colors" />
+                  <span className="text-[10px] font-black font-mono opacity-20">{f.label}</span>
                 </div>
+                <h3 className="text-xl font-black uppercase italic tracking-tight">{f.title}</h3>
+                <p className="text-[10px] font-mono leading-relaxed opacity-50 uppercase tracking-widest">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -236,97 +162,71 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-32">
-        <div className="container mx-auto px-6">
-          <div className="mx-auto max-w-2xl text-center mb-24">
-            <h2 className="mb-6 text-4xl font-black uppercase italic tracking-tighter">
-              ALLOCATION_PLANS
-            </h2>
-            <p className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-60">
-              Scale your operational capacity according to network requirements.
-            </p>
-          </div>
-          <div className="mx-auto mt-16 grid max-w-6xl gap-10 md:grid-cols-3">
-            {plans.map((plan) => (
-              <div 
-                key={plan.name} 
-                className={`relative border-4 p-10 ${plan.highlighted ? 'border-primary shadow-[16px_16px_0px_0px_rgba(0,0,0,1)]' : 'border-border'}`}
-              >
-                {plan.highlighted && (
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-primary px-6 py-1 text-[10px] font-black uppercase italic tracking-[0.3em] text-primary-foreground transform active:scale-95">
-                    OPTIMIZED_CHOICE
-                  </div>
-                )}
-                <div className="mb-10">
-                  <h3 className="text-2xl font-black uppercase italic tracking-tight mb-2">{plan.name}</h3>
-                  <p className="text-[10px] font-mono uppercase tracking-widest opacity-50">{plan.description}</p>
-                </div>
-                <div className="mb-10">
-                  <span className="text-6xl font-black italic tracking-tighter">{plan.price}</span>
-                  <span className="text-[10px] font-black uppercase tracking-widest ml-4 opacity-50">{plan.period}</span>
-                </div>
-                <ul className="mb-10 space-y-4">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-widest">
-                      <div className="h-2 w-2 bg-primary flex-shrink-0" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <Button 
-                  className={`w-full h-14 text-sm font-black uppercase italic tracking-widest border-4 ${plan.highlighted ? 'bg-primary text-primary-foreground border-primary hover:opacity-90' : 'bg-transparent border-primary text-primary hover:bg-primary hover:text-primary-foreground'}`}
-                  asChild
-                >
-                  <Link href="/auth/sign-up">{plan.cta}</Link>
-                </Button>
-              </div>
-            ))}
-          </div>
+      <section className="relative z-10 py-64">
+        <div className="container mx-auto px-8 text-center mb-24">
+          <h2 className="text-6xl font-black uppercase italic tracking-tighter italic mb-4">CHOOSE_POWER_LEVEL</h2>
+          <p className="text-[10px] font-mono uppercase tracking-widest opacity-50">Logistic allocation parameters</p>
         </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="border-t-4 border-primary bg-primary text-primary-foreground py-32 overflow-hidden relative">
-        <div className="absolute inset-0 opacity-10 bg-[url('https://discbot.io/grid.png')] bg-repeat rotate-12 scale-150" />
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="mb-10 text-6xl font-black uppercase italic tracking-tighter sm:text-7xl md:text-8xl">
-              INITIALIZE_LOGISTICS?
-            </h2>
-            <p className="mb-12 text-[10px] font-mono uppercase tracking-[0.4em] leading-relaxed opacity-80">
-              JOIN_THOUSANDS_OF_ENTITIES_ALREADY_CONNECTED_TO_THE_LINKFORGE_NETWORK.
-            </p>
-            <Button size="lg" className="h-20 px-12 text-2xl font-black uppercase italic tracking-widest border-4 border-primary-foreground bg-primary-foreground text-primary hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] transition-all hover:-translate-x-1 hover:-translate-y-1 active:translate-y-1" asChild>
-              <Link href="/auth/sign-up">
-                START_FREE_SEQUENCE
-                <ArrowRight className="ml-6 h-8 w-8" />
-              </Link>
-            </Button>
-          </div>
+        <div className="container mx-auto px-8 grid md:grid-cols-3 gap-12 max-w-7xl">
+          {[
+            {
+              price: "$0",
+              tier: "BASE",
+              desc: "STABLE_STARK_0",
+              features: ["1 BIO_PAGE", "50 LINKS", "STATIC_METRICS"]
+            },
+            {
+              price: "$9",
+              tier: "ELITE",
+              desc: "CORE_OVERLOAD_V2",
+              features: ["UNLIMITED_PAGES", "500 LINKS", "REALTIME_FLOW", "CUSTOM_VECTORS"],
+              popular: true
+            },
+            {
+              price: "$29",
+              tier: "GLOBAL",
+              desc: "NETWORK_DOMINANCE",
+              features: ["RAW_API_ACCESS", "CUSTOM_DOMAINS", "PRIORITY_RE-SYNC", "TEAM_LOGIC"]
+            }
+          ].map((plan) => (
+            <div key={plan.tier} className={`relative p-12 border-4 transition-all ${plan.popular ? 'border-primary shadow-[20px_20px_0px_0px_rgba(255,77,77,0.1)]' : 'border-white/10'}`}>
+              <div className="text-6xl font-black italic tracking-tighter mb-4">{plan.price}</div>
+              <div className="text-xl font-black uppercase tracking-tight mb-2">{plan.tier}_ALLOCATION</div>
+              <div className="text-[8px] font-mono uppercase tracking-[0.3em] text-white/40 mb-12">{plan.desc}</div>
+              
+              <ul className="space-y-6 mb-12">
+                {plan.features.map(f => (
+                  <li key={f} className="text-[10px] font-mono uppercase tracking-widest flex items-center gap-3">
+                    <div className="h-1.5 w-1.5 bg-primary" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <Button className="btn-mono w-full h-16 text-base">INITIALIZE</Button>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t-4 border-primary py-20 bg-background overflow-hidden">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center border-4 border-primary bg-primary text-primary-foreground">
-                <Link2 className="h-6 w-6" />
-              </div>
-              <span className="text-xl font-black uppercase italic tracking-tighter">LinkForge</span>
-            </div>
-            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground flex items-center gap-4">
-              <span>NEXT.JS_16</span>
-              <div className="h-1 w-1 bg-muted-foreground/30" />
-              <span>POSTGRESQL_ENGINE</span>
-              <div className="h-1 w-1 bg-muted-foreground/30" />
-              <span>NEURAL_GEN_V2</span>
-            </div>
-            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-              &copy; 2026_LINKFORGE_OPERATIONS
-            </p>
+      <footer className="relative z-10 border-t border-white/10 py-24 bg-black">
+        <div className="container mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-12">
+          <div className="flex items-center gap-3">
+            <Link2 className="h-6 w-6 text-primary" />
+            <span className="text-2xl font-black uppercase italic tracking-tighter">LinkForge</span>
           </div>
+          <div className="flex gap-12">
+            {['PRIVACY', 'TERMS', 'SECURITY', 'INFRASTRUCTURE'].map(item => (
+              <Link key={item} href="#" className="text-[10px] font-black uppercase tracking-widest hover:text-accent">
+                {item}
+              </Link>
+            ))}
+          </div>
+          <p className="text-[8px] font-mono uppercase tracking-widest text-white/40">
+            © 2026 LINKFORGE_OS ALL_SYSTEMS_OPERATIONAL
+          </p>
         </div>
       </footer>
     </div>

@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { ArrowLeft, Loader2, ExternalLink, Copy, Check, Trash2, BarChart2 } from "lucide-react"
+import { ArrowLeft, Loader2, ExternalLink, Copy, Check, Trash2, BarChart2, Shield, Activity, Lock } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -48,7 +48,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
   const handleCopy = async () => {
     await navigator.clipboard.writeText(shortUrl)
     setCopied(true)
-    toast.success("URL_COPIED_TO_CLIPBOARD")
+    toast.success("METADATA_EXTRACTED")
     setTimeout(() => setCopied(false), 2000)
   }
 
@@ -64,10 +64,10 @@ export function LinkEditor({ link }: LinkEditorProps) {
         expiresAt: useExpiration && expiresAt ? expiresAt : null,
         isActive,
       })
-      toast.success("Parameters updated")
+      toast.success("CORE_LOGIC_SYNCED")
       router.refresh()
     } catch (err: any) {
-      setError(`ERROR: ${err.message?.toUpperCase() || "UPDATE_FAILED"}`)
+      setError(`CRITICAL_FAILURE: ${err.message?.toUpperCase() || "UNKNOWN_OP_ERROR"}`)
     } finally {
       setIsSaving(false)
     }
@@ -77,211 +77,227 @@ export function LinkEditor({ link }: LinkEditorProps) {
     setIsDeleting(true)
     try {
       await deleteShortLink(link.id)
-      toast.success("Entity purged")
+      toast.success("ENTITY_NULLIFIED")
       router.push("/dashboard/links")
     } catch (err) {
-      toast.error("PURGE_FAILED")
+      toast.error("PURGE_REJECTED")
       setIsDeleting(false)
     }
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-10">
-      <div className="flex items-center justify-between border-b-2 border-primary pb-8">
-        <div className="flex items-center gap-6">
-          <Button variant="ghost" size="icon" className="border-2 border-primary hover:bg-primary hover:text-primary-foreground" asChild>
+    <div className="max-w-4xl mx-auto space-y-12 pb-32">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-white/10 pb-10">
+        <div className="flex items-start gap-8">
+          <Button variant="outline" size="icon" className="h-12 w-12 border-white/10 bg-transparent hover:border-white transition-all rounded-none mt-2" asChild>
             <Link href="/dashboard/links">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none">Modify Link</h1>
-            <p className="mt-2 text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">ID: {link.shortCode} // Status: Active</p>
+            <div className="tech-label mb-3">
+               <Shield className="h-3 w-3" />
+               NODE_ENCRYPTION_ACTIVE
+            </div>
+            <h1 className="text-6xl font-black uppercase italic tracking-tighter leading-none">MOD_RELAY</h1>
+            <p className="text-[10px] font-mono uppercase tracking-[0.4em] text-white/40 mt-3">
+              NODE_ID: {link.shortCode} // STATUS: {isActive ? 'OPERATIONAL' : 'OFFLINE'}
+            </p>
           </div>
         </div>
+
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="sm" className="border-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground uppercase font-black tracking-widest text-xs px-4">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Purge
+            <Button variant="outline" className="h-14 px-8 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all rounded-none text-[10px] font-black uppercase italic tracking-widest">
+              TERMINATE_NODE
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="rounded-none border-4 border-primary">
+          <AlertDialogContent className="rounded-none border border-white/20 bg-black max-w-lg p-10">
             <AlertDialogHeader>
-              <AlertDialogTitle className="font-black uppercase italic">Confirm Entity Purge?</AlertDialogTitle>
-              <AlertDialogDescription className="font-mono text-[10px] uppercase tracking-widest">
-                This process is irreversible. All linked metadata and analytics buffers will be terminated.
+              <AlertDialogTitle className="text-2xl font-black uppercase italic tracking-tight">NULLIFY_ENTITY?</AlertDialogTitle>
+              <AlertDialogDescription className="text-[10px] font-mono uppercase tracking-widest leading-relaxed mt-4">
+                THIS_ACTION_TERMINATES_ALL_ASSOCIATED_DATA_STREAMS_AND_REDIRECTION_BUFFERS. THE_NODE_WILL_BE_PERMANENTLY_ELIMINATED_FROM_THE_GRID.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="rounded-none border-2 border-primary uppercase font-black text-xs">Abort</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="rounded-none bg-destructive text-destructive-foreground uppercase font-black text-xs hover:bg-destructive/90">
-                {isDeleting ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="mr-2 h-4 w-4" />
-                )}
-                Initialize Purge
+            <AlertDialogFooter className="mt-10 gap-4">
+              <AlertDialogCancel className="rounded-none border border-white/10 bg-transparent uppercase font-black italic text-[10px] opacity-40 hover:opacity-100 h-12 px-8">ABORT</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="rounded-none bg-red-500 text-white uppercase font-black italic text-[10px] hover:bg-red-600 h-12 px-8 transition-all">
+                {isDeleting ? "NULLIFYING..." : "CONFIRM_TERMINATION"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
       </div>
 
-      {/* Short URL Card */}
-      <div className="card-mono">
-        <div className="mb-6">
-          <h2 className="text-xl font-black uppercase italic tracking-tight">Access Point</h2>
-          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">Direct redirection bridge</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Input
-            value={shortUrl}
-            readOnly
-            className="border-2 border-primary bg-muted/20 font-mono text-xs font-bold uppercase"
-          />
-          <Button variant="outline" className="border-2 border-primary rounded-none hover:bg-primary hover:text-primary-foreground" onClick={handleCopy}>
-            {copied ? (
-              <Check className="h-4 w-4" />
-            ) : (
-              <Copy className="h-4 w-4" />
-            )}
-          </Button>
-          <Button variant="outline" className="border-2 border-primary rounded-none hover:bg-primary hover:text-primary-foreground" asChild>
-            <a href={shortUrl} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </Button>
-        </div>
-        <div className="mt-8 flex items-center justify-between border-4 border-primary p-6 bg-muted/10">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest">Aggregate_Clicks</p>
-            <p className="text-4xl font-black italic tracking-tighter mt-1">{link.clickCount}</p>
-          </div>
-          <Button variant="outline" className="btn-mono" asChild>
-            <Link href={`/dashboard/analytics?link=${link.id}`}>
-              <BarChart2 className="mr-2 h-4 w-4" />
-              Metrics_Buffer
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      {/* Edit Form */}
-      <div className="card-mono">
-        <div className="mb-8">
-          <h2 className="text-xl font-black uppercase italic tracking-tight">Link Parameters</h2>
-          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">Adjust operational logic</p>
-        </div>
-        
-        <div className="space-y-8">
-          <div className="flex items-center justify-between border-2 border-primary p-6 bg-muted/10">
-            <div>
-              <Label className="text-[10px] font-black uppercase tracking-widest leading-none">Operational Status</Label>
-              <p className="text-[10px] font-mono uppercase tracking-widest opacity-50 mt-1">Toggle redirection logic</p>
-            </div>
-            <Switch
-              checked={isActive}
-              onCheckedChange={setIsActive}
-              className="data-[state=checked]:bg-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="url" className="text-[10px] font-black uppercase tracking-widest leading-none">Destination Buffer (URL)</Label>
-            <Input
-              id="url"
-              type="url"
-              value={originalUrl}
-              onChange={(e) => setOriginalUrl(e.target.value)}
-              className="border-2 border-primary bg-background font-bold h-12"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="title" className="text-[10px] font-black uppercase tracking-widest leading-none">Entity Alias</Label>
-            <Input
-              id="title"
-              placeholder="MY TRACKABLE ENTITY"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="border-2 border-primary bg-background font-bold h-12 uppercase"
-            />
-          </div>
-
-          {/* Password Protection */}
-          <div className="space-y-4 border-2 border-primary p-6 bg-muted/10">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-[10px] font-black uppercase tracking-widest leading-none">Gateway Lock</Label>
-                <p className="text-[10px] font-mono uppercase tracking-widest opacity-50 mt-1">
-                  {link.password ? "STATUS: ENCRYPTED" : "STATUS: UNLOCKED"}
-                </p>
+      <div className="grid lg:grid-cols-5 gap-12">
+        {/* Main Parameters */}
+        <div className="lg:col-span-3 space-y-8">
+          <div className="card-mono p-10 border-white/20">
+            <div className="flex items-center justify-between mb-10 border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <Activity className="h-4 w-4 text-white/40" />
+                <h2 className="text-sm font-black uppercase italic tracking-widest">CORE_PARAMETERS</h2>
               </div>
-              <Switch
-                checked={usePassword}
-                onCheckedChange={setUsePassword}
-                className="data-[state=checked]:bg-primary"
-              />
+              <span className="text-[8px] font-mono font-bold opacity-20">[01]</span>
             </div>
-            {usePassword && (
-              <div className="space-y-2 pt-2">
-                <Input
-                  type="password"
-                  placeholder={link.password ? "NEW ENCRYPTION KEY (NULL TO RETAIN)" : "SET ENCRYPTION KEY"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="border-2 border-primary bg-background font-bold h-10"
+
+            <div className="space-y-10">
+               <div className="flex items-center justify-between group">
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-black uppercase tracking-widest">RELAY_ENABLED</Label>
+                  <p className="text-[8px] font-mono uppercase tracking-[0.2em] opacity-40">TOGGLE_REDIRECTION_FLUX</p>
+                </div>
+                <Switch
+                  checked={isActive}
+                  onCheckedChange={setIsActive}
+                  className="data-[state=checked]:bg-white"
                 />
               </div>
-            )}
-          </div>
 
-          {/* Expiration */}
-          <div className="space-y-4 border-2 border-primary p-6 bg-muted/10">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-[10px] font-black uppercase tracking-widest leading-none">Decay Timer</Label>
-                <p className="text-[10px] font-mono uppercase tracking-widest opacity-50 mt-1">
-                  {link.expiresAt 
-                    ? `END_SEQUENCE: ${new Date(link.expiresAt).toLocaleDateString().toUpperCase()}`
-                    : "STABLE: NO_DECAY_DETECTOR"
-                  }
-                </p>
+              <div className="space-y-3">
+                <Label htmlFor="url" className="text-[10px] font-black uppercase tracking-widest">DESTINATION_ADDR</Label>
+                <div className="relative group">
+                  <ExternalLink className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20 group-hover:text-white transition-colors" />
+                  <Input
+                    id="url"
+                    type="url"
+                    value={originalUrl}
+                    onChange={(e) => setOriginalUrl(e.target.value)}
+                    className="border border-white/10 bg-white/5 h-14 pl-12 text-sm font-bold rounded-none focus:border-white transition-all"
+                  />
+                </div>
               </div>
-              <Switch
-                checked={useExpiration}
-                onCheckedChange={setUseExpiration}
-                className="data-[state=checked]:bg-primary"
-              />
-            </div>
-            {useExpiration && (
-              <div className="space-y-2 pt-2">
+
+               <div className="space-y-3">
+                <Label htmlFor="title" className="text-[10px] font-black uppercase tracking-widest">NODE_ALIAS</Label>
                 <Input
-                  type="datetime-local"
-                  value={expiresAt}
-                  onChange={(e) => setExpiresAt(e.target.value)}
-                  className="border-2 border-primary bg-background font-bold h-10"
+                  id="title"
+                  placeholder="IDENTIFY_NODE"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="border border-white/10 bg-white/5 h-14 px-6 text-[10px] font-mono uppercase tracking-widest rounded-none focus:border-white transition-all"
                 />
               </div>
-            )}
-          </div>
-
-          {error && (
-            <div className="border-2 border-destructive p-4 bg-destructive/10">
-              <p className="text-[10px] font-mono uppercase text-destructive font-black tracking-widest">{error}</p>
             </div>
-          )}
-
-          <div className="flex items-center gap-4 pt-4">
-            <Button onClick={handleSave} disabled={isSaving} className="btn-mono">
-              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Update Parameters
-            </Button>
-            <Button variant="outline" className="border-2 border-border hover:border-primary px-6 py-2 uppercase font-black tracking-widest text-xs" asChild>
-              <Link href="/dashboard/links">Abort</Link>
-            </Button>
           </div>
+
+          <div className="card-mono p-10 border-white/10">
+            <div className="flex items-center justify-between mb-10 border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <Shield className="h-4 w-4 text-white/40" />
+                <h2 className="text-sm font-black uppercase italic tracking-widest">GATEWAY_SECURITY</h2>
+              </div>
+              <span className="text-[8px] font-mono font-bold opacity-20">[02]</span>
+            </div>
+
+            <div className="space-y-10">
+               <div className="flex items-center justify-between group">
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-black uppercase tracking-widest">FORCE_ENCRYPTION</Label>
+                  <p className="text-[8px] font-mono uppercase tracking-[0.2em] opacity-40">ENABLE_GATEWAY_LOCK</p>
+                </div>
+                <Switch
+                  checked={usePassword}
+                  onCheckedChange={setUsePassword}
+                  className="data-[state=checked]:bg-white"
+                />
+              </div>
+
+              {usePassword && (
+                <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest">DECRYPTION_KEY</Label>
+                  <Input
+                    type="password"
+                    placeholder={link.password ? "STAY_ENCRYPTED_OR_ENTER_NEW" : "INITIAL_ENCRYPTION_KEY"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="border border-white/10 bg-white/5 h-14 px-6 text-[10px] font-mono uppercase tracking-widest rounded-none focus:border-white transition-all"
+                  />
+                </div>
+              )}
+
+              <div className="flex items-center justify-between group">
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-black uppercase tracking-widest">TEMPORAL_DECAY</Label>
+                  <p className="text-[8px] font-mono uppercase tracking-[0.2em] opacity-40">AUTO_TERMINATE_SEQUENCE</p>
+                </div>
+                <Switch
+                   checked={useExpiration}
+                   onCheckedChange={setUseExpiration}
+                   className="data-[state=checked]:bg-white"
+                />
+              </div>
+
+              {useExpiration && (
+                <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                   <Label className="text-[10px] font-black uppercase tracking-widest">EXPIRATION_PULSE</Label>
+                   <Input
+                    type="datetime-local"
+                    value={expiresAt}
+                    onChange={(e) => setExpiresAt(e.target.value)}
+                    className="border border-white/10 bg-white/5 h-14 px-6 text-[10px] font-mono uppercase tracking-widest rounded-none focus:border-white transition-all invert"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Action Sidebar */}
+        <div className="lg:col-span-2 space-y-8">
+           <div className="card-mono p-10 border-white/10">
+              <h3 className="text-[10px] font-black uppercase tracking-widest mb-8 border-b border-white/10 pb-4 opacity-40">
+                ACCESS_LINK
+              </h3>
+              <div className="space-y-6">
+                <div className="border border-white/10 bg-black p-4 flex items-center justify-between group">
+                  <span className="text-[10px] font-mono truncate mr-4 opacity-40 uppercase tracking-widest">{shortUrl}</span>
+                  <div className="flex gap-2">
+                    <button onClick={handleCopy} className="p-2 hover:bg-white/10 transition-colors">
+                      {copied ? <Check className="h-4 w-4 text-accent" /> : <Copy className="h-4 w-4" />}
+                    </button>
+                    <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-white/10 transition-colors">
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </div>
+                </div>
+
+                <div className="pt-4 flex items-end justify-between border-t border-white/10">
+                   <div>
+                    <span className="text-[8px] font-mono font-bold uppercase opacity-30">TOTAL_REDIRECTIONS</span>
+                    <div className="text-5xl font-black italic tracking-tighter tabular-nums mt-1">{link.clickCount.toLocaleString()}</div>
+                   </div>
+                   <Button variant="outline" className="btn-ghost-mono px-4 h-10 text-[8px]" asChild>
+                    <Link href={`/dashboard/analytics?link=${link.id}`}>
+                      TELEMETRY_STREAM
+                    </Link>
+                   </Button>
+                </div>
+              </div>
+           </div>
+
+           <div className="space-y-4">
+              <Button onClick={handleSave} disabled={isSaving} className="btn-mono w-full h-16 text-sm">
+                {isSaving ? (
+                   <>
+                    <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+                    SYNCING_LOGIC...
+                  </>
+                ) : (
+                  "COMMIT_PARAMETERS"
+                )}
+              </Button>
+              <Button variant="outline" className="btn-ghost-mono w-full h-14" asChild>
+                <Link href="/dashboard/links">ABORT_OPERATIONS</Link>
+              </Button>
+           </div>
+           
+           {error && (
+            <div className="card-mono border-red-500/50 bg-red-500/5 p-6 animate-shake">
+                <p className="text-[10px] font-mono uppercase text-red-500 font-black tracking-widest">{error}</p>
+            </div>
+           )}
         </div>
       </div>
     </div>

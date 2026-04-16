@@ -1,200 +1,158 @@
-import { createClient } from "@/lib/supabase/server"
+import { auth } from "@/auth"
+import { db } from "@/lib/db"
+import { profiles } from "@/lib/db/schema"
+import { eq } from "drizzle-orm"
+import { CreditCard, Zap, Check, ArrowRight, Activity, Shield, Terminal } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Check, Sparkles } from "lucide-react"
 import Link from "next/link"
-import { BillingPortalButton } from "@/components/billing/portal-button"
+import { redirect } from "next/navigation"
 
 export const metadata = {
-  title: "Billing",
+  title: "Logistics Protocol",
 }
 
-const plans = [
-  {
-    name: "Free",
-    price: "$0",
-    period: "forever",
-    description: "Perfect for getting started",
-    features: [
-      "1 Bio Page",
-      "50 Short Links/month",
-      "Basic Analytics",
-      "Standard Themes"
-    ],
-    productId: null,
-  },
-  {
-    name: "Pro",
-    price: "$9",
-    period: "/month",
-    description: "For creators and professionals",
-    features: [
-      "Unlimited Bio Pages",
-      "500 Short Links/month",
-      "Advanced Analytics",
-      "Custom Themes",
-      "AI Content Generation",
-      "Remove Branding",
-    ],
-    productId: "pro-monthly",
-    popular: true,
-  },
-  {
-    name: "Business",
-    price: "$29",
-    period: "/month",
-    description: "For teams and agencies",
-    features: [
-      "Everything in Pro",
-      "Unlimited Short Links",
-      "Custom Domains",
-      "Team Collaboration",
-      "Priority Support",
-      "API Access",
-    ],
-    productId: "business-monthly",
-  },
-]
-
 export default async function BillingPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    redirect("/auth/login")
+  }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user?.id)
-    .single()
+  const profile = await db.query.profiles.findFirst({
+    where: eq(profiles.id, session.user.id),
+  })
 
-  const currentPlan = profile?.plan || "free"
-  const hasSubscription = profile?.stripe_customer_id && currentPlan !== "free"
+  const currentPlan = (profile?.plan || "FREE").toUpperCase()
+
+  const plans = [
+    {
+      name: "BASE_ALLOCATION",
+      price: "$0",
+      description: "STABLE_STARK_0",
+      features: [
+        "1_BIO_SEGMENT",
+        "50_RELAY_NODES",
+        "STATIC_TELEMETRY",
+        "STANDARD_LATENCY"
+      ],
+      current: currentPlan === "FREE"
+    },
+    {
+      name: "ELITE_PROTOCOL",
+      price: "$9",
+      description: "CORE_OVERLOAD_V2",
+      features: [
+        "UNLIMITED_SEGMENTS",
+        "500_RELAY_NODES",
+        "REALTIME_FLUX_DATA",
+        "CUSTOM_VECTORS",
+        "PRIORITY_RE-SYNC"
+      ],
+      popular: true,
+      current: currentPlan === "PRO"
+    },
+    {
+      name: "NETWORK_DOMINANCE",
+      price: "$29",
+      description: "GLOBAL_ARRAY_SYNC",
+      features: [
+        "UNLIMITED_EVERYTHING",
+        "RAW_API_ACCESS",
+        "CUSTOM_INFRA_NODES",
+        "WHITE_LABEL_ENCRYPTION",
+        "DEDICATED_BUFFER"
+      ],
+      current: currentPlan === "ENTERPRISE"
+    }
+  ]
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Billing</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage your subscription and billing
-        </p>
-      </div>
-
-      {/* Current Plan Card */}
-      <div className="rounded-lg border border-border bg-card">
-        <div className="border-b border-border px-5 py-4">
-          <h2 className="text-sm font-medium">Current Plan</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            You are currently on the {currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} plan
-          </p>
-        </div>
-        <div className="flex items-center justify-between p-5">
+    <div className="space-y-16 pb-24">
+      {/* Header Section */}
+      <div className="border-b border-white/10 pb-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div>
-            <p className="text-xl font-semibold capitalize">{currentPlan}</p>
-            {hasSubscription && (
-              <p className="text-xs text-muted-foreground">
-                Your subscription renews automatically
-              </p>
-            )}
+            <div className="tech-label mb-4">
+              <CreditCard className="h-3 w-3" />
+              LOGISTICS_PROTOCOL_ACTIVE
+            </div>
+            <h1 className="text-8xl font-black tracking-tighter uppercase italic leading-[0.8] mb-4">
+              LOGISTICS
+            </h1>
+            <p className="text-[10px] font-mono text-white/40 uppercase tracking-[0.4em]">
+              SUBSCRIPTION_NODE: {currentPlan} // STATUS: SYNCHRONIZED
+            </p>
           </div>
-          {hasSubscription && (
-            <BillingPortalButton />
-          )}
         </div>
       </div>
 
-      {/* Pricing Plans */}
-      <div>
-        <h2 className="mb-4 text-sm font-medium">
-          {hasSubscription ? "Change Plan" : "Upgrade Your Plan"}
-        </h2>
-        <div className="grid gap-4 md:grid-cols-3">
-          {plans.map((plan) => {
-            const isCurrentPlan = currentPlan === plan.name.toLowerCase()
-            
-            return (
-              <div 
-                key={plan.name} 
-                className={`relative rounded-lg border bg-card p-5 transition-colors ${
-                  plan.popular 
-                    ? 'border-foreground' 
-                    : 'border-border'
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-2.5 left-4 flex items-center gap-1 rounded-full bg-foreground px-2 py-0.5 text-[10px] font-medium text-background">
-                    <Sparkles className="size-3" />
-                    Popular
-                  </div>
-                )}
-                
-                <div className="mb-4">
-                  <h3 className="text-sm font-medium">{plan.name}</h3>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{plan.description}</p>
-                </div>
-                
-                <div className="mb-5">
-                  <span className="text-3xl font-semibold tracking-tight">{plan.price}</span>
-                  <span className="text-sm text-muted-foreground">{plan.period}</span>
-                </div>
-                
-                <ul className="mb-5 space-y-2">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2 text-xs">
-                      <Check className="size-3.5 text-muted-foreground" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                {isCurrentPlan ? (
-                  <Button variant="outline" size="sm" className="w-full" disabled>
-                    Current Plan
-                  </Button>
-                ) : plan.productId ? (
-                  <Button 
-                    size="sm"
-                    className="w-full" 
-                    variant={plan.popular ? "default" : "outline"}
-                    asChild
-                  >
-                    <Link href={`/dashboard/billing/checkout?plan=${plan.productId}`}>
-                      {currentPlan === "free" ? "Upgrade" : "Switch Plan"}
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button variant="outline" size="sm" className="w-full" disabled>
-                    Free Forever
-                  </Button>
-                )}
+      <div className="grid lg:grid-cols-3 gap-12">
+        {plans.map((plan) => (
+          <div 
+            key={plan.name} 
+            className={`relative p-12 border-4 transition-all group ${
+              plan.popular ? 'border-primary shadow-[20px_20px_0px_0px_rgba(255,255,255,0.05)]' : 'border-white/10'
+            }`}
+          >
+            {plan.popular && (
+              <div className="absolute -top-5 left-8 bg-white text-black px-4 py-1 text-[8px] font-black uppercase tracking-[0.3em] italic">
+                RECOMMENDED_PATH
               </div>
-            )
-          })}
-        </div>
+            )}
+            
+            <div className="mb-12">
+              <div className="text-6xl font-black italic tracking-tighter mb-2">{plan.price}</div>
+              <div className="text-[8px] font-mono uppercase tracking-[0.3em] text-white/40">{plan.description}</div>
+            </div>
+
+            <div className="space-y-2 mb-12">
+              <h3 className="text-xl font-black uppercase tracking-tight italic group-hover:text-accent transition-colors">{plan.name}</h3>
+              <div className="h-0.5 w-12 bg-white/20 group-hover:w-full transition-all duration-500" />
+            </div>
+
+            <ul className="space-y-6 mb-16">
+              {plan.features.map((feature) => (
+                <li key={feature} className="flex items-center gap-4 text-[10px] font-mono font-bold uppercase tracking-widest text-white/60">
+                  <Check className="size-3 text-accent" />
+                  {feature}
+                </li>
+              ))}
+            </ul>
+
+            <Button 
+              className={`w-full h-16 text-sm font-black uppercase italic tracking-widest transition-all rounded-none ${
+                plan.current 
+                  ? 'bg-transparent border border-white/20 text-white/40 cursor-default' 
+                  : 'btn-mono'
+              }`}
+            >
+              {plan.current ? "CURRENT_ALLOCATION" : "INITIALIZE_SWITCH"}
+            </Button>
+
+            {/* Corner Coordinate */}
+            <div className="absolute bottom-2 right-2 text-[8px] font-mono opacity-10 group-hover:opacity-100 transition-opacity">
+               [L0{plans.indexOf(plan) + 1}]
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* FAQ */}
-      <div className="rounded-lg border border-border bg-card">
-        <div className="border-b border-border px-5 py-4">
-          <h2 className="text-sm font-medium">FAQ</h2>
-        </div>
-        <div className="divide-y divide-border">
-          <div className="p-5">
-            <h4 className="text-sm font-medium">Can I cancel anytime?</h4>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Yes, you can cancel your subscription at any time. Your plan will remain active until the end of the billing period.
+      {/* Support / Enterprise Block */}
+      <div className="card-mono p-16 border-white/10 flex flex-col md:flex-row items-center justify-between gap-12 mt-12 overflow-hidden relative">
+         <div className="absolute -right-20 -bottom-20 opacity-5 pointer-events-none">
+            <Terminal className="size-64" />
+         </div>
+         <div className="max-w-2xl">
+            <h2 className="text-4xl font-black uppercase italic tracking-tighter mb-4">CUSTOM_INFRASTRUCTURE?</h2>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-white/40 leading-relaxed">
+              FOR_LARGE_ENTITY_COLLECTIVES_REQUIRING_DEDICATED_BUFFER_POOLS_AND_ISOLATED_RELAY_ARRAYS. 
+              WE_PROVIDE_TAILORED_LOGISTICS_FOR_GLOBAL_DOMINANCE.
             </p>
-          </div>
-          <div className="p-5">
-            <h4 className="text-sm font-medium">What happens when I upgrade?</h4>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Your new plan takes effect immediately. We&apos;ll prorate the remaining time from your current plan.
-            </p>
-          </div>
-          <div className="p-5">
-            <h4 className="text-sm font-medium">Do you offer refunds?</h4>
-            <p className="mt-1 text-xs text-muted-foreground">
-              We offer a 7-day money-back guarantee on all paid plans. Contact support for assistance.
-            </p>
-          </div>
-        </div>
+         </div>
+         <Button variant="outline" className="btn-ghost-mono h-16 px-12 text-sm group">
+            ESTABLISH_COMM_LINK
+            <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-2" />
+         </Button>
       </div>
     </div>
   )

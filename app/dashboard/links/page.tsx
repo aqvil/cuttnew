@@ -2,156 +2,141 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { shortLinks } from "@/lib/db/schema"
 import { eq, desc } from "drizzle-orm"
-import { LinkIcon, ExternalLink, BarChart2, MoreHorizontal, Lock } from "lucide-react"
+import { LinkIcon, ExternalLink, BarChart2, MoreHorizontal, Lock, Zap, Search } from "lucide-react"
 import Link from "next/link"
-import { formatDistanceToNow } from "date-fns"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { redirect } from "next/navigation"
 
 export const metadata = {
-  title: "Links",
+  title: "Relay Nodes",
 }
 
-export default async function ShortLinksPage() {
+export default async function LinksPage() {
   const session = await auth()
   
   if (!session?.user?.id) {
     redirect("/auth/login")
   }
 
-  const userId = session.user.id
-
-  const data = await db.query.shortLinks.findMany({
-    where: eq(shortLinks.userId, userId),
+  const links = await db.query.shortLinks.findMany({
+    where: eq(shortLinks.userId, session.user.id),
     orderBy: [desc(shortLinks.createdAt)],
   })
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ""
-
   return (
-    <div className="space-y-10">
-      <div className="border-b-2 border-primary pb-6">
-        <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none">Short Links</h1>
-        <p className="mt-2 text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
-          Entities: {data.length} // Region: Central
-        </p>
-      </div>
-
-      {data && data.length > 0 ? (
-        <div className="card-mono !p-0 overflow-hidden">
-          {/* Table Header */}
-          <div className="grid grid-cols-12 gap-4 border-b-2 border-primary bg-muted/20 px-6 py-4 text-[10px] font-black uppercase tracking-widest leading-none">
-            <div className="col-span-5">Entity_Identifier</div>
-            <div className="col-span-2">Access_Path</div>
-            <div className="col-span-2">Metrics</div>
-            <div className="col-span-2">Timestamp</div>
-            <div className="col-span-1"></div>
+    <div className="space-y-16 pb-24">
+      {/* Header Section */}
+      <div className="border-b border-white/10 pb-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <div>
+            <div className="tech-label mb-4">
+              <Zap className="h-3 w-3 text-accent" />
+              RELAY_PROTOCOL_STABLE
+            </div>
+            <h1 className="text-8xl font-black tracking-tighter uppercase italic leading-[0.8] mb-4">
+              RELAY_NODES
+            </h1>
+            <p className="text-[10px] font-mono text-white/40 uppercase tracking-[0.4em]">
+              INDEXING_TOTAL_CONNECTIONS: {links.length.toString().padStart(3, '0')} // ENCRYPTION: ACTIVE
+            </p>
           </div>
           
-          {/* Table Rows */}
-          <div className="divide-y-2 divide-border">
-            {data.map((link) => {
-              const isExpired = link.expiresAt && new Date(link.expiresAt) < new Date()
-              return (
-                <div 
-                  key={link.id} 
-                  className="grid grid-cols-12 items-center gap-4 px-6 py-5 transition-colors hover:bg-primary group"
-                >
-                  <div className="col-span-5 flex items-center gap-4">
-                    <div className="flex size-10 shrink-0 items-center justify-center border-2 border-primary bg-background group-hover:border-primary-foreground">
-                      <LinkIcon className="size-5 group-hover:text-primary" />
-                    </div>
-                    <div className="min-w-0">
-                      <Link 
-                        href={`/dashboard/links/${link.id}`}
-                        className="flex items-center gap-2 text-sm font-black uppercase tracking-tight group-hover:text-primary-foreground"
-                      >
-                        <span className="truncate">{link.title || link.shortCode}</span>
-                        {link.password && (
-                          <Lock className="size-3 opacity-50" />
-                        )}
-                        {isExpired && (
-                          <span className="border-2 border-destructive px-1.5 py-0.5 text-[8px] font-black uppercase tracking-widest text-destructive group-hover:border-primary-foreground group-hover:text-primary-foreground">
-                            EXPIRED
-                          </span>
-                        )}
-                      </Link>
-                      <p className="truncate font-mono text-[10px] uppercase opacity-50 group-hover:text-primary-foreground group-hover:opacity-100 max-w-[280px]">
-                        {link.originalUrl}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="col-span-2">
-                    <code className="border-2 border-border px-1.5 py-0.5 text-[10px] font-mono group-hover:border-primary-foreground group-hover:text-primary-foreground">
-                      /L/{link.shortCode}
-                    </code>
-                  </div>
-                  
-                  <div className="col-span-2 text-[10px] font-mono font-bold group-hover:text-primary-foreground tabular-nums">
-                    {link.clickCount}
-                  </div>
-                  
-                  <div className="col-span-2">
-                    <span className="font-mono text-[10px] uppercase group-hover:text-primary-foreground">
-                      {formatDistanceToNow(new Date(link.createdAt || Date.now()), { addSuffix: true })}
-                    </span>
-                  </div>
-                  
-                  <div className="col-span-1 flex justify-end">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8 border-2 border-transparent hover:border-primary rounded-none group-hover:border-primary-foreground group-hover:text-primary-foreground">
-                          <MoreHorizontal className="size-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="rounded-none border-2 border-primary">
-                        <DropdownMenuItem asChild className="focus:bg-primary focus:text-primary-foreground rounded-none px-4 py-2 font-black uppercase text-[10px]">
-                          <Link href={`/dashboard/links/${link.id}`}>
-                            Edit Link
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="focus:bg-primary focus:text-primary-foreground rounded-none px-4 py-2 font-black uppercase text-[10px]">
-                          <a href={`${baseUrl}/l/${link.shortCode}`} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="mr-2 size-4" />
-                            Open Link
-                          </a>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="focus:bg-primary focus:text-primary-foreground rounded-none px-4 py-2 font-black uppercase text-[10px]">
-                          <Link href={`/dashboard/analytics?link=${link.id}`}>
-                            <BarChart2 className="mr-2 size-4" />
-                            Analytics
-                          </Link>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              )
-            })}
+          <div className="flex items-center gap-4">
+            <div className="relative group">
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20 group-hover:text-white transition-colors" />
+              <Input 
+                 placeholder="SEARCH_NODES..." 
+                 className="bg-white/5 border-white/10 h-14 pl-12 text-[10px] font-mono uppercase tracking-widest w-full md:w-[300px] rounded-none focus:border-white transition-all"
+              />
+            </div>
+             <Button className="btn-mono h-14 px-8" asChild>
+              <Link href="/dashboard/links/new">DEPLOY_NEW</Link>
+            </Button>
           </div>
         </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center p-20 border-4 border-dashed border-border card-mono">
-          <LinkIcon className="size-12 opacity-20 mb-6" />
-          <h3 className="text-lg font-black uppercase italic">No entities detected</h3>
-          <p className="mt-2 text-center font-mono text-[10px] uppercase tracking-widest text-muted-foreground max-w-sm">
-            Sector remains empty. Initialize your first trackable segment.
-          </p>
-          <Link
-            href="/dashboard/links/new"
-            className="btn-mono mt-8"
-          >
-            New Short Link
-          </Link>
-        </div>
-      )}
+      </div>
+
+      {/* Links List */}
+      <div className="space-y-px bg-white/10 border border-white/10 overflow-hidden">
+        {links.length > 0 ? (
+          links.map((link) => (
+            <div 
+              key={link.id}
+              className="bg-black p-8 flex flex-col md:flex-row md:items-center justify-between gap-10 hover:bg-white/[0.02] transition-colors group relative"
+            >
+              {/* Index Number Aesthetic */}
+              <div className="absolute left-2 top-2 text-[8px] font-mono font-bold opacity-10 group-hover:opacity-100 transition-opacity">
+                [{links.indexOf(link).toString().padStart(3, '0')}]
+              </div>
+
+              <div className="flex items-center gap-8 flex-1">
+                <div className="h-16 w-16 bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-white/40 transition-colors">
+                  <LinkIcon className="size-6 text-white/20 group-hover:text-white transition-colors" />
+                </div>
+                <div className="min-w-0 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-2xl font-black uppercase italic tracking-tight truncate group-hover:text-accent transition-colors">
+                      {link.title || link.shortCode}
+                    </h3>
+                    {link.password && <Lock className="size-3 text-white/20" />}
+                  </div>
+                  <div className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-widest text-white/40">
+                    <span className="flex items-center gap-1.5 transition-colors group-hover:text-white">
+                      NODE: {link.shortCode}
+                    </span>
+                    <span className="opacity-20">//</span>
+                    <span className="truncate max-w-[240px]">DEST: {link.originalUrl}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-12">
+                <div className="hidden lg:block text-right">
+                  <div className="flex items-center justify-end gap-3 text-white/40 mb-1">
+                    <BarChart2 className="size-3" />
+                    <span className="text-[8px] font-mono font-black uppercase tracking-widest">TRAFFIC_LEVEL</span>
+                  </div>
+                  <div className="text-2xl font-black italic tracking-tighter tabular-nums">
+                    {link.clickCount.toLocaleString().padStart(5, '0')}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-12 w-12 border-white/10 bg-transparent hover:bg-white hover:text-black transition-all rounded-none"
+                    asChild
+                  >
+                    <Link href={`/dashboard/links/${link.id}`}>
+                      <MoreHorizontal className="size-5" />
+                    </Link>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-12 w-12 border-white/10 bg-transparent hover:bg-accent hover:border-accent transition-all rounded-none"
+                    asChild
+                  >
+                    <a href={`${process.env.NEXT_PUBLIC_APP_URL}/l/${link.shortCode}`} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="size-5" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="bg-black py-48 flex flex-col items-center justify-center text-center">
+             <div className="tech-label mb-8">EMPTY_STREAM</div>
+             <p className="text-2xl font-black uppercase italic tracking-tighter mb-12 opacity-40">NO_ACTIVE_RELAY_NODES_FOUND</p>
+             <Button className="btn-mono h-16 px-12" asChild>
+                <Link href="/dashboard/links/new">DEPLOY_INITIAL_NODE</Link>
+             </Button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -1,9 +1,12 @@
-import { createClient } from "@/lib/supabase/server"
-import { notFound } from "next/navigation"
+import { auth } from "@/auth"
+import { db } from "@/lib/db"
+import { bioPages, bioBlocks } from "@/lib/db/schema"
+import { eq, and, asc } from "drizzle-orm"
+import { notFound, redirect } from "next/navigation"
 import { BioPageEditor } from "@/components/bio/bio-page-editor"
 
 export const metadata = {
-  title: "Edit Bio Page",
+  title: "Edit Bio Segment",
 }
 
 export default async function EditBioPage({
@@ -12,25 +15,24 @@ export default async function EditBioPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    redirect("/auth/login")
+  }
 
-  const { data: page, error } = await supabase
-    .from("bio_pages")
-    .select("*")
-    .eq("id", id)
-    .eq("user_id", user?.id)
-    .single()
+  const page = await db.query.bioPages.findFirst({
+    where: and(eq(bioPages.id, id), eq(bioPages.userId, session.user.id)),
+  })
 
-  if (error || !page) {
+  if (!page) {
     notFound()
   }
 
-  const { data: blocks } = await supabase
-    .from("bio_blocks")
-    .select("*")
-    .eq("page_id", id)
-    .order("position", { ascending: true })
+  const blocks = await db.query.bioBlocks.findMany({
+    where: eq(bioBlocks.pageId, id),
+    orderBy: [asc(bioBlocks.position)],
+  })
 
   return <BioPageEditor page={page} initialBlocks={blocks || []} />
 }
