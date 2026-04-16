@@ -1,4 +1,7 @@
-import { createClient } from "@/lib/supabase/server"
+import { auth } from "@/auth"
+import { db } from "@/lib/db"
+import { bioPages } from "@/lib/db/schema"
+import { eq, desc } from "drizzle-orm"
 import { FileText, ExternalLink, Eye, Pencil, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
@@ -9,107 +12,114 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import { redirect } from "next/navigation"
 
 export const metadata = {
   title: "Bio Pages",
 }
 
 export default async function BioPagesPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    redirect("/auth/login")
+  }
 
-  const { data: bioPages } = await supabase
-    .from("bio_pages")
-    .select("*")
-    .eq("user_id", user?.id)
-    .order("created_at", { ascending: false })
+  const userId = session.user.id
+
+  const data = await db.query.bioPages.findMany({
+    where: eq(bioPages.userId, userId),
+    orderBy: [desc(bioPages.createdAt)],
+  })
 
   return (
-    <div className="space-y-6">
-      {/* Header - handled by DashboardHeader now */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Bio Pages</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Create and manage your link-in-bio pages
+    <div className="space-y-10">
+      <div className="border-b-2 border-primary pb-6">
+        <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none">Bio Pages</h1>
+        <p className="mt-2 text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
+          Entities: {data.length} // Region: Central
         </p>
       </div>
 
-      {bioPages && bioPages.length > 0 ? (
-        <div className="rounded-lg border border-border bg-card">
+      {data && data.length > 0 ? (
+        <div className="card-mono !p-0 overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-12 gap-4 border-b border-border px-5 py-3 text-xs font-medium text-muted-foreground">
-            <div className="col-span-5">Page</div>
+          <div className="grid grid-cols-12 gap-4 border-b-2 border-primary bg-muted/20 px-6 py-4 text-[10px] font-black uppercase tracking-widest leading-none">
+            <div className="col-span-5">Entity_Identifier</div>
             <div className="col-span-2">Status</div>
-            <div className="col-span-2">Views</div>
-            <div className="col-span-2">Created</div>
+            <div className="col-span-2">Metrics</div>
+            <div className="col-span-2">Timestamp</div>
             <div className="col-span-1"></div>
           </div>
           
           {/* Table Rows */}
-          <div className="divide-y divide-border">
-            {bioPages.map((page) => (
+          <div className="divide-y-2 divide-border">
+            {data.map((page) => (
               <div 
                 key={page.id} 
-                className="grid grid-cols-12 items-center gap-4 px-5 py-3 transition-colors hover:bg-accent/50"
+                className="grid grid-cols-12 items-center gap-4 px-6 py-5 transition-colors hover:bg-primary group"
               >
-                <div className="col-span-5 flex items-center gap-3">
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
-                    <FileText className="size-4 text-muted-foreground" />
+                <div className="col-span-5 flex items-center gap-4">
+                  <div className="flex size-10 shrink-0 items-center justify-center border-2 border-primary bg-background group-hover:border-primary-foreground">
+                    <FileText className="size-5 group-hover:text-primary" />
                   </div>
                   <div className="min-w-0">
                     <Link 
                       href={`/dashboard/bio/${page.id}`}
-                      className="block truncate text-sm font-medium hover:underline"
+                      className="block truncate text-sm font-black uppercase tracking-tight group-hover:text-primary-foreground"
                     >
                       {page.title || "Untitled"}
                     </Link>
-                    <p className="truncate text-xs text-muted-foreground">/{page.slug}</p>
+                    <p className="truncate font-mono text-[10px] uppercase opacity-50 group-hover:text-primary-foreground group-hover:opacity-100">/p/{page.slug}</p>
                   </div>
                 </div>
                 
                 <div className="col-span-2">
-                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
-                    page.is_published 
-                      ? "bg-foreground/10 text-foreground" 
-                      : "bg-muted text-muted-foreground"
+                  <span className={`border-2 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest ${
+                    page.isPublished 
+                      ? "border-primary bg-primary text-primary-foreground italic" 
+                      : "border-border text-muted-foreground"
                   }`}>
-                    {page.is_published ? "Live" : "Draft"}
+                    {page.isPublished ? "Live" : "Draft"}
                   </span>
                 </div>
                 
                 <div className="col-span-2">
-                  <span className="text-sm tabular-nums text-muted-foreground">0</span>
+                  <div className="flex items-center gap-1.5 font-mono text-[10px] font-bold group-hover:text-primary-foreground">
+                    <span className="tabular-nums">0</span>
+                    <Eye className="size-3" />
+                  </div>
                 </div>
                 
                 <div className="col-span-2">
-                  <span className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(page.created_at), { addSuffix: true })}
+                  <span className="font-mono text-[10px] uppercase group-hover:text-primary-foreground">
+                    {formatDistanceToNow(new Date(page.createdAt || Date.now()), { addSuffix: true })}
                   </span>
                 </div>
                 
                 <div className="col-span-1 flex justify-end">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="size-8">
+                      <Button variant="ghost" size="icon" className="size-8 border-2 border-transparent hover:border-primary rounded-none group-hover:border-primary-foreground group-hover:text-primary-foreground">
                         <MoreHorizontal className="size-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
+                    <DropdownMenuContent align="end" className="rounded-none border-2 border-primary">
+                      <DropdownMenuItem asChild className="focus:bg-primary focus:text-primary-foreground rounded-none px-4 py-2 font-black uppercase text-[10px]">
                         <Link href={`/dashboard/bio/${page.id}`}>
                           <Pencil className="mr-2 size-4" />
                           Edit
                         </Link>
                       </DropdownMenuItem>
-                      {page.is_published && (
+                      {page.isPublished && (
                         <>
-                          <DropdownMenuItem asChild>
+                          <DropdownMenuItem asChild className="focus:bg-primary focus:text-primary-foreground rounded-none px-4 py-2 font-black uppercase text-[10px]">
                             <Link href={`/p/${page.slug}`} target="_blank">
                               <ExternalLink className="mr-2 size-4" />
                               View Live
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
+                          <DropdownMenuItem asChild className="focus:bg-primary focus:text-primary-foreground rounded-none px-4 py-2 font-black uppercase text-[10px]">
                             <Link href={`/dashboard/analytics?page=${page.id}`}>
                               <Eye className="mr-2 size-4" />
                               Analytics
@@ -125,19 +135,17 @@ export default async function BioPagesPage() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16">
-          <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-            <FileText className="size-6 text-muted-foreground" />
-          </div>
-          <h3 className="mt-4 text-sm font-medium">No bio pages yet</h3>
-          <p className="mt-1 text-center text-xs text-muted-foreground max-w-sm">
-            Create your first bio page to share all your important links in one place.
+        <div className="flex flex-col items-center justify-center p-20 border-4 border-dashed border-border card-mono">
+          <FileText className="size-12 opacity-20 mb-6" />
+          <h3 className="text-lg font-black uppercase italic">No entities detected</h3>
+          <p className="mt-2 text-center font-mono text-[10px] uppercase tracking-widest text-muted-foreground max-w-sm">
+            Sector remains empty. Initialize your first bio segment.
           </p>
           <Link
             href="/dashboard/bio/new"
-            className="mt-4 rounded-md bg-foreground px-3 py-1.5 text-xs font-medium text-background transition-opacity hover:opacity-90"
+            className="btn-mono mt-8"
           >
-            Create Page
+            New Bio Page
           </Link>
         </div>
       )}

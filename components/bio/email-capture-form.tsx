@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { BioPageTheme } from "@/lib/types/database"
+import { subscribeToEmail } from "@/app/actions/bio"
 import { Loader2, Check } from "lucide-react"
 
 interface EmailCaptureFormProps {
@@ -10,8 +9,7 @@ interface EmailCaptureFormProps {
   title?: string
   placeholder?: string
   buttonText?: string
-  theme: BioPageTheme
-  buttonStyle: React.CSSProperties
+  theme: any
 }
 
 export function EmailCaptureForm({
@@ -20,7 +18,6 @@ export function EmailCaptureForm({
   placeholder,
   buttonText,
   theme,
-  buttonStyle,
 }: EmailCaptureFormProps) {
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -32,84 +29,70 @@ export function EmailCaptureForm({
     setIsLoading(true)
     setError(null)
 
-    const supabase = createClient()
-
-    const { error: insertError } = await supabase
-      .from("email_subscribers")
-      .insert({
-        page_id: pageId,
-        email,
-      })
-
-    if (insertError) {
+    try {
+      await subscribeToEmail(pageId, email)
+      setIsSuccess(true)
+    } catch (err) {
       setError("Failed to subscribe. Please try again.")
+    } finally {
       setIsLoading(false)
-      return
     }
-
-    setIsSuccess(true)
-    setIsLoading(false)
   }
 
   if (isSuccess) {
     return (
       <div 
-        className="rounded-xl p-6 text-center"
-        style={{ backgroundColor: `${theme.accent}15` }}
+        className="border-4 border-primary p-8 text-center bg-background"
       >
         <div 
-          className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full"
-          style={{ backgroundColor: theme.accent }}
+          className="mx-auto mb-4 flex h-14 w-14 items-center justify-center border-4 border-primary bg-primary text-primary-foreground"
         >
-          <Check className="h-6 w-6" style={{ color: buttonStyle.color }} />
+          <Check className="h-8 w-8" />
         </div>
-        <p 
-          className="font-medium"
-          style={{ color: theme.text }}
-        >
-          Thanks for subscribing!
+        <p className="font-black uppercase italic tracking-tighter">
+          TRANSFER_SUCCESSFUL
+        </p>
+        <p className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-60 mt-2">
+          Subscriber data cached.
         </p>
       </div>
     )
   }
 
   return (
-    <div 
-      className="rounded-xl p-5"
-      style={{ backgroundColor: `${theme.accent}15` }}
-    >
-      <p 
-        className="font-medium text-center mb-4"
-        style={{ color: theme.text }}
+    <div className="group relative">
+      <div className="absolute inset-0 bg-primary translate-x-1.5 translate-y-1.5" />
+      <div 
+        className="relative z-10 border-4 border-primary p-6 bg-background"
       >
-        {title || "Subscribe"}
-      </p>
-      <form onSubmit={handleSubmit} className="flex gap-2">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder={placeholder || "Enter your email"}
-          required
-          className="flex-1 rounded-lg px-4 py-2.5 text-sm border-0"
-          style={{ backgroundColor: theme.background, color: theme.text }}
-        />
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="rounded-lg px-5 py-2.5 text-sm font-medium disabled:opacity-50"
-          style={buttonStyle}
-        >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            buttonText || "Subscribe"
-          )}
-        </button>
-      </form>
-      {error && (
-        <p className="text-sm text-red-500 mt-2 text-center">{error}</p>
-      )}
+        <p className="font-black uppercase italic tracking-tighter mb-6 text-xl">
+          {title || "Subscribe"}
+        </p>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={placeholder || "EMAIL BUFFER"}
+            required
+            className="w-full border-4 border-primary px-4 py-3 text-sm font-black uppercase tracking-widest bg-background outline-none focus:bg-muted/30"
+          />
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full border-4 border-primary bg-primary text-primary-foreground py-3 font-black uppercase italic tracking-widest transition-transform active:translate-y-1 disabled:opacity-50"
+          >
+            {isLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin mx-auto" />
+            ) : (
+              buttonText || "Initialize"
+            )}
+          </button>
+        </form>
+        {error && (
+          <p className="text-[10px] font-mono uppercase text-red-500 mt-4 text-center">{error}</p>
+        )}
+      </div>
     </div>
   )
 }

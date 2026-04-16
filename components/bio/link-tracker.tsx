@@ -1,6 +1,6 @@
 'use client'
 
-import { createClient } from "@/lib/supabase/client"
+import { recordBioClick } from "@/app/actions/bio"
 
 interface LinkTrackerProps {
   blockId: string
@@ -10,19 +10,21 @@ interface LinkTrackerProps {
 
 export function LinkTracker({ blockId, url, children }: LinkTrackerProps) {
   const handleClick = async () => {
-    const supabase = createClient()
-    
     // Record click (fire and forget)
-    supabase.from("link_analytics").insert({
-      bio_block_id: blockId,
-    })
+    recordBioClick(blockId).catch(err => console.error("Click record error:", err))
 
     // Navigate to URL
     window.open(url, "_blank", "noopener,noreferrer")
   }
 
   return (
-    <div onClick={handleClick} role="link" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && handleClick()}>
+    <div 
+      onClick={handleClick} 
+      role="link" 
+      tabIndex={0} 
+      onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+      className="cursor-pointer"
+    >
       {children}
     </div>
   )

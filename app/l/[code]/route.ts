@@ -1,4 +1,6 @@
-import { createClient } from "@/lib/supabase/server"
+import { db } from "@/lib/db"
+import { shortLinks, linkAnalytics } from "@/lib/db/schema"
+import { eq, sql } from "drizzle-orm"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(
@@ -6,36 +8,33 @@ export async function GET(
   { params }: { params: Promise<{ code: string }> }
 ) {
   const { code } = await params
-  const supabase = await createClient()
 
-  const { data: link, error } = await supabase
-    .from("short_links")
-    .select("*")
-    .eq("short_code", code)
-    .single()
+  const link = await db.query.shortLinks.findFirst({
+    where: eq(shortLinks.shortCode, code),
+  })
 
-  if (error || !link) {
+  if (!link) {
     return NextResponse.redirect(new URL("/404", request.url))
   }
 
   // Check if link is active
-  if (!link.is_active) {
+  if (!link.isActive) {
     return NextResponse.redirect(new URL("/link-inactive", request.url))
   }
 
   // Check if link has expired
-  if (link.expires_at && new Date(link.expires_at) < new Date()) {
+  if (link.expiresAt && new Date(link.expiresAt) < new Date()) {
     return NextResponse.redirect(new URL("/link-expired", request.url))
   }
 
-  // Check if password protected
-  if (link.is_password_protected) {
+  // Check if password protected (logic might need adjusting if columns changed)
+  // In our schema.ts, we have password column
+  if (link.password) {
     // Redirect to password page
     return NextResponse.redirect(new URL(`/l/${code}/unlock`, request.url))
   }
 
   // Record click analytics
-  const geo = request.geo
   const userAgent = request.headers.get("user-agent") || ""
   
   // Simple device detection
@@ -50,20 +49,22 @@ export async function GET(
   else if (/safari/i.test(userAgent)) browser = "safari"
   else if (/edge/i.test(userAgent)) browser = "edge"
 
-  // Record analytics (fire and forget)
-  supabase.from("link_analytics").insert({
-    short_link_id: link.id,
-    country: geo?.country || null,
-    city: geo?.city || null,
+  // Record analytics (fire and forget - but in Drizzle/Node we should await if we want to be safe, 
+  // or use a separate worker, but for now we'll just await for simplicity or use the next server's waitUntil if available)
+  
+  await db.insert(linkAnalytics).values({
+    linkId: link.id,
     device,
     browser,
-    referer: request.headers.get("referer") || null,
-  })
+    referrer: request.headers.get("referer"),
+    // country/city would need a provider like Vercel geo or similar
+  }).catch(err => console.error("Analytics error:", err))
 
   // Increment click count
-  supabase.from("short_links").update({ 
-    click_count: link.click_count + 1 
-  }).eq("id", link.id)
+  await db.update(shortLinks)
+    .set({ clickCount: (link.clickCount || 0) + 1 })
+    .where(eq(shortLinks.id, link.id))
+    .catch(err => console.error("Update click count error:", err))
 
-  return NextResponse.redirect(link.original_url)
+  return NextResponse.redirect(link.originalUrl)
 }
