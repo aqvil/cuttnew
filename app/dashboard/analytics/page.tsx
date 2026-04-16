@@ -13,39 +13,69 @@ export default async function AnalyticsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Get total page views
-  const { count: totalPageViews } = await supabase
-    .from("page_views")
-    .select("id", { count: "exact" })
-    .in("page_id", 
-      supabase.from("bio_pages").select("id").eq("user_id", user?.id)
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">Please sign in to view analytics</p>
+      </div>
     )
+  }
+
+  // Get user's bio page IDs first
+  const { data: userBioPages } = await supabase
+    .from("bio_pages")
+    .select("id")
+    .eq("user_id", user.id)
+  
+  const bioPageIds = userBioPages?.map(p => p.id) || []
+
+  // Get user's short link IDs
+  const { data: userShortLinks } = await supabase
+    .from("short_links")
+    .select("id")
+    .eq("user_id", user.id)
+  
+  const shortLinkIds = userShortLinks?.map(l => l.id) || []
+
+  // Get total page views
+  let totalPageViews = 0
+  if (bioPageIds.length > 0) {
+    const { count } = await supabase
+      .from("page_views")
+      .select("id", { count: "exact" })
+      .in("page_id", bioPageIds)
+    totalPageViews = count || 0
+  }
 
   // Get total link clicks  
-  const { count: totalLinkClicks } = await supabase
-    .from("link_analytics")
-    .select("id", { count: "exact" })
-    .in("short_link_id",
-      supabase.from("short_links").select("id").eq("user_id", user?.id)
-    )
+  let totalLinkClicks = 0
+  if (shortLinkIds.length > 0) {
+    const { count } = await supabase
+      .from("link_analytics")
+      .select("id", { count: "exact" })
+      .in("link_id", shortLinkIds)
+    totalLinkClicks = count || 0
+  }
 
   // Get clicks over the last 30 days
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  const { data: recentClicks } = await supabase
-    .from("link_analytics")
-    .select("created_at")
-    .in("short_link_id",
-      supabase.from("short_links").select("id").eq("user_id", user?.id)
-    )
-    .gte("created_at", thirtyDaysAgo.toISOString())
-    .order("created_at", { ascending: true })
+  let recentClicks: Array<{ clicked_at: string }> = []
+  if (shortLinkIds.length > 0) {
+    const { data } = await supabase
+      .from("link_analytics")
+      .select("clicked_at")
+      .in("link_id", shortLinkIds)
+      .gte("clicked_at", thirtyDaysAgo.toISOString())
+      .order("clicked_at", { ascending: true })
+    recentClicks = data || []
+  }
 
   // Group clicks by date
   const clicksByDate: Record<string, number> = {}
-  recentClicks?.forEach(click => {
-    const date = new Date(click.created_at).toISOString().split('T')[0]
+  recentClicks.forEach(click => {
+    const date = new Date(click.clicked_at).toISOString().split('T')[0]
     clicksByDate[date] = (clicksByDate[date] || 0) + 1
   })
 
@@ -62,20 +92,22 @@ export default async function AnalyticsPage() {
   }
 
   // Get device breakdown
-  const { data: deviceStats } = await supabase
-    .from("link_analytics")
-    .select("device")
-    .in("short_link_id",
-      supabase.from("short_links").select("id").eq("user_id", user?.id)
-    )
-    .not("device", "is", null)
+  let deviceStats: Array<{ device: string | null }> = []
+  if (shortLinkIds.length > 0) {
+    const { data } = await supabase
+      .from("link_analytics")
+      .select("device")
+      .in("link_id", shortLinkIds)
+      .not("device", "is", null)
+    deviceStats = data || []
+  }
 
   const deviceCounts = {
     desktop: 0,
     mobile: 0,
     tablet: 0,
   }
-  deviceStats?.forEach(stat => {
+  deviceStats.forEach(stat => {
     if (stat.device && stat.device in deviceCounts) {
       deviceCounts[stat.device as keyof typeof deviceCounts]++
     }
@@ -83,17 +115,19 @@ export default async function AnalyticsPage() {
   const totalDevices = Object.values(deviceCounts).reduce((a, b) => a + b, 0)
 
   // Get country breakdown
-  const { data: countryStats } = await supabase
-    .from("link_analytics")
-    .select("country")
-    .in("short_link_id",
-      supabase.from("short_links").select("id").eq("user_id", user?.id)
-    )
-    .not("country", "is", null)
-    .limit(1000)
+  let countryStats: Array<{ country: string | null }> = []
+  if (shortLinkIds.length > 0) {
+    const { data } = await supabase
+      .from("link_analytics")
+      .select("country")
+      .in("link_id", shortLinkIds)
+      .not("country", "is", null)
+      .limit(1000)
+    countryStats = data || []
+  }
 
   const countryCounts: Record<string, number> = {}
-  countryStats?.forEach(stat => {
+  countryStats.forEach(stat => {
     if (stat.country) {
       countryCounts[stat.country] = (countryCounts[stat.country] || 0) + 1
     }
@@ -107,20 +141,20 @@ export default async function AnalyticsPage() {
   const { data: topLinks } = await supabase
     .from("short_links")
     .select("id, title, short_code, click_count, original_url")
-    .eq("user_id", user?.id)
+    .eq("user_id", user.id)
     .order("click_count", { ascending: false })
     .limit(10)
 
   const stats = [
     {
       title: "Total Page Views",
-      value: totalPageViews || 0,
+      value: totalPageViews,
       icon: Eye,
       description: "Bio page views",
     },
     {
       title: "Total Link Clicks",
-      value: totalLinkClicks || 0,
+      value: totalLinkClicks,
       icon: MousePointer,
       description: "Short link clicks",
     },
