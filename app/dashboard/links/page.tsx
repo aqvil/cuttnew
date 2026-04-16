@@ -1,12 +1,17 @@
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { LinkIcon, Plus, ExternalLink, Copy, BarChart3, Pencil } from "lucide-react"
+import { LinkIcon, ExternalLink, BarChart2, Copy, MoreHorizontal, Lock, Clock } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
 
 export const metadata = {
-  title: "Short Links",
+  title: "Links",
 }
 
 export default async function ShortLinksPage() {
@@ -19,105 +24,127 @@ export default async function ShortLinksPage() {
     .eq("user_id", user?.id)
     .order("created_at", { ascending: false })
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://linkforge.app"
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ""
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Short Links</h1>
-          <p className="text-muted-foreground">
-            Create and manage your shortened URLs
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/dashboard/links/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Create Link
-          </Link>
-        </Button>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Links</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Shorten URLs and track clicks
+        </p>
       </div>
 
       {links && links.length > 0 ? (
-        <div className="space-y-4">
-          {links.map((link) => (
-            <Card key={link.id}>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 min-w-0 flex-1">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <LinkIcon className="h-5 w-5" />
+        <div className="rounded-lg border border-border bg-card">
+          {/* Table Header */}
+          <div className="grid grid-cols-12 gap-4 border-b border-border px-5 py-3 text-xs font-medium text-muted-foreground">
+            <div className="col-span-5">Link</div>
+            <div className="col-span-2">Short URL</div>
+            <div className="col-span-2">Clicks</div>
+            <div className="col-span-2">Created</div>
+            <div className="col-span-1"></div>
+          </div>
+          
+          {/* Table Rows */}
+          <div className="divide-y divide-border">
+            {links.map((link) => {
+              const isExpired = link.expires_at && new Date(link.expires_at) < new Date()
+              return (
+                <div 
+                  key={link.id} 
+                  className="grid grid-cols-12 items-center gap-4 px-5 py-3 transition-colors hover:bg-accent/50"
+                >
+                  <div className="col-span-5 flex items-center gap-3">
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
+                      <LinkIcon className="size-4 text-muted-foreground" />
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium truncate">
-                          {link.title || link.short_code}
-                        </h3>
-                        {link.is_password_protected && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-600">
-                            Protected
-                          </span>
+                    <div className="min-w-0">
+                      <Link 
+                        href={`/dashboard/links/${link.id}`}
+                        className="flex items-center gap-2 text-sm font-medium hover:underline"
+                      >
+                        <span className="truncate">{link.title || link.short_code}</span>
+                        {link.password && (
+                          <Lock className="size-3 text-muted-foreground" />
                         )}
-                        {link.expires_at && new Date(link.expires_at) < new Date() && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/10 text-red-600">
+                        {isExpired && (
+                          <span className="rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
                             Expired
                           </span>
                         )}
-                      </div>
-                      <div className="flex items-center gap-4 mt-1">
-                        <p className="text-sm text-muted-foreground font-mono">
-                          {baseUrl}/l/{link.short_code}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {link.click_count} clicks
-                        </p>
-                      </div>
-                      <p className="text-xs text-muted-foreground truncate mt-1">
+                      </Link>
+                      <p className="truncate text-xs text-muted-foreground max-w-[280px]">
                         {link.original_url}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Created {formatDistanceToNow(new Date(link.created_at))} ago
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Button size="sm" variant="outline" asChild>
-                      <Link href={`/dashboard/links/${link.id}`}>
-                        <Pencil className="h-3 w-3" />
-                      </Link>
-                    </Button>
-                    <Button size="sm" variant="outline" asChild>
-                      <Link href={`/dashboard/analytics?link=${link.id}`}>
-                        <BarChart3 className="h-3 w-3" />
-                      </Link>
-                    </Button>
-                    <Button size="sm" variant="outline" asChild>
-                      <a href={`/l/${link.short_code}`} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </Button>
+                  
+                  <div className="col-span-2">
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
+                      /l/{link.short_code}
+                    </code>
+                  </div>
+                  
+                  <div className="col-span-2">
+                    <span className="text-sm tabular-nums">{link.click_count}</span>
+                  </div>
+                  
+                  <div className="col-span-2">
+                    <span className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(link.created_at), { addSuffix: true })}
+                    </span>
+                  </div>
+                  
+                  <div className="col-span-1 flex justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="size-8">
+                          <MoreHorizontal className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link href={`/dashboard/links/${link.id}`}>
+                            Edit Link
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <a href={`${baseUrl}/l/${link.short_code}`} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="mr-2 size-4" />
+                            Open Link
+                          </a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/dashboard/analytics?link=${link.id}`}>
+                            <BarChart2 className="mr-2 size-4" />
+                            Analytics
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              )
+            })}
+          </div>
         </div>
       ) : (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <LinkIcon className="h-16 w-16 text-muted-foreground/50 mb-4" />
-            <h3 className="text-lg font-medium mb-2">No short links yet</h3>
-            <p className="text-sm text-muted-foreground text-center mb-6 max-w-sm">
-              Create your first shortened URL with custom slug, password protection, and analytics.
-            </p>
-            <Button asChild>
-              <Link href="/dashboard/links/new">
-                <Plus className="mr-2 h-4 w-4" />
-                Create your first link
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16">
+          <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+            <LinkIcon className="size-6 text-muted-foreground" />
+          </div>
+          <h3 className="mt-4 text-sm font-medium">No links yet</h3>
+          <p className="mt-1 text-center text-xs text-muted-foreground max-w-sm">
+            Create your first shortened URL with custom slug and analytics.
+          </p>
+          <Link
+            href="/dashboard/links/new"
+            className="mt-4 rounded-md bg-foreground px-3 py-1.5 text-xs font-medium text-background transition-opacity hover:opacity-90"
+          >
+            Create Link
+          </Link>
+        </div>
       )}
     </div>
   )

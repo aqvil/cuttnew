@@ -1,8 +1,14 @@
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { FileText, Plus, ExternalLink, Eye, Pencil } from "lucide-react"
+import { FileText, ExternalLink, Eye, Pencil, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
+import { formatDistanceToNow } from "date-fns"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
 
 export const metadata = {
   title: "Bio Pages",
@@ -19,88 +25,121 @@ export default async function BioPagesPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bio Pages</h1>
-          <p className="text-muted-foreground">
-            Create and manage your link-in-bio pages
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/dashboard/bio/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Create Page
-          </Link>
-        </Button>
+    <div className="space-y-6">
+      {/* Header - handled by DashboardHeader now */}
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Bio Pages</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Create and manage your link-in-bio pages
+        </p>
       </div>
 
       {bioPages && bioPages.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {bioPages.map((page) => (
-            <Card key={page.id} className="group relative">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                      <FileText className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-base">{page.title || "Untitled"}</CardTitle>
-                      <CardDescription className="text-xs">/{page.slug}</CardDescription>
-                    </div>
+        <div className="rounded-lg border border-border bg-card">
+          {/* Table Header */}
+          <div className="grid grid-cols-12 gap-4 border-b border-border px-5 py-3 text-xs font-medium text-muted-foreground">
+            <div className="col-span-5">Page</div>
+            <div className="col-span-2">Status</div>
+            <div className="col-span-2">Views</div>
+            <div className="col-span-2">Created</div>
+            <div className="col-span-1"></div>
+          </div>
+          
+          {/* Table Rows */}
+          <div className="divide-y divide-border">
+            {bioPages.map((page) => (
+              <div 
+                key={page.id} 
+                className="grid grid-cols-12 items-center gap-4 px-5 py-3 transition-colors hover:bg-accent/50"
+              >
+                <div className="col-span-5 flex items-center gap-3">
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
+                    <FileText className="size-4 text-muted-foreground" />
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded-full ${page.is_published ? "bg-green-500/10 text-green-600" : "bg-muted text-muted-foreground"}`}>
-                    {page.is_published ? "Published" : "Draft"}
+                  <div className="min-w-0">
+                    <Link 
+                      href={`/dashboard/bio/${page.id}`}
+                      className="block truncate text-sm font-medium hover:underline"
+                    >
+                      {page.title || "Untitled"}
+                    </Link>
+                    <p className="truncate text-xs text-muted-foreground">/{page.slug}</p>
+                  </div>
+                </div>
+                
+                <div className="col-span-2">
+                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
+                    page.is_published 
+                      ? "bg-foreground/10 text-foreground" 
+                      : "bg-muted text-muted-foreground"
+                  }`}>
+                    {page.is_published ? "Live" : "Draft"}
                   </span>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                  {page.description || "No description"}
-                </p>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline" asChild className="flex-1">
-                    <Link href={`/dashboard/bio/${page.id}`}>
-                      <Pencil className="mr-2 h-3 w-3" />
-                      Edit
-                    </Link>
-                  </Button>
-                  {page.is_published && (
-                    <>
-                      <Button size="sm" variant="outline" asChild>
-                        <Link href={`/p/${page.slug}`} target="_blank">
-                          <ExternalLink className="h-3 w-3" />
-                        </Link>
-                      </Button>
-                      <Button size="sm" variant="outline" asChild>
-                        <Link href={`/dashboard/analytics?page=${page.id}`}>
-                          <Eye className="h-3 w-3" />
-                        </Link>
-                      </Button>
-                    </>
-                  )}
+                
+                <div className="col-span-2">
+                  <span className="text-sm tabular-nums text-muted-foreground">0</span>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                
+                <div className="col-span-2">
+                  <span className="text-xs text-muted-foreground">
+                    {formatDistanceToNow(new Date(page.created_at), { addSuffix: true })}
+                  </span>
+                </div>
+                
+                <div className="col-span-1 flex justify-end">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="size-8">
+                        <MoreHorizontal className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/bio/${page.id}`}>
+                          <Pencil className="mr-2 size-4" />
+                          Edit
+                        </Link>
+                      </DropdownMenuItem>
+                      {page.is_published && (
+                        <>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/p/${page.slug}`} target="_blank">
+                              <ExternalLink className="mr-2 size-4" />
+                              View Live
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/dashboard/analytics?page=${page.id}`}>
+                              <Eye className="mr-2 size-4" />
+                              Analytics
+                            </Link>
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <FileText className="h-16 w-16 text-muted-foreground/50 mb-4" />
-            <h3 className="text-lg font-medium mb-2">No bio pages yet</h3>
-            <p className="text-sm text-muted-foreground text-center mb-6 max-w-sm">
-              Create your first bio page to share all your important links in one place.
-            </p>
-            <Button asChild>
-              <Link href="/dashboard/bio/new">
-                <Plus className="mr-2 h-4 w-4" />
-                Create your first bio page
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16">
+          <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+            <FileText className="size-6 text-muted-foreground" />
+          </div>
+          <h3 className="mt-4 text-sm font-medium">No bio pages yet</h3>
+          <p className="mt-1 text-center text-xs text-muted-foreground max-w-sm">
+            Create your first bio page to share all your important links in one place.
+          </p>
+          <Link
+            href="/dashboard/bio/new"
+            className="mt-4 rounded-md bg-foreground px-3 py-1.5 text-xs font-medium text-background transition-opacity hover:opacity-90"
+          >
+            Create Page
+          </Link>
+        </div>
       )}
     </div>
   )

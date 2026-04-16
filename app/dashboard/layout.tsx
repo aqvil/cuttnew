@@ -25,11 +25,13 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider>
       <DashboardSidebar user={user} profile={profile} />
-      <SidebarInset>
+      <SidebarInset className="bg-background">
         <DashboardHeader user={user} profile={profile} />
-        <div className="flex-1 overflow-auto p-6">
-          {children}
-        </div>
+        <main className="flex-1 overflow-auto">
+          <div className="mx-auto max-w-6xl px-6 py-8">
+            {children}
+          </div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   )

@@ -10,7 +10,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -27,15 +26,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Link2,
-  LayoutDashboard,
+  LayoutGrid,
   FileText,
   LinkIcon,
-  BarChart3,
+  BarChart2,
   Settings,
   CreditCard,
   Sparkles,
-  ChevronUp,
+  ChevronsUpDown,
   LogOut,
+  User as UserIcon,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -49,7 +49,7 @@ const navItems = [
   {
     title: "Overview",
     url: "/dashboard",
-    icon: LayoutDashboard,
+    icon: LayoutGrid,
   },
   {
     title: "Bio Pages",
@@ -57,14 +57,14 @@ const navItems = [
     icon: FileText,
   },
   {
-    title: "Short Links",
+    title: "Links",
     url: "/dashboard/links",
     icon: LinkIcon,
   },
   {
     title: "Analytics",
     url: "/dashboard/analytics",
-    icon: BarChart3,
+    icon: BarChart2,
   },
   {
     title: "AI Assistant",
@@ -73,7 +73,7 @@ const navItems = [
   },
 ]
 
-const settingsItems = [
+const bottomItems = [
   {
     title: "Settings",
     url: "/dashboard/settings",
@@ -98,113 +98,126 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
 
   const displayName = profile?.display_name || user.email?.split("@")[0] || "User"
   const initials = displayName.slice(0, 2).toUpperCase()
+  const planLabel = profile?.plan === "business" ? "Business" : profile?.plan === "pro" ? "Pro" : "Free"
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+      <SidebarHeader className="h-14 border-b border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-foreground text-background">
-                  <Link2 className="size-4" />
+            <SidebarMenuButton size="lg" asChild className="hover:bg-transparent">
+              <Link href="/dashboard" className="flex items-center gap-2">
+                <div className="flex size-7 items-center justify-center rounded-md bg-foreground">
+                  <Link2 className="size-3.5 text-background" />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">LinkForge</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {profile?.plan === "free" ? "Free Plan" : profile?.plan === "pro" ? "Pro Plan" : "Business"}
-                  </span>
-                </div>
+                <span className="text-sm font-semibold tracking-tight">LinkForge</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      
+      <SidebarContent className="px-2 py-4">
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+            <SidebarMenu className="gap-0.5">
+              {navItems.map((item) => {
+                const isActive = pathname === item.url || 
+                  (item.url !== "/dashboard" && pathname.startsWith(item.url))
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.title}
+                      className="h-8 text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-foreground"
+                    >
+                      <Link href={item.url}>
+                        <item.icon className="size-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
+
+        <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
-            <SidebarMenu>
-              {settingsItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+            <SidebarMenu className="gap-0.5">
+              {bottomItems.map((item) => {
+                const isActive = pathname === item.url
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.title}
+                      className="h-8 text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-sidebar-accent data-[active=true]:bg-sidebar-accent data-[active=true]:text-foreground"
+                    >
+                      <Link href={item.url}>
+                        <item.icon className="size-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+
+      <SidebarFooter className="border-t border-sidebar-border p-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  className="h-12 w-full hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent"
                 >
-                  <Avatar className="h-8 w-8 rounded-lg">
+                  <Avatar className="size-7 rounded-md">
                     <AvatarImage src={profile?.avatar_url || undefined} alt={displayName} />
-                    <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                    <AvatarFallback className="rounded-md bg-muted text-[10px] font-medium">
+                      {initials}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{displayName}</span>
-                    <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                    <span className="truncate text-[13px] font-medium">{displayName}</span>
+                    <span className="truncate text-[11px] text-muted-foreground">{planLabel} Plan</span>
                   </div>
-                  <ChevronUp className="ml-auto size-4" />
+                  <ChevronsUpDown className="ml-auto size-4 text-muted-foreground" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56"
                 side="top"
-                align="end"
+                align="start"
                 sideOffset={4}
               >
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-medium">{displayName}</p>
+                  <p className="text-xs text-muted-foreground">{user.email}</p>
+                </div>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard/settings">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
+                  <Link href="/dashboard/settings" className="cursor-pointer">
+                    <UserIcon className="mr-2 size-4" />
+                    Profile
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard/billing">
-                    <CreditCard className="mr-2 h-4 w-4" />
+                  <Link href="/dashboard/billing" className="cursor-pointer">
+                    <CreditCard className="mr-2 size-4" />
                     Billing
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
+                  <LogOut className="mr-2 size-4" />
                   Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>

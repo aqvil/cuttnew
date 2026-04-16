@@ -3,75 +3,88 @@
 import { User } from "@supabase/supabase-js"
 import { Profile } from "@/lib/types/database"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
 import { ThemeToggle } from "@/components/theme-toggle"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
+import Link from "next/link"
+import { Plus } from "lucide-react"
 
 interface DashboardHeaderProps {
   user: User
   profile: Profile | null
 }
 
-const pageNames: Record<string, string> = {
-  "/dashboard": "Overview",
-  "/dashboard/bio": "Bio Pages",
-  "/dashboard/links": "Short Links",
-  "/dashboard/analytics": "Analytics",
-  "/dashboard/ai": "AI Assistant",
-  "/dashboard/settings": "Settings",
-  "/dashboard/billing": "Billing",
+const pageConfig: Record<string, { title: string; description: string; action?: { label: string; href: string } }> = {
+  "/dashboard": {
+    title: "Overview",
+    description: "Monitor your links and page performance",
+  },
+  "/dashboard/bio": {
+    title: "Bio Pages",
+    description: "Create and manage your bio pages",
+    action: { label: "New Page", href: "/dashboard/bio/new" },
+  },
+  "/dashboard/links": {
+    title: "Links",
+    description: "Shorten and track your links",
+    action: { label: "New Link", href: "/dashboard/links/new" },
+  },
+  "/dashboard/analytics": {
+    title: "Analytics",
+    description: "Track clicks, views, and engagement",
+  },
+  "/dashboard/ai": {
+    title: "AI Assistant",
+    description: "Generate content with AI",
+  },
+  "/dashboard/settings": {
+    title: "Settings",
+    description: "Manage your account settings",
+  },
+  "/dashboard/billing": {
+    title: "Billing",
+    description: "Manage your subscription and billing",
+  },
 }
 
 export function DashboardHeader({ }: DashboardHeaderProps) {
   const pathname = usePathname()
   
-  // Get page name from the path
-  const getPageName = () => {
-    // Check exact match first
-    if (pageNames[pathname]) {
-      return pageNames[pathname]
+  const getConfig = () => {
+    if (pageConfig[pathname]) {
+      return pageConfig[pathname]
     }
-    // Check for nested routes
-    for (const [path, name] of Object.entries(pageNames)) {
+    for (const [path, config] of Object.entries(pageConfig)) {
       if (pathname.startsWith(path) && path !== "/dashboard") {
-        return name
+        return config
       }
     }
-    return "Dashboard"
+    return pageConfig["/dashboard"]
   }
 
-  const pageName = getPageName()
-  const isOverview = pathname === "/dashboard"
+  const config = getConfig()
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="mr-2 h-4" />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem className="hidden md:block">
-            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          {!isOverview && (
-            <>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{pageName}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </>
+    <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-sm">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
+        <div className="flex items-center gap-3">
+          <SidebarTrigger className="-ml-2 size-8 text-muted-foreground hover:text-foreground" />
+          <div className="hidden h-4 w-px bg-border sm:block" />
+          <div className="hidden sm:block">
+            <h1 className="text-sm font-medium">{config.title}</h1>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {config.action && (
+            <Button size="sm" asChild className="h-8 gap-1.5 text-xs">
+              <Link href={config.action.href}>
+                <Plus className="size-3.5" />
+                {config.action.label}
+              </Link>
+            </Button>
           )}
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className="ml-auto flex items-center gap-2">
-        <ThemeToggle />
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   )

@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Eye, MousePointer, Globe, Smartphone, Monitor, Tablet } from "lucide-react"
+import { Eye, MousePointer, Globe, Smartphone, Monitor, Tablet, TrendingUp } from "lucide-react"
 import { AnalyticsChart } from "@/components/analytics/analytics-chart"
 import { TopLinksTable } from "@/components/analytics/top-links-table"
 import { GeoChart } from "@/components/analytics/geo-chart"
@@ -16,7 +15,7 @@ export default async function AnalyticsPage() {
   if (!user) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Please sign in to view analytics</p>
+        <p className="text-sm text-muted-foreground">Please sign in to view analytics</p>
       </div>
     )
   }
@@ -145,119 +144,120 @@ export default async function AnalyticsPage() {
     .order("click_count", { ascending: false })
     .limit(10)
 
-  const stats = [
-    {
-      title: "Total Page Views",
-      value: totalPageViews,
-      icon: Eye,
-      description: "Bio page views",
-    },
-    {
-      title: "Total Link Clicks",
-      value: totalLinkClicks,
-      icon: MousePointer,
-      description: "Short link clicks",
-    },
-  ]
-
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
-        <p className="text-muted-foreground">
-          Track your performance and understand your audience
+        <h1 className="text-2xl font-semibold tracking-tight">Analytics</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Track clicks, views, and engagement
         </p>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">{stat.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-        
-        {/* Device Breakdown */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Devices</CardTitle>
-            <Monitor className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-1">
-                <Monitor className="h-3 w-3" />
-                <span>{totalDevices > 0 ? Math.round((deviceCounts.desktop / totalDevices) * 100) : 0}%</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Smartphone className="h-3 w-3" />
-                <span>{totalDevices > 0 ? Math.round((deviceCounts.mobile / totalDevices) * 100) : 0}%</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Tablet className="h-3 w-3" />
-                <span>{totalDevices > 0 ? Math.round((deviceCounts.tablet / totalDevices) * 100) : 0}%</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Top Country */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Top Country</CardTitle>
-            <Globe className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {topCountries[0]?.[0] || "N/A"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {topCountries[0]?.[1] || 0} clicks
+      {/* Stats Grid */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-lg border border-border bg-card p-5">
+          <div className="flex items-center justify-between">
+            <Eye className="size-4 text-muted-foreground" />
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <TrendingUp className="size-3" />
+              +0%
+            </span>
+          </div>
+          <div className="mt-4">
+            <p className="text-3xl font-semibold tabular-nums tracking-tight">
+              {totalPageViews.toLocaleString()}
             </p>
-          </CardContent>
-        </Card>
+            <p className="mt-1 text-sm text-muted-foreground">Page Views</p>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-card p-5">
+          <div className="flex items-center justify-between">
+            <MousePointer className="size-4 text-muted-foreground" />
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <TrendingUp className="size-3" />
+              +0%
+            </span>
+          </div>
+          <div className="mt-4">
+            <p className="text-3xl font-semibold tabular-nums tracking-tight">
+              {totalLinkClicks.toLocaleString()}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">Link Clicks</p>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-card p-5">
+          <div className="flex items-center justify-between">
+            <Globe className="size-4 text-muted-foreground" />
+          </div>
+          <div className="mt-4">
+            <p className="text-3xl font-semibold tracking-tight">
+              {topCountries[0]?.[0] || "N/A"}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">Top Country</p>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-card p-5">
+          <div className="flex items-center gap-6 mt-4">
+            <div className="flex items-center gap-1.5">
+              <Monitor className="size-4 text-muted-foreground" />
+              <span className="text-sm font-medium tabular-nums">
+                {totalDevices > 0 ? Math.round((deviceCounts.desktop / totalDevices) * 100) : 0}%
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Smartphone className="size-4 text-muted-foreground" />
+              <span className="text-sm font-medium tabular-nums">
+                {totalDevices > 0 ? Math.round((deviceCounts.mobile / totalDevices) * 100) : 0}%
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Tablet className="size-4 text-muted-foreground" />
+              <span className="text-sm font-medium tabular-nums">
+                {totalDevices > 0 ? Math.round((deviceCounts.tablet / totalDevices) * 100) : 0}%
+              </span>
+            </div>
+          </div>
+          <p className="mt-3 text-sm text-muted-foreground">Device Breakdown</p>
+        </div>
       </div>
 
-      {/* Clicks Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Clicks Over Time</CardTitle>
-          <CardDescription>Link clicks over the last 30 days</CardDescription>
-        </CardHeader>
-        <CardContent>
+      {/* Chart */}
+      <div className="rounded-lg border border-border bg-card">
+        <div className="border-b border-border px-5 py-4">
+          <h2 className="text-sm font-medium">Clicks Over Time</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">Last 30 days</p>
+        </div>
+        <div className="p-5">
           <AnalyticsChart data={chartData} />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
+      {/* Bottom Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Top Links */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Links</CardTitle>
-            <CardDescription>Your most clicked links</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <div className="rounded-lg border border-border bg-card">
+          <div className="border-b border-border px-5 py-4">
+            <h2 className="text-sm font-medium">Top Links</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">Most clicked links</p>
+          </div>
+          <div className="p-5">
             <TopLinksTable links={topLinks || []} />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* Geographic Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Geographic Distribution</CardTitle>
-            <CardDescription>Where your clicks come from</CardDescription>
-          </CardHeader>
-          <CardContent>
+        {/* Geographic */}
+        <div className="rounded-lg border border-border bg-card">
+          <div className="border-b border-border px-5 py-4">
+            <h2 className="text-sm font-medium">Geographic Distribution</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">Where your clicks come from</p>
+          </div>
+          <div className="p-5">
             <GeoChart countries={topCountries} />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

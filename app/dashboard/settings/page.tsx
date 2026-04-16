@@ -3,14 +3,13 @@
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2, User, Mail, AtSign, Save } from "lucide-react"
+import { Loader2, AtSign } from "lucide-react"
 import type { Profile } from "@/lib/types/database"
+import Link from "next/link"
 
 export default function SettingsPage() {
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -77,158 +76,157 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
       </div>
     )
   }
 
   return (
-    <div className="space-y-8 max-w-2xl">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Manage your account settings and profile
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Profile Information
-            </CardTitle>
-            <CardDescription>
-              Update your personal information and public profile
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
+        {/* Profile Section */}
+        <div className="rounded-lg border border-border bg-card">
+          <div className="border-b border-border px-5 py-4">
+            <h2 className="text-sm font-medium">Profile Information</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Update your personal information
+            </p>
+          </div>
+          <div className="space-y-4 p-5">
             <div className="space-y-2">
-              <Label htmlFor="display_name">Display Name</Label>
+              <Label htmlFor="display_name" className="text-xs font-medium">
+                Display Name
+              </Label>
               <Input
                 id="display_name"
                 name="display_name"
                 defaultValue={profile?.display_name || ""}
                 placeholder="Your name"
+                className="h-9 bg-background"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username" className="text-xs font-medium">
+                Username
+              </Label>
               <div className="relative">
-                <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <AtSign className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="username"
                   name="username"
                   defaultValue={profile?.username || ""}
                   placeholder="username"
-                  className="pl-9"
+                  className="h-9 bg-background pl-9"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 This will be used for your public profile URL
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
+              <Label htmlFor="bio" className="text-xs font-medium">
+                Bio
+              </Label>
               <Textarea
                 id="bio"
                 name="bio"
                 defaultValue={profile?.bio || ""}
                 placeholder="Tell us about yourself..."
-                rows={4}
+                rows={3}
+                className="bg-background resize-none"
               />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5" />
-              Email
-            </CardTitle>
-            <CardDescription>
+        {/* Email Section */}
+        <div className="rounded-lg border border-border bg-card">
+          <div className="border-b border-border px-5 py-4">
+            <h2 className="text-sm font-medium">Email</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">
               Your email address is used for signing in
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </p>
+          </div>
+          <div className="p-5">
             <Input
               type="email"
               value={email}
               disabled
-              className="bg-muted"
+              className="h-9 bg-muted"
             />
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="mt-2 text-[11px] text-muted-foreground">
               Contact support to change your email address
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Subscription</CardTitle>
-            <CardDescription>
-              Your current plan and billing information
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium capitalize">{profile?.plan || "free"} Plan</p>
-                <p className="text-sm text-muted-foreground">
-                  {profile?.plan === "free" 
-                    ? "Upgrade to unlock more features"
-                    : "You have access to all premium features"}
-                </p>
-              </div>
-              <Button variant="outline" asChild>
-                <a href="/dashboard/billing">Manage Billing</a>
-              </Button>
+        {/* Subscription Section */}
+        <div className="rounded-lg border border-border bg-card">
+          <div className="border-b border-border px-5 py-4">
+            <h2 className="text-sm font-medium">Subscription</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Your current plan
+            </p>
+          </div>
+          <div className="flex items-center justify-between p-5">
+            <div>
+              <p className="text-sm font-medium capitalize">{profile?.plan || "free"} Plan</p>
+              <p className="text-xs text-muted-foreground">
+                {profile?.plan === "free" 
+                  ? "Upgrade to unlock more features"
+                  : "You have access to all premium features"}
+              </p>
             </div>
-          </CardContent>
-        </Card>
-
-        <Separator />
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/dashboard/billing">Manage</Link>
+            </Button>
+          </div>
+        </div>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={saving}>
+          <Button type="submit" disabled={saving} className="h-9">
             {saving ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 size-3.5 animate-spin" />
                 Saving...
               </>
             ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Save Changes
-              </>
+              "Save Changes"
             )}
           </Button>
         </div>
       </form>
 
-      <Card className="border-destructive">
-        <CardHeader>
-          <CardTitle className="text-destructive">Danger Zone</CardTitle>
-          <CardDescription>
-            Irreversible and destructive actions
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex items-center justify-between">
+      {/* Danger Zone */}
+      <div className="max-w-xl rounded-lg border border-destructive/50 bg-card">
+        <div className="border-b border-destructive/50 px-5 py-4">
+          <h2 className="text-sm font-medium text-destructive">Danger Zone</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Irreversible actions
+          </p>
+        </div>
+        <div className="flex items-center justify-between p-5">
           <div>
-            <p className="font-medium">Delete Account</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm font-medium">Delete Account</p>
+            <p className="text-xs text-muted-foreground">
               Permanently delete your account and all data
             </p>
           </div>
-          <Button variant="destructive" disabled>
-            Delete Account
+          <Button variant="destructive" size="sm" disabled>
+            Delete
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

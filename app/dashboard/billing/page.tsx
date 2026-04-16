@@ -1,9 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Check, CreditCard, Sparkles } from "lucide-react"
+import { Check, Sparkles } from "lucide-react"
 import Link from "next/link"
-import { PRODUCTS } from "@/lib/products"
 import { BillingPortalButton } from "@/components/billing/portal-button"
 
 export const metadata = {
@@ -73,129 +71,131 @@ export default async function BillingPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Billing</h1>
-        <p className="text-muted-foreground">
-          Manage your subscription and billing information
+        <h1 className="text-2xl font-semibold tracking-tight">Billing</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Manage your subscription and billing
         </p>
       </div>
 
-      {/* Current Plan */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
-            Current Plan
-          </CardTitle>
-          <CardDescription>
+      {/* Current Plan Card */}
+      <div className="rounded-lg border border-border bg-card">
+        <div className="border-b border-border px-5 py-4">
+          <h2 className="text-sm font-medium">Current Plan</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
             You are currently on the {currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} plan
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-2xl font-bold capitalize">{currentPlan}</p>
-              {hasSubscription && (
-                <p className="text-sm text-muted-foreground">
-                  Your subscription renews automatically
-                </p>
-              )}
-            </div>
+          </p>
+        </div>
+        <div className="flex items-center justify-between p-5">
+          <div>
+            <p className="text-xl font-semibold capitalize">{currentPlan}</p>
             {hasSubscription && (
-              <BillingPortalButton />
+              <p className="text-xs text-muted-foreground">
+                Your subscription renews automatically
+              </p>
             )}
           </div>
-        </CardContent>
-      </Card>
+          {hasSubscription && (
+            <BillingPortalButton />
+          )}
+        </div>
+      </div>
 
       {/* Pricing Plans */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">
+        <h2 className="mb-4 text-sm font-medium">
           {hasSubscription ? "Change Plan" : "Upgrade Your Plan"}
         </h2>
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-3">
           {plans.map((plan) => {
             const isCurrentPlan = currentPlan === plan.name.toLowerCase()
             
             return (
-              <Card 
+              <div 
                 key={plan.name} 
-                className={`relative ${plan.popular ? 'border-foreground shadow-lg' : ''}`}
+                className={`relative rounded-lg border bg-card p-5 transition-colors ${
+                  plan.popular 
+                    ? 'border-foreground' 
+                    : 'border-border'
+                }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-foreground px-3 py-1 text-xs font-medium text-background flex items-center gap-1">
-                    <Sparkles className="h-3 w-3" />
-                    Most Popular
+                  <div className="absolute -top-2.5 left-4 flex items-center gap-1 rounded-full bg-foreground px-2 py-0.5 text-[10px] font-medium text-background">
+                    <Sparkles className="size-3" />
+                    Popular
                   </div>
                 )}
-                <CardHeader>
-                  <CardTitle>{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-4">
-                    <span className="text-3xl font-bold">{plan.price}</span>
-                    <span className="text-muted-foreground">{plan.period}</span>
-                  </div>
-                  <ul className="space-y-2 mb-6">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2 text-sm">
-                        <Check className="h-4 w-4 text-foreground" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  {isCurrentPlan ? (
-                    <Button variant="outline" className="w-full" disabled>
-                      Current Plan
-                    </Button>
-                  ) : plan.productId ? (
-                    <Button 
-                      className="w-full" 
-                      variant={plan.popular ? "default" : "outline"}
-                      asChild
-                    >
-                      <Link href={`/dashboard/billing/checkout?plan=${plan.productId}`}>
-                        {currentPlan === "free" ? "Upgrade" : "Switch Plan"}
-                      </Link>
-                    </Button>
-                  ) : (
-                    <Button variant="outline" className="w-full" disabled>
-                      Free Forever
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+                
+                <div className="mb-4">
+                  <h3 className="text-sm font-medium">{plan.name}</h3>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{plan.description}</p>
+                </div>
+                
+                <div className="mb-5">
+                  <span className="text-3xl font-semibold tracking-tight">{plan.price}</span>
+                  <span className="text-sm text-muted-foreground">{plan.period}</span>
+                </div>
+                
+                <ul className="mb-5 space-y-2">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-2 text-xs">
+                      <Check className="size-3.5 text-muted-foreground" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                {isCurrentPlan ? (
+                  <Button variant="outline" size="sm" className="w-full" disabled>
+                    Current Plan
+                  </Button>
+                ) : plan.productId ? (
+                  <Button 
+                    size="sm"
+                    className="w-full" 
+                    variant={plan.popular ? "default" : "outline"}
+                    asChild
+                  >
+                    <Link href={`/dashboard/billing/checkout?plan=${plan.productId}`}>
+                      {currentPlan === "free" ? "Upgrade" : "Switch Plan"}
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" className="w-full" disabled>
+                    Free Forever
+                  </Button>
+                )}
+              </div>
             )
           })}
         </div>
       </div>
 
       {/* FAQ */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Frequently Asked Questions</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h4 className="font-medium mb-1">Can I cancel anytime?</h4>
-            <p className="text-sm text-muted-foreground">
+      <div className="rounded-lg border border-border bg-card">
+        <div className="border-b border-border px-5 py-4">
+          <h2 className="text-sm font-medium">FAQ</h2>
+        </div>
+        <div className="divide-y divide-border">
+          <div className="p-5">
+            <h4 className="text-sm font-medium">Can I cancel anytime?</h4>
+            <p className="mt-1 text-xs text-muted-foreground">
               Yes, you can cancel your subscription at any time. Your plan will remain active until the end of the billing period.
             </p>
           </div>
-          <div>
-            <h4 className="font-medium mb-1">What happens when I upgrade?</h4>
-            <p className="text-sm text-muted-foreground">
+          <div className="p-5">
+            <h4 className="text-sm font-medium">What happens when I upgrade?</h4>
+            <p className="mt-1 text-xs text-muted-foreground">
               Your new plan takes effect immediately. We&apos;ll prorate the remaining time from your current plan.
             </p>
           </div>
-          <div>
-            <h4 className="font-medium mb-1">Do you offer refunds?</h4>
-            <p className="text-sm text-muted-foreground">
+          <div className="p-5">
+            <h4 className="text-sm font-medium">Do you offer refunds?</h4>
+            <p className="mt-1 text-xs text-muted-foreground">
               We offer a 7-day money-back guarantee on all paid plans. Contact support for assistance.
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }
