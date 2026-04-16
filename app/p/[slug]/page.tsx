@@ -61,59 +61,88 @@ export default async function PublicBioPage({ params }: PageProps) {
     pageId: page.id,
   }).catch(err => console.error("Page view record error:", err))
 
+  const getTextColor = (color: string) => {
+    // Simple contrast check
+    if (!color) return '#000000'
+    const hex = color.replace('#', '')
+    const r = parseInt(hex.substr(0, 2), 16) || 0
+    const g = parseInt(hex.substr(2, 2), 16) || 0
+    const b = parseInt(hex.substr(4, 2), 16) || 0
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000
+    return brightness > 128 ? '#000000' : '#ffffff'
+  }
+
+  const buttonStyle = {
+    backgroundColor: theme?.accent || '#1d4ed8',
+    color: getTextColor(theme?.accent || '#1d4ed8'),
+  }
+
+  const pageBg = theme?.background || '#f4f6fb'
+  const pageText = theme?.text || '#0f1728'
+
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-6 bg-[url('https://discbot.io/grid.png')] bg-repeat"
-      style={{ backgroundColor: theme.background }}
+      className="min-h-screen font-sans"
+      style={{ backgroundColor: pageBg }}
     >
-      <div className="w-full max-w-md space-y-12">
-        {/* Profile Header */}
-        <div className="text-center space-y-6">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-primary translate-x-2 translate-y-2" />
-            <Avatar className="h-32 w-32 border-4 border-primary relative z-10 rounded-none bg-background">
+      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24">
+        <div className="space-y-8">
+          {/* Profile Header */}
+          <div className="text-center space-y-4">
+            <Avatar className="h-24 w-24 mx-auto shadow-md">
               <AvatarFallback 
-                style={{ backgroundColor: theme.accent, color: '#ffffff' }}
-                className="text-4xl font-black italic rounded-none"
+                style={buttonStyle}
+                className="text-3xl font-semibold"
               >
                 {page.title?.slice(0, 2).toUpperCase() || "LF"}
               </AvatarFallback>
             </Avatar>
-          </div>
-          <div className="space-y-2">
-            <h1 
-              className="text-4xl font-black uppercase tracking-tighter italic"
-              style={{ color: theme.text }}
-            >
-              {page.title || "Bio Page"}
-            </h1>
-            {page.description && (
-              <p 
-                className="text-xs font-mono uppercase tracking-[0.2em] opacity-60"
-                style={{ color: theme.text }}
+            <div>
+              <h1 
+                className="text-2xl font-bold tracking-tight"
+                style={{ color: pageText }}
               >
-                {page.description}
+                {page.title || "Your Name"}
+              </h1>
+              {page.description && (
+                <p 
+                  className="text-base mt-2 opacity-80 max-w-md mx-auto"
+                  style={{ color: pageText }}
+                >
+                  {page.description}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Blocks */}
+          <div className="space-y-4 pt-4">
+            {visibleBlocks.length === 0 ? (
+              <p 
+                className="text-center text-sm opacity-50 py-8"
+                style={{ color: pageText }}
+              >
+                No visible blocks
               </p>
+            ) : (
+              visibleBlocks.map((block) => (
+                <PublicBlock 
+                  key={block.id} 
+                  block={block} 
+                  theme={theme}
+                  buttonStyle={buttonStyle}
+                  pageId={page.id}
+                />
+              ))
             )}
           </div>
-        </div>
 
-        {/* Blocks */}
-        <div className="space-y-6">
-          {visibleBlocks.map((block) => (
-            <PublicBlock 
-              key={block.id} 
-              block={block} 
-              theme={theme}
-              pageId={page.id}
-            />
-          ))}
-        </div>
-
-        {/* Footer */}
-        <div className="pt-12 text-center">
-          <div className="inline-block border-2 border-primary px-4 py-1 text-[10px] font-black uppercase tracking-widest bg-background">
-            <span style={{ color: theme.text }}>POWERED_BY_LINKFORGE</span>
+          {/* Footer */}
+          <div className="pt-12 text-center">
+            <a href="/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:opacity-100 transition-opacity opacity-50">
+              <span className="text-xs font-semibold" style={{ color: pageText }}>Powered by</span>
+              <span className="text-sm font-bold tracking-tight" style={{ color: pageText }}>LinkForge</span>
+            </a>
           </div>
         </div>
       </div>
@@ -133,16 +162,15 @@ const socialIcons: Record<string, React.ElementType> = {
 function PublicBlock({ 
   block, 
   theme,
+  buttonStyle,
   pageId,
 }: { 
   block: any
   theme: any
+  buttonStyle: any
   pageId: string
 }) {
-  const baseButtonStyle = {
-    backgroundColor: theme.accent,
-    color: '#ffffff',
-  }
+  const pageText = theme?.text || '#0f1728'
 
   switch (block.type) {
     case "link": {
@@ -150,15 +178,10 @@ function PublicBlock({
       return (
         <LinkTracker blockId={block.id} url={content.url || "#"}>
           <div
-            className="group relative"
+            className="flex items-center justify-center relative w-full rounded-xl p-4 transition-transform hover:scale-[1.02] shadow-sm hover:shadow-md cursor-pointer"
+            style={buttonStyle}
           >
-            <div className="absolute inset-0 bg-primary translate-x-1.5 translate-y-1.5" />
-            <div
-              className="relative z-10 flex items-center justify-between border-4 border-primary p-5 bg-background transition-transform active:translate-x-1 active:translate-y-1"
-            >
-              <span className="font-black uppercase italic tracking-tight">{content.title || "Link"}</span>
-              <ExternalLink className="h-5 w-5" />
-            </div>
+            <span className="font-semibold text-center text-lg">{content.title || "Link"}</span>
           </div>
         </LinkTracker>
       )
@@ -169,12 +192,12 @@ function PublicBlock({
       const sizeClasses = {
         small: "text-lg",
         medium: "text-2xl",
-        large: "text-4xl",
+        large: "text-3xl",
       }
       return (
         <h2 
-          className={`font-black uppercase italic text-center py-4 tracking-tighter ${sizeClasses[content.size as keyof typeof sizeClasses || "medium"]}`}
-          style={{ color: theme.text }}
+          className={`font-bold text-center py-4 tracking-tight ${sizeClasses[content.size as keyof typeof sizeClasses || "medium"]}`}
+          style={{ color: pageText }}
         >
           {content.text || "Header"}
         </h2>
@@ -185,8 +208,8 @@ function PublicBlock({
       const content = block.content
       return (
         <p 
-          className="text-xs font-mono uppercase tracking-widest text-center py-4 opacity-70"
-          style={{ color: theme.text }}
+          className="text-base text-center py-2 opacity-90"
+          style={{ color: pageText }}
         >
           {content.text || "Text content"}
         </p>
@@ -198,14 +221,12 @@ function PublicBlock({
       const Icon = socialIcons[content.platform] || ExternalLink
       return (
         <LinkTracker blockId={block.id} url={content.url || "#"}>
-          <div className="group relative">
-            <div className="absolute inset-0 bg-primary translate-x-1 translate-y-1" />
-            <div
-              className="relative z-10 flex items-center justify-center border-4 border-primary p-5 bg-background transition-transform active:translate-x-0.5 active:translate-y-0.5"
-            >
-              <Icon className="h-6 w-6" />
-              <span className="ml-3 font-black uppercase italic tracking-tight">{content.platform}</span>
-            </div>
+          <div
+            className="flex items-center justify-center w-full rounded-xl p-4 transition-transform hover:scale-[1.02] shadow-sm hover:shadow-md cursor-pointer"
+            style={buttonStyle}
+          >
+            <Icon className="h-6 w-6" />
+            <span className="ml-3 font-semibold capitalize text-lg">{content.platform}</span>
           </div>
         </LinkTracker>
       )
@@ -214,22 +235,30 @@ function PublicBlock({
     case "email-capture": {
       const content = block.content
       return (
-        <EmailCaptureForm 
-          pageId={pageId}
-          title={content.title}
-          placeholder={content.placeholder}
-          buttonText={content.button_text}
-          theme={theme}
-        />
+        <div className="rounded-xl p-6 shadow-sm border" style={{ backgroundColor: `${theme?.accent || '#1d4ed8'}10`, borderColor: `${theme?.accent || '#1d4ed8'}20` }}>
+          <p 
+            className="text-lg font-bold text-center mb-4"
+            style={{ color: pageText }}
+          >
+            {content.title || "Subscribe"}
+          </p>
+          <EmailCaptureForm 
+            pageId={pageId}
+            title={content.title}
+            placeholder={content.placeholder}
+            buttonText={content.button_text}
+            theme={theme}
+          />
+        </div>
       )
     }
 
     case "divider":
       return (
-        <div className="py-4">
+        <div className="py-6">
           <div 
-            className="h-1 bg-primary"
-            style={{ opacity: 0.2 }}
+            className="h-px w-full mx-auto"
+            style={{ backgroundColor: pageText, opacity: 0.15 }}
           />
         </div>
       )

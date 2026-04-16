@@ -2,8 +2,7 @@
 
 import { signIn } from "next-auth/react"
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Link2, DiscIcon as Discord } from 'lucide-react'
+import { Link2, DiscIcon as Discord, Mail } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -16,53 +15,58 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center bg-[url('https://discbot.io/grid.png')] bg-repeat p-6 md:p-10">
+    <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 p-6 md:p-10 font-sans">
       <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-10">
-          <div className="flex items-center justify-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center border-4 border-primary bg-primary text-primary-foreground transform -rotate-12">
-              <Link2 className="h-6 w-6" />
-            </div>
-            <span className="text-4xl font-black uppercase italic tracking-tighter">LinkForge</span>
-          </div>
+        <div className="flex flex-col gap-10 items-center">
+          <Link href="/" className="flex items-center gap-2 text-primary font-bold text-3xl tracking-tight">
+            <Link2 className="h-8 w-8 stroke-[3]" />
+            LinkForge
+          </Link>
           
-          <div className="card-mono text-center">
-            <div className="mb-8">
-              <h2 className="text-2xl font-black uppercase italic tracking-tight">Access Protocol</h2>
-              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground mt-2">Initialize secure session via provider</p>
+          <div className="card w-full p-8 shadow-xl border-slate-200 bg-white">
+            <div className="mb-8 text-center space-y-2">
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Log in to LinkForge</h2>
+              <p className="text-sm font-medium text-slate-500">Welcome back! Please enter your details.</p>
             </div>
             
             <div className="space-y-6">
               <Button 
                 onClick={handleDiscordLogin} 
                 disabled={isLoading}
-                className="w-full h-14 border-4 border-primary bg-primary text-primary-foreground font-black uppercase italic tracking-widest text-lg hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-1"
+                variant="outline"
+                className="w-full h-12 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-base border-slate-200 shadow-sm transition-all"
               >
                 {isLoading ? (
-                  "AUTHENTICATING..."
+                  "Connecting..."
                 ) : (
                   <>
-                    <Discord className="mr-3 h-6 w-6" />
-                    Connect Discord
+                    <Discord className="mr-3 h-5 w-5 text-[#5865F2]" />
+                    Continue with Discord
                   </>
                 )}
               </Button>
               
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t-2 border-primary opacity-20" />
+                  <span className="w-full border-t border-slate-200" />
                 </div>
-                <div className="relative flex justify-center text-[10px] font-mono uppercase">
-                  <span className="bg-background px-4 text-muted-foreground tracking-widest">or</span>
+                <div className="relative flex justify-center text-xs font-semibold uppercase">
+                  <span className="bg-white px-2 text-slate-400">or continue with</span>
                 </div>
               </div>
 
-              <div className="space-y-2 opacity-50 pointer-events-none">
-                <div className="h-10 border-2 border-primary flex items-center px-4">
-                  <span className="text-[10px] font-mono uppercase tracking-widest">Email authentication disabled</span>
-                </div>
-                <p className="text-[8px] font-mono uppercase tracking-widest text-center">Social connection required for this sector</p>
-              </div>
+               <Button 
+                disabled
+                variant="outline"
+                className="w-full h-12 bg-white text-slate-400 font-semibold text-base border-slate-200 cursor-not-allowed"
+              >
+                 <Mail className="mr-3 h-5 w-5" />
+                 Continue with Email
+              </Button>
+            </div>
+
+            <div className="mt-8 text-center text-sm font-medium text-slate-500">
+               Don't have an account? <Link href="/auth/sign-up" className="text-primary hover:underline">Sign up</Link>
             </div>
           </div>
         </div>

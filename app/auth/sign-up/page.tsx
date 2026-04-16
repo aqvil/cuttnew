@@ -2,7 +2,8 @@
 
 import { signIn } from "next-auth/react"
 import { Button } from '@/components/ui/button'
-import { Link2, DiscIcon as Discord } from 'lucide-react'
+import { Link2, DiscIcon as Discord, Mail } from 'lucide-react'
+import Link from 'next/link'
 import { useState } from 'react'
 
 export default function SignUpPage() {
@@ -14,58 +15,58 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center bg-[url('https://discbot.io/grid.png')] bg-repeat p-6 md:p-10">
+    <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 p-6 md:p-10 font-sans">
       <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-10">
-          <div className="flex items-center justify-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center border-4 border-primary bg-primary text-primary-foreground transform -rotate-12">
-              <Link2 className="h-6 w-6" />
-            </div>
-            <span className="text-4xl font-black uppercase italic tracking-tighter">LinkForge</span>
-          </div>
+        <div className="flex flex-col gap-10 items-center">
+          <Link href="/" className="flex items-center gap-2 text-primary font-bold text-3xl tracking-tight">
+            <Link2 className="h-8 w-8 stroke-[3]" />
+            LinkForge
+          </Link>
           
-          <div className="card-mono text-center">
-            <div className="mb-8">
-              <h2 className="text-2xl font-black uppercase italic tracking-tight">Onboarding</h2>
-              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground mt-2">Initialize new entity profile via provider</p>
+          <div className="card w-full p-8 shadow-xl border-slate-200 bg-white">
+            <div className="mb-8 text-center space-y-2">
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Create an account</h2>
+              <p className="text-sm font-medium text-slate-500">Sign up to start creating short links.</p>
             </div>
             
             <div className="space-y-6">
               <Button 
                 onClick={handleDiscordLogin} 
                 disabled={isLoading}
-                className="w-full h-14 border-4 border-primary bg-primary text-primary-foreground font-black uppercase italic tracking-widest text-lg hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-1"
+                variant="outline"
+                className="w-full h-12 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-base border-slate-200 shadow-sm transition-all"
               >
                 {isLoading ? (
-                  "INITIALIZING..."
+                  "Connecting..."
                 ) : (
                   <>
-                    <Discord className="mr-3 h-6 w-6" />
-                    Begin with Discord
+                    <Discord className="mr-3 h-5 w-5 text-[#5865F2]" />
+                    Sign up with Discord
                   </>
                 )}
               </Button>
               
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t-2 border-primary opacity-20" />
+                  <span className="w-full border-t border-slate-200" />
                 </div>
-                <div className="relative flex justify-center text-[10px] font-mono uppercase">
-                  <span className="bg-background px-4 text-muted-foreground tracking-widest">or</span>
+                <div className="relative flex justify-center text-xs font-semibold uppercase">
+                  <span className="bg-white px-2 text-slate-400">or continue with</span>
                 </div>
               </div>
 
-              <div className="mt-4 text-center">
-                <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-                  Already registered?{" "}
-                  <a
-                    href="/auth/login"
-                    className="text-primary font-black underline underline-offset-4 hover:opacity-80"
-                  >
-                    Resync
-                  </a>
-                </p>
-              </div>
+               <Button 
+                disabled
+                variant="outline"
+                className="w-full h-12 bg-white text-slate-400 font-semibold text-base border-slate-200 cursor-not-allowed"
+              >
+                 <Mail className="mr-3 h-5 w-5" />
+                 Sign up with Email
+              </Button>
+            </div>
+
+            <div className="mt-8 text-center text-sm font-medium text-slate-500">
+               Already have an account? <Link href="/auth/login" className="text-primary hover:underline">Log in</Link>
             </div>
           </div>
         </div>
