@@ -2,13 +2,13 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { profiles } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
-import { CreditCard, Zap, Check, ArrowRight, Activity, Shield, Terminal } from "lucide-react"
+import { CreditCard, Check, ArrowRight, Building2, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
 export const metadata = {
-  title: "Logistics Protocol",
+  title: "Billing & Plans - LinkForge",
 }
 
 export default async function BillingPage() {
@@ -22,137 +22,151 @@ export default async function BillingPage() {
     where: eq(profiles.id, session.user.id),
   })
 
-  const currentPlan = (profile?.plan || "FREE").toUpperCase()
+  // Normalize plan names
+  let currentPlan = profile?.plan?.toLowerCase() || "free"
+  if (currentPlan !== "free" && currentPlan !== "pro" && currentPlan !== "enterprise") {
+     currentPlan = "free"
+  }
 
   const plans = [
     {
-      name: "BASE_ALLOCATION",
+      name: "Free",
+      id: "free",
       price: "$0",
-      description: "STABLE_STARK_0",
+      period: "/month",
+      description: "Perfect for individuals getting started with link management.",
       features: [
-        "1_BIO_SEGMENT",
-        "50_RELAY_NODES",
-        "STATIC_TELEMETRY",
-        "STANDARD_LATENCY"
+        "1 Link-in-bio page",
+        "50 Bitly Links / month",
+        "Basic Click Analytics",
+        "Standard support"
       ],
-      current: currentPlan === "FREE"
+      current: currentPlan === "free"
     },
     {
-      name: "ELITE_PROTOCOL",
-      price: "$9",
-      description: "CORE_OVERLOAD_V2",
+      name: "Core",
+      id: "pro",
+      price: "$8",
+      period: "/month",
+      description: "For creators and small businesses growing their audience.",
       features: [
-        "UNLIMITED_SEGMENTS",
-        "500_RELAY_NODES",
-        "REALTIME_FLUX_DATA",
-        "CUSTOM_VECTORS",
-        "PRIORITY_RE-SYNC"
+        "Unlimited Link-in-bio pages",
+        "500 Bitly Links / month",
+        "Advanced Analytics & Trends",
+        "Custom link back-halves",
+        "Priority email support"
       ],
       popular: true,
-      current: currentPlan === "PRO"
+      current: currentPlan === "pro"
     },
     {
-      name: "NETWORK_DOMINANCE",
+      name: "Premium",
+      id: "enterprise",
       price: "$29",
-      description: "GLOBAL_ARRAY_SYNC",
+      period: "/month",
+      description: "For expanding businesses needing advanced features and scale.",
       features: [
-        "UNLIMITED_EVERYTHING",
-        "RAW_API_ACCESS",
-        "CUSTOM_INFRA_NODES",
-        "WHITE_LABEL_ENCRYPTION",
-        "DEDICATED_BUFFER"
+        "Everything in Core",
+        "3,000 Bitly Links / month",
+        "White-label custom domains",
+        "Bulk link creation",
+        "24/7 dedicated support"
       ],
-      current: currentPlan === "ENTERPRISE"
+      current: currentPlan === "enterprise"
     }
   ]
 
   return (
-    <div className="space-y-16 pb-24">
-      {/* Header Section */}
-      <div className="border-b border-white/10 pb-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-          <div>
-            <div className="tech-label mb-4">
-              <CreditCard className="h-3 w-3" />
-              LOGISTICS_PROTOCOL_ACTIVE
-            </div>
-            <h1 className="text-8xl font-black tracking-tighter uppercase italic leading-[0.8] mb-4">
-              LOGISTICS
-            </h1>
-            <p className="text-[10px] font-mono text-white/40 uppercase tracking-[0.4em]">
-              SUBSCRIPTION_NODE: {currentPlan} // STATUS: SYNCHRONIZED
-            </p>
-          </div>
-        </div>
+    <div className="space-y-8 pb-12 max-w-7xl mx-auto p-8 font-sans">
+      {/* Header */}
+      <div className="text-center max-w-3xl mx-auto mb-16">
+         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">Upgrade your plan</h1>
+         <p className="text-lg text-slate-600">Choose the perfect plan for your link management and Link-in-bio needs. Switch or cancel anytime.</p>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-12">
+      <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {plans.map((plan) => (
           <div 
             key={plan.name} 
-            className={`relative p-12 border-4 transition-all group ${
-              plan.popular ? 'border-primary shadow-[20px_20px_0px_0px_rgba(255,255,255,0.05)]' : 'border-white/10'
+            className={`card relative p-8 flex flex-col ${
+              plan.popular ? 'border-primary shadow-xl shadow-blue-900/10 ring-1 ring-primary' : ''
             }`}
           >
             {plan.popular && (
-              <div className="absolute -top-5 left-8 bg-white text-black px-4 py-1 text-[8px] font-black uppercase tracking-[0.3em] italic">
-                RECOMMENDED_PATH
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-100 text-primary px-4 py-1 text-xs font-bold uppercase tracking-wider rounded-full flex items-center gap-1.5">
+                <Zap className="h-3 w-3 fill-primary" /> Most Popular
               </div>
             )}
             
-            <div className="mb-12">
-              <div className="text-6xl font-black italic tracking-tighter mb-2">{plan.price}</div>
-              <div className="text-[8px] font-mono uppercase tracking-[0.3em] text-white/40">{plan.description}</div>
+            <div className="mb-6">
+               <h3 className="text-2xl font-bold text-slate-900 mb-2">{plan.name}</h3>
+               <p className="text-sm text-slate-500 h-10">{plan.description}</p>
             </div>
 
-            <div className="space-y-2 mb-12">
-              <h3 className="text-xl font-black uppercase tracking-tight italic group-hover:text-accent transition-colors">{plan.name}</h3>
-              <div className="h-0.5 w-12 bg-white/20 group-hover:w-full transition-all duration-500" />
+            <div className="mb-8 border-b border-slate-100 pb-8 flex items-baseline gap-1">
+              <span className="text-5xl font-extrabold text-slate-900">{plan.price}</span>
+              <span className="text-slate-500 font-medium">{plan.period}</span>
             </div>
 
-            <ul className="space-y-6 mb-16">
-              {plan.features.map((feature) => (
-                <li key={feature} className="flex items-center gap-4 text-[10px] font-mono font-bold uppercase tracking-widest text-white/60">
-                  <Check className="size-3 text-accent" />
-                  {feature}
-                </li>
-              ))}
-            </ul>
+            <div className="flex-1">
+               <p className="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider">Features included</p>
+               <ul className="space-y-4 mb-8">
+               {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-3 text-sm font-medium text-slate-700">
+                     <Check className="h-5 w-5 text-primary shrink-0" />
+                     {feature}
+                  </li>
+               ))}
+               </ul>
+            </div>
 
-            <Button 
-              className={`w-full h-16 text-sm font-black uppercase italic tracking-widest transition-all rounded-none ${
-                plan.current 
-                  ? 'bg-transparent border border-white/20 text-white/40 cursor-default' 
-                  : 'btn-mono'
-              }`}
-            >
-              {plan.current ? "CURRENT_ALLOCATION" : "INITIALIZE_SWITCH"}
-            </Button>
-
-            {/* Corner Coordinate */}
-            <div className="absolute bottom-2 right-2 text-[8px] font-mono opacity-10 group-hover:opacity-100 transition-opacity">
-               [L0{plans.indexOf(plan) + 1}]
+            <div className="mt-auto">
+               <Button 
+                  className={`w-full h-12 text-base ${
+                     plan.current ? 'btn-secondary bg-slate-50 border-slate-200 text-slate-500 cursor-default' : 'btn-primary'
+                  }`}
+               >
+                  {plan.current ? "Current Plan" : `Get ${plan.name}`}
+               </Button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Support / Enterprise Block */}
-      <div className="card-mono p-16 border-white/10 flex flex-col md:flex-row items-center justify-between gap-12 mt-12 overflow-hidden relative">
-         <div className="absolute -right-20 -bottom-20 opacity-5 pointer-events-none">
-            <Terminal className="size-64" />
+      {/* Enterprise CTA */}
+      <div className="max-w-6xl mx-auto mt-12 bg-slate-900 rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+         <div className="flex items-center gap-6">
+            <div className="h-16 w-16 bg-slate-800 rounded-xl flex items-center justify-center shrink-0">
+               <Building2 className="h-8 w-8 text-blue-400" />
+            </div>
+            <div>
+               <h2 className="text-2xl font-bold text-white mb-2">Need a custom solution?</h2>
+               <p className="text-slate-400 max-w-xl">
+                 For high volume links, custom integrations, SLAs, and dedicated account management. Let's talk about an Enterprise plan.
+               </p>
+            </div>
          </div>
-         <div className="max-w-2xl">
-            <h2 className="text-4xl font-black uppercase italic tracking-tighter mb-4">CUSTOM_INFRASTRUCTURE?</h2>
-            <p className="text-[10px] font-mono uppercase tracking-widest text-white/40 leading-relaxed">
-              FOR_LARGE_ENTITY_COLLECTIVES_REQUIRING_DEDICATED_BUFFER_POOLS_AND_ISOLATED_RELAY_ARRAYS. 
-              WE_PROVIDE_TAILORED_LOGISTICS_FOR_GLOBAL_DOMINANCE.
-            </p>
-         </div>
-         <Button variant="outline" className="btn-ghost-mono h-16 px-12 text-sm group">
-            ESTABLISH_COMM_LINK
-            <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-2" />
+         <Button variant="secondary" className="h-12 px-8 shrink-0 hover:bg-slate-100">
+            Contact Sales <ArrowRight className="ml-2 h-4 w-4" />
          </Button>
+      </div>
+
+      {/* Current Billing Details */}
+      <div className="max-w-6xl mx-auto mt-12 mb-8">
+         <div className="card p-8 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+               <div className="h-12 w-12 bg-blue-50 rounded-full flex items-center justify-center">
+                  <CreditCard className="h-6 w-6 text-primary" />
+               </div>
+               <div>
+                  <h3 className="text-lg font-bold text-slate-900">Payment Methods</h3>
+                  <p className="text-sm text-slate-500">Manage your cards and billing history securely via Stripe.</p>
+               </div>
+            </div>
+            <Button variant="secondary" className="bg-white">
+               Manage Billing
+            </Button>
+         </div>
       </div>
     </div>
   )

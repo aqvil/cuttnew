@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
@@ -43,18 +42,18 @@ export default function NewBioPage() {
     try {
       const finalSlug = slug || generateSlug(title) || `page-${Date.now()}`
       const page = await createBioPage({
-        title: title || "UNTITLED",
+        title: title || "Untitled Link-in-bio",
         slug: finalSlug,
         description,
       })
 
-      toast.success("Sector initialized")
+      toast.success("Link-in-bio created successfully")
       router.push(`/dashboard/bio/${page.id}`)
     } catch (err: any) {
       if (err.message?.includes("duplicate")) {
-        setError("CONFLICT: SLUG_ALREADY_EXISTS")
+        setError("This slug is already taken. Please choose another one.")
       } else {
-        setError(`ERROR: ${err.message?.toUpperCase() || "UNKNOWN_ERROR"}`)
+        setError(`Error creating page: ${err.message}`)
       }
     } finally {
       setIsLoading(false)
@@ -62,83 +61,86 @@ export default function NewBioPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-10">
-      <div className="flex items-center gap-6 border-b-2 border-primary pb-8">
-        <Button variant="ghost" size="icon" className="border-2 border-primary hover:bg-primary hover:text-primary-foreground" asChild>
+    <div className="max-w-4xl mx-auto space-y-8 pb-32 pt-8 font-sans">
+      <div className="flex items-center pb-6 border-b border-border">
+         <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 mr-4" asChild>
           <Link href="/dashboard/bio">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-5 w-5" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none">Initialize Bio</h1>
-          <p className="mt-2 text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">New Entity Sequence // Sector: Alpha</p>
+          <h1 className="text-2xl font-bold text-slate-900">Create new Link-in-bio</h1>
         </div>
       </div>
 
-      <div className="card-mono">
-        <div className="mb-8">
-          <h2 className="text-xl font-black uppercase italic italic tracking-tight">Entity Configuration</h2>
-          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">Input baseline parameters</p>
-        </div>
-        
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="space-y-2">
-            <Label htmlFor="title" className="text-[10px] font-black uppercase tracking-widest leading-none">Page Title</Label>
-            <Input
-              id="title"
-              placeholder="MY AWESOME BIO"
-              value={title}
-              onChange={handleTitleChange}
-              className="border-2 border-primary bg-background font-bold h-12 uppercase"
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
+         <div className="lg:col-span-2 space-y-6">
+            <div className="card p-8">
+               <h2 className="text-lg font-bold text-slate-900 mb-6">Page Details</h2>
+               <div className="space-y-6">
+                  <div className="space-y-2">
+                     <Label htmlFor="title" className="text-sm font-semibold text-slate-700">Profile Name</Label>
+                     <Input
+                        id="title"
+                        placeholder="Your name or brand"
+                        value={title}
+                        onChange={handleTitleChange}
+                        className="h-12 border-slate-200 bg-white"
+                     />
+                     <p className="text-xs text-slate-500">This appears at the top of your Link-in-bio.</p>
+                  </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="slug" className="text-[10px] font-black uppercase tracking-widest leading-none">URL Slug</Label>
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-sm font-bold">/P/</span>
-              <Input
-                id="slug"
-                placeholder="MY-AWESOME-BIO"
-                value={slug}
-                onChange={(e) => setSlug(generateSlug(e.target.value))}
-                className="border-2 border-primary bg-background font-bold h-12 uppercase"
-              />
+                  <div className="space-y-2">
+                     <Label htmlFor="slug" className="text-sm font-semibold text-slate-700">Link-in-bio URL</Label>
+                     <div className="flex items-center gap-2">
+                        <div className="h-12 px-4 flex items-center bg-slate-50 border border-slate-200 rounded-lg text-slate-500 font-medium whitespace-nowrap">
+                           linkforge.app/p/
+                        </div>
+                        <Input
+                           id="slug"
+                           placeholder="my-awesome-bio"
+                           value={slug}
+                           onChange={(e) => setSlug(generateSlug(e.target.value))}
+                           className="h-12 border-slate-200 bg-white flex-1"
+                        />
+                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                     <Label htmlFor="description" className="text-sm font-semibold text-slate-700">Description (optional)</Label>
+                     <Textarea
+                        id="description"
+                        placeholder="Tell your audience what this page is about..."
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        rows={4}
+                        className="border-slate-200 bg-white resize-none py-3"
+                     />
+                  </div>
+               </div>
             </div>
-            <p className="text-[10px] font-mono uppercase tracking-widest opacity-50 mt-2">
-              PUBLIC_PATH: LINKFORGE.APP/P/{slug || "YOUR-SLUG"}
-            </p>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-[10px] font-black uppercase tracking-widest leading-none">Description (optional)</Label>
-            <Textarea
-              id="description"
-              placeholder="EXPLAIN THE ENTITY PURPOSE..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className="border-2 border-primary bg-background font-bold rounded-none uppercase"
-            />
-          </div>
+            {error && (
+               <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600 font-medium">
+                  {error}
+               </div>
+            )}
+         </div>
 
-          {error && (
-            <div className="border-2 border-destructive p-4 bg-destructive/10">
-              <p className="text-[10px] font-mono uppercase text-destructive font-black tracking-widest">{error}</p>
+         <div className="lg:col-span-1">
+            <div className="sticky top-24">
+               <div className="card p-6 shadow-sm">
+                  <Button type="submit" disabled={isLoading} className="btn-primary w-full h-12 text-base">
+                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                     Create Link-in-bio
+                  </Button>
+                  <Button type="button" variant="ghost" className="w-full mt-2 text-slate-500" asChild>
+                     <Link href="/dashboard/bio">Cancel</Link>
+                  </Button>
+               </div>
             </div>
-          )}
-
-          <div className="flex items-center gap-4 pt-4">
-            <Button type="submit" disabled={isLoading} className="btn-mono">
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Initialize Segment
-            </Button>
-            <Button type="button" variant="outline" className="border-2 border-border hover:border-primary px-6 py-2 uppercase font-black tracking-widest text-xs" asChild>
-              <Link href="/dashboard/bio">Abort</Link>
-            </Button>
-          </div>
-        </form>
-      </div>
+         </div>
+      </form>
     </div>
   )
 }

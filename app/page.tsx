@@ -1,231 +1,171 @@
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { 
   Link2, 
   BarChart3, 
-  Sparkles, 
   Globe, 
-  Zap, 
-  Shield,
+  ShieldCheck,
   ArrowRight,
-  Terminal,
-  Cpu,
-  Fingerprint
+  QrCode,
+  Smartphone
 } from "lucide-react"
 import Link from "next/link"
 
 export default function LandingPage() {
   return (
-    <div className="relative min-h-screen bg-background overflow-hidden selection:bg-primary selection:text-primary-foreground">
-      {/* Structural Grid Background */}
-      <div className="absolute inset-0 grid-bg-columns opacity-40 pointer-events-none" />
-      
-      {/* Header */}
-      <nav className="relative z-10 flex items-center justify-between px-8 h-24 border-b border-white/10 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center border-2 border-primary bg-primary text-black transform rotate-3 hover:rotate-0 transition-transform cursor-pointer">
-            <Link2 className="h-6 w-6" />
-          </div>
-          <span className="text-2xl font-black uppercase italic tracking-tighter">LinkForge</span>
-        </div>
-        
-        <div className="hidden md:flex items-center gap-12">
-          {['FEATURES', 'COLLECTION', 'LOGISTICS', 'DOCS'].map((item) => (
-            <Link 
-              key={item} 
-              href="#" 
-              className="text-[10px] font-black uppercase tracking-[0.3em] hover:text-accent transition-colors"
-            >
-              {item}
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
+      {/* Navigation */}
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-white/80 backdrop-blur-md">
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-2 text-primary font-bold text-xl tracking-tight">
+              <Link2 className="h-6 w-6 stroke-[3]" />
+              LinkForge
             </Link>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-4">
-          <Link href="/auth/login" className="text-[10px] font-black uppercase tracking-[0.3em] hover:text-accent px-4 py-2">
-            LOGIN
-          </Link>
-          <Button variant="outline" className="btn-mono h-12" asChild>
-            <Link href="/auth/login">INITIALIZE_NODE</Link>
-          </Button>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <main className="relative z-10 container mx-auto px-8 pt-32 pb-64">
-        <div className="max-w-6xl">
-          <div className="tech-label mb-8">
-            <Cpu className="h-3 w-3" />
-            SYSTEM_V0.1.0_READY
+            <nav className="hidden md:flex gap-6">
+              {['Products', 'Solutions', 'Pricing', 'Resources'].map((item) => (
+                <Link 
+                  key={item} 
+                  href="#" 
+                  className="text-sm font-semibold text-slate-700 hover:text-primary transition-colors"
+                >
+                  {item}
+                </Link>
+              ))}
+            </nav>
           </div>
+          <div className="flex items-center gap-4">
+            <Link href="/auth/login" className="text-sm font-semibold text-slate-700 hover:text-primary transition-colors hidden sm:block">
+              Log in
+            </Link>
+            <Button className="btn-primary rounded-full px-6" asChild>
+              <Link href="/auth/login">Get started for free</Link>
+            </Button>
+          </div>
+        </div>
+      </header>
 
-          <h1 className="text-9xl-condensed mb-12">
-            BUILD <span className="text-white/40">WITHOUT</span><br />
-            LIMITS
-          </h1>
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="bg-[#fcfdff] pt-24 pb-32 border-b border-blue-100">
+          <div className="container mx-auto px-6 max-w-4xl text-center space-y-8">
+            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
+              Build stronger digital <span className="text-primary">connections</span>
+            </h1>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              Create short links, QR Codes, and Link-in-bio pages. Share them anywhere. Track what's working, and what's not.
+            </p>
 
-          <div className="grid md:grid-cols-2 gap-24 items-start">
-            <div className="space-y-12">
-              <p className="text-xl text-white/60 font-medium leading-relaxed max-w-lg">
-                The tactical edge for your digital presence. Create high-performance bio segments, 
-                secure redirection nodes, and analyzed links in seconds.
+            {/* Quick Shortener Tool (Visual only for landing) */}
+            <div className="bg-white p-4 rounded-2xl shadow-xl shadow-blue-900/5 max-w-3xl mx-auto mt-12 border border-slate-200">
+              <form className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1 relative">
+                  <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                  <Input 
+                    placeholder="Paste a long URL" 
+                    className="h-14 pl-12 rounded-xl border-slate-200 bg-slate-50 text-base focus-visible:ring-primary shadow-inner"
+                  />
+                </div>
+                <Button className="btn-primary h-14 px-8 text-base shadow-lg shadow-primary/20">
+                  Shorten link
+                </Button>
+              </form>
+              <p className="text-xs text-slate-500 mt-4 font-medium text-left px-2">
+                By clicking Shorten link, you agree to our Terms of Service and Privacy Policy.
               </p>
-              
-              <div className="flex flex-wrap gap-6 pt-6">
-                <Button className="btn-mono group h-16 px-10 text-base" asChild>
-                  <Link href="/auth/login">
-                    GET_STARTED
-                    <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-2" />
-                  </Link>
-                </Button>
-                <Button variant="outline" className="btn-ghost-mono h-16 px-10 text-base" asChild>
-                  <Link href="#features">VIEW_STREAMS</Link>
-                </Button>
-              </div>
-
-              {/* Status Widgets */}
-              <div className="flex gap-4 pt-12">
-                <div className="border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-sm">
-                  <div className="flex items-center gap-3 mb-1">
-                    <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-                    <span className="text-[8px] font-mono font-bold uppercase tracking-widest opacity-60">LATENCY</span>
-                  </div>
-                  <div className="text-xl font-black italic tracking-tighter">12MS</div>
-                </div>
-                <div className="border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-sm">
-                  <div className="text-[8px] font-mono font-bold uppercase tracking-widest opacity-60 mb-1">UPTIME</div>
-                  <div className="text-xl font-black italic tracking-tighter">99.98%</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Code Preview Widget */}
-            <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-accent/20 to-transparent blur-2xl opacity-50" />
-              <div className="relative card-mono border-white/20">
-                <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
-                  <div className="flex items-center gap-2">
-                    <Terminal className="h-4 w-4 text-white/40" />
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-white/40">LINK_INSTANCE.TS</span>
-                  </div>
-                  <div className="flex gap-1.5">
-                    <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
-                    <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
-                    <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
-                  </div>
-                </div>
-                <div className="font-mono text-sm space-y-2 text-white/80 leading-relaxed">
-                  <p><span className="text-accent">const</span> project = <span className="text-accent">new</span> LinkForge({'{'}</p>
-                  <p className="pl-4">node: <span className="text-amber-200">'PRODUCTION'</span>,</p>
-                  <p className="pl-4">analytics: <span className="text-emerald-300">true</span>,</p>
-                  <p className="pl-4">encryption: <span className="text-emerald-300">true</span></p>
-                  <p>{'}'});</p>
-                  <p className="pt-4 text-white/40">// Initialize redirect sequence</p>
-                  <p>project.deploy({'{'} </p>
-                  <p className="pl-4">target: <span className="text-amber-200">'https://domain.com/bio'</span></p>
-                  <p>{'}'});</p>
-                  <div className="pt-6 border-t border-white/10 mt-6 flex items-center justify-between">
-                    <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/40">SYSTEM_OPERATIONAL</span>
-                    <Fingerprint className="h-4 w-4 text-white/20" />
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* Products Section */}
+        <section className="py-24 bg-white">
+          <div className="container mx-auto px-6 max-w-6xl">
+            <div className="text-center mb-16 space-y-4">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900">
+                The LinkForge Connections Platform
+              </h2>
+              <p className="text-lg text-slate-600">
+                All the products you need to build brand connections, manage links and QR Codes, and connect with audiences everywhere.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                {
+                  icon: Link2,
+                  title: "Link Management",
+                  desc: "A comprehensive solution to help make every point of connection between your content and your audience more powerful.",
+                  color: "text-blue-600",
+                  bg: "bg-blue-50"
+                },
+                {
+                  icon: Smartphone,
+                  title: "Link-in-bio",
+                  desc: "Create a beautiful page that connects your audience to all your important content with just one link.",
+                  color: "text-purple-600",
+                  bg: "bg-purple-50"
+                },
+                {
+                  icon: QrCode,
+                  title: "QR Codes",
+                  desc: "QR Code solutions for every customer, campaign and tracking requirement, connecting the physical and digital.",
+                  color: "text-emerald-600",
+                  bg: "bg-emerald-50"
+                }
+              ].map((product) => (
+                <div key={product.title} className="card p-8 flex flex-col items-start hover:shadow-lg transition-shadow border-slate-200">
+                  <div className={`h-14 w-14 rounded-2xl ${product.bg} flex items-center justify-center mb-6`}>
+                    <product.icon className={`h-7 w-7 ${product.color}`} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-4">{product.title}</h3>
+                  <p className="text-slate-600 mb-8 flex-1">{product.desc}</p>
+                  <Link href="/auth/login" className="text-primary font-bold hover:underline inline-flex items-center">
+                    Learn more <ArrowRight className="ml-1 h-4 w-4" />
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Enterprise/Trust Section */}
+        <section className="py-24 bg-slate-900 text-white">
+          <div className="container mx-auto px-6 max-w-6xl text-center space-y-12">
+            <h2 className="text-3xl md:text-4xl font-extrabold">
+              Global scale and security
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {[
+                { value: "500K+", label: "Global paying customers" },
+                { value: "10B+", label: "Connections created" },
+                { value: "99.9%", label: "Uptime guarantee" },
+                { value: "256-bit", label: "Encryption protocol" },
+              ].map(stat => (
+                <div key={stat.label} className="space-y-2">
+                  <div className="text-4xl font-black text-blue-400">{stat.value}</div>
+                  <div className="text-sm font-medium text-slate-400">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
       </main>
 
-      {/* Features Section */}
-      <section id="features" className="relative z-10 border-y border-white/10 bg-white/[0.02] py-48">
-        <div className="container mx-auto px-8">
-          <div className="max-w-2xl mb-24">
-            <h2 className="text-4xl-condensed mb-6 italic">HIGH_CORE_FLUX</h2>
-            <p className="text-lg text-white/60 font-medium">Advanced protocols for superior digital management.</p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-px bg-white/10 border border-white/10">
-            {[
-              { icon: Zap, label: "01", title: "INSTANT_BUFFER", desc: "Redirection latency optimized to the physical limit. Your users don't wait." },
-              { icon: Shield, label: "02", title: "HARDWARE_LOCK", desc: "Military-grade encryption for your sensitive redirections. Total security." },
-              { icon: BarChart3, label: "03", title: "RAW_STREAM_DATA", desc: "Unfiltered analytics stream. See exactly how your traffic flows through the network." },
-            ].map((f) => (
-              <div key={f.label} className="bg-black p-12 space-y-8 hover:bg-white/[0.03] transition-colors group">
-                <div className="flex items-center justify-between">
-                  <f.icon className="h-8 w-8 text-primary group-hover:text-accent transition-colors" />
-                  <span className="text-[10px] font-black font-mono opacity-20">{f.label}</span>
-                </div>
-                <h3 className="text-xl font-black uppercase italic tracking-tight">{f.title}</h3>
-                <p className="text-[10px] font-mono leading-relaxed opacity-50 uppercase tracking-widest">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section className="relative z-10 py-64">
-        <div className="container mx-auto px-8 text-center mb-24">
-          <h2 className="text-6xl font-black uppercase italic tracking-tighter italic mb-4">CHOOSE_POWER_LEVEL</h2>
-          <p className="text-[10px] font-mono uppercase tracking-widest opacity-50">Logistic allocation parameters</p>
-        </div>
-
-        <div className="container mx-auto px-8 grid md:grid-cols-3 gap-12 max-w-7xl">
-          {[
-            {
-              price: "$0",
-              tier: "BASE",
-              desc: "STABLE_STARK_0",
-              features: ["1 BIO_PAGE", "50 LINKS", "STATIC_METRICS"]
-            },
-            {
-              price: "$9",
-              tier: "ELITE",
-              desc: "CORE_OVERLOAD_V2",
-              features: ["UNLIMITED_PAGES", "500 LINKS", "REALTIME_FLOW", "CUSTOM_VECTORS"],
-              popular: true
-            },
-            {
-              price: "$29",
-              tier: "GLOBAL",
-              desc: "NETWORK_DOMINANCE",
-              features: ["RAW_API_ACCESS", "CUSTOM_DOMAINS", "PRIORITY_RE-SYNC", "TEAM_LOGIC"]
-            }
-          ].map((plan) => (
-            <div key={plan.tier} className={`relative p-12 border-4 transition-all ${plan.popular ? 'border-primary shadow-[20px_20px_0px_0px_rgba(255,77,77,0.1)]' : 'border-white/10'}`}>
-              <div className="text-6xl font-black italic tracking-tighter mb-4">{plan.price}</div>
-              <div className="text-xl font-black uppercase tracking-tight mb-2">{plan.tier}_ALLOCATION</div>
-              <div className="text-[8px] font-mono uppercase tracking-[0.3em] text-white/40 mb-12">{plan.desc}</div>
-              
-              <ul className="space-y-6 mb-12">
-                {plan.features.map(f => (
-                  <li key={f} className="text-[10px] font-mono uppercase tracking-widest flex items-center gap-3">
-                    <div className="h-1.5 w-1.5 bg-primary" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <Button className="btn-mono w-full h-16 text-base">INITIALIZE</Button>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/10 py-24 bg-black">
-        <div className="container mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-12">
-          <div className="flex items-center gap-3">
-            <Link2 className="h-6 w-6 text-primary" />
-            <span className="text-2xl font-black uppercase italic tracking-tighter">LinkForge</span>
+      <footer className="bg-white border-t border-slate-200 py-12">
+        <div className="container mx-auto px-6 max-w-6xl flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2 text-primary font-bold text-xl tracking-tight">
+            <Link2 className="h-6 w-6 stroke-[3]" />
+            LinkForge
           </div>
-          <div className="flex gap-12">
-            {['PRIVACY', 'TERMS', 'SECURITY', 'INFRASTRUCTURE'].map(item => (
-              <Link key={item} href="#" className="text-[10px] font-black uppercase tracking-widest hover:text-accent">
-                {item}
-              </Link>
-            ))}
+          <div className="flex gap-8 text-sm font-medium text-slate-600">
+            <Link href="#" className="hover:text-primary">Support</Link>
+            <Link href="#" className="hover:text-primary">Terms of Service</Link>
+            <Link href="#" className="hover:text-primary">Privacy Policy</Link>
           </div>
-          <p className="text-[8px] font-mono uppercase tracking-widest text-white/40">
-            © 2026 LINKFORGE_OS ALL_SYSTEMS_OPERATIONAL
+          <p className="text-sm text-slate-400">
+            © 2026 LinkForge Inc. All rights reserved.
           </p>
         </div>
       </footer>

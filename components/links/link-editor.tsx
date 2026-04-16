@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { ArrowLeft, Loader2, ExternalLink, Copy, Check, Trash2, BarChart2, Shield, Activity, Lock } from "lucide-react"
+import { ArrowLeft, ExternalLink, Copy, Check, Trash2, LayoutTemplate, Link2 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -48,7 +48,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
   const handleCopy = async () => {
     await navigator.clipboard.writeText(shortUrl)
     setCopied(true)
-    toast.success("METADATA_EXTRACTED")
+    toast.success("Link copied to clipboard")
     setTimeout(() => setCopied(false), 2000)
   }
 
@@ -64,10 +64,10 @@ export function LinkEditor({ link }: LinkEditorProps) {
         expiresAt: useExpiration && expiresAt ? expiresAt : null,
         isActive,
       })
-      toast.success("CORE_LOGIC_SYNCED")
+      toast.success("Link details saved")
       router.refresh()
     } catch (err: any) {
-      setError(`CRITICAL_FAILURE: ${err.message?.toUpperCase() || "UNKNOWN_OP_ERROR"}`)
+      setError(`Error saving link: ${err.message}`)
     } finally {
       setIsSaving(false)
     }
@@ -77,228 +77,179 @@ export function LinkEditor({ link }: LinkEditorProps) {
     setIsDeleting(true)
     try {
       await deleteShortLink(link.id)
-      toast.success("ENTITY_NULLIFIED")
+      toast.success("Link deleted successfully")
       router.push("/dashboard/links")
     } catch (err) {
-      toast.error("PURGE_REJECTED")
+      toast.error("Failed to delete link")
       setIsDeleting(false)
     }
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12 pb-32">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-white/10 pb-10">
-        <div className="flex items-start gap-8">
-          <Button variant="outline" size="icon" className="h-12 w-12 border-white/10 bg-transparent hover:border-white transition-all rounded-none mt-2" asChild>
-            <Link href="/dashboard/links">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div>
-            <div className="tech-label mb-3">
-               <Shield className="h-3 w-3" />
-               NODE_ENCRYPTION_ACTIVE
-            </div>
-            <h1 className="text-6xl font-black uppercase italic tracking-tighter leading-none">MOD_RELAY</h1>
-            <p className="text-[10px] font-mono uppercase tracking-[0.4em] text-white/40 mt-3">
-              NODE_ID: {link.shortCode} // STATUS: {isActive ? 'OPERATIONAL' : 'OFFLINE'}
-            </p>
-          </div>
-        </div>
-
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="outline" className="h-14 px-8 border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all rounded-none text-[10px] font-black uppercase italic tracking-widest">
-              TERMINATE_NODE
+    <div className="max-w-4xl mx-auto space-y-8 pb-32 pt-8">
+      {/* Header */}
+      <div className="flex items-center justify-between pb-6 border-b border-border">
+         <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" className="h-10 w-10 text-slate-500 hover:bg-slate-100 hover:text-slate-900" asChild>
+              <Link href="/dashboard/links">
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
             </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent className="rounded-none border border-white/20 bg-black max-w-lg p-10">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-2xl font-black uppercase italic tracking-tight">NULLIFY_ENTITY?</AlertDialogTitle>
-              <AlertDialogDescription className="text-[10px] font-mono uppercase tracking-widest leading-relaxed mt-4">
-                THIS_ACTION_TERMINATES_ALL_ASSOCIATED_DATA_STREAMS_AND_REDIRECTION_BUFFERS. THE_NODE_WILL_BE_PERMANENTLY_ELIMINATED_FROM_THE_GRID.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="mt-10 gap-4">
-              <AlertDialogCancel className="rounded-none border border-white/10 bg-transparent uppercase font-black italic text-[10px] opacity-40 hover:opacity-100 h-12 px-8">ABORT</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="rounded-none bg-red-500 text-white uppercase font-black italic text-[10px] hover:bg-red-600 h-12 px-8 transition-all">
-                {isDeleting ? "NULLIFYING..." : "CONFIRM_TERMINATION"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+            <div>
+               <h1 className="text-2xl font-bold text-slate-900">Edit Link</h1>
+               <p className="text-sm text-slate-500 mt-1">Manage destination and link security</p>
+            </div>
+         </div>
+
+         <div className="flex items-center gap-3">
+             <Button variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50" asChild>
+               <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50 font-medium">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="rounded-xl">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-xl font-bold text-slate-900">Delete Link?</AlertDialogTitle>
+                    <AlertDialogDescription className="text-base text-slate-600">
+                      Are you sure you want to delete this link? This action cannot be undone and will break any existing URLs shared.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="mt-6">
+                    <AlertDialogCancel className="btn-secondary">Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="btn-primary bg-red-600 hover:bg-red-700">
+                      {isDeleting ? "Deleting..." : "Yes, delete link"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+             </Button>
+         </div>
       </div>
 
-      <div className="grid lg:grid-cols-5 gap-12">
-        {/* Main Parameters */}
-        <div className="lg:col-span-3 space-y-8">
-          <div className="card-mono p-10 border-white/20">
-            <div className="flex items-center justify-between mb-10 border-b border-white/10 pb-4">
-              <div className="flex items-center gap-3">
-                <Activity className="h-4 w-4 text-white/40" />
-                <h2 className="text-sm font-black uppercase italic tracking-widest">CORE_PARAMETERS</h2>
-              </div>
-              <span className="text-[8px] font-mono font-bold opacity-20">[01]</span>
-            </div>
-
-            <div className="space-y-10">
-               <div className="flex items-center justify-between group">
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-black uppercase tracking-widest">RELAY_ENABLED</Label>
-                  <p className="text-[8px] font-mono uppercase tracking-[0.2em] opacity-40">TOGGLE_REDIRECTION_FLUX</p>
-                </div>
-                <Switch
-                  checked={isActive}
-                  onCheckedChange={setIsActive}
-                  className="data-[state=checked]:bg-white"
-                />
-              </div>
-
-              <div className="space-y-3">
-                <Label htmlFor="url" className="text-[10px] font-black uppercase tracking-widest">DESTINATION_ADDR</Label>
-                <div className="relative group">
-                  <ExternalLink className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/20 group-hover:text-white transition-colors" />
-                  <Input
-                    id="url"
-                    type="url"
-                    value={originalUrl}
-                    onChange={(e) => setOriginalUrl(e.target.value)}
-                    className="border border-white/10 bg-white/5 h-14 pl-12 text-sm font-bold rounded-none focus:border-white transition-all"
-                  />
-                </div>
-              </div>
-
-               <div className="space-y-3">
-                <Label htmlFor="title" className="text-[10px] font-black uppercase tracking-widest">NODE_ALIAS</Label>
-                <Input
-                  id="title"
-                  placeholder="IDENTIFY_NODE"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="border border-white/10 bg-white/5 h-14 px-6 text-[10px] font-mono uppercase tracking-widest rounded-none focus:border-white transition-all"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="card-mono p-10 border-white/10">
-            <div className="flex items-center justify-between mb-10 border-b border-white/10 pb-4">
-              <div className="flex items-center gap-3">
-                <Shield className="h-4 w-4 text-white/40" />
-                <h2 className="text-sm font-black uppercase italic tracking-widest">GATEWAY_SECURITY</h2>
-              </div>
-              <span className="text-[8px] font-mono font-bold opacity-20">[02]</span>
-            </div>
-
-            <div className="space-y-10">
-               <div className="flex items-center justify-between group">
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-black uppercase tracking-widest">FORCE_ENCRYPTION</Label>
-                  <p className="text-[8px] font-mono uppercase tracking-[0.2em] opacity-40">ENABLE_GATEWAY_LOCK</p>
-                </div>
-                <Switch
-                  checked={usePassword}
-                  onCheckedChange={setUsePassword}
-                  className="data-[state=checked]:bg-white"
-                />
-              </div>
-
-              {usePassword && (
-                <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest">DECRYPTION_KEY</Label>
-                  <Input
-                    type="password"
-                    placeholder={link.password ? "STAY_ENCRYPTED_OR_ENTER_NEW" : "INITIAL_ENCRYPTION_KEY"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="border border-white/10 bg-white/5 h-14 px-6 text-[10px] font-mono uppercase tracking-widest rounded-none focus:border-white transition-all"
-                  />
-                </div>
-              )}
-
-              <div className="flex items-center justify-between group">
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-black uppercase tracking-widest">TEMPORAL_DECAY</Label>
-                  <p className="text-[8px] font-mono uppercase tracking-[0.2em] opacity-40">AUTO_TERMINATE_SEQUENCE</p>
-                </div>
-                <Switch
-                   checked={useExpiration}
-                   onCheckedChange={setUseExpiration}
-                   className="data-[state=checked]:bg-white"
-                />
-              </div>
-
-              {useExpiration && (
-                <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                   <Label className="text-[10px] font-black uppercase tracking-widest">EXPIRATION_PULSE</Label>
-                   <Input
-                    type="datetime-local"
-                    value={expiresAt}
-                    onChange={(e) => setExpiresAt(e.target.value)}
-                    className="border border-white/10 bg-white/5 h-14 px-6 text-[10px] font-mono uppercase tracking-widest rounded-none focus:border-white transition-all invert"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Action Sidebar */}
-        <div className="lg:col-span-2 space-y-8">
-           <div className="card-mono p-10 border-white/10">
-              <h3 className="text-[10px] font-black uppercase tracking-widest mb-8 border-b border-white/10 pb-4 opacity-40">
-                ACCESS_LINK
-              </h3>
-              <div className="space-y-6">
-                <div className="border border-white/10 bg-black p-4 flex items-center justify-between group">
-                  <span className="text-[10px] font-mono truncate mr-4 opacity-40 uppercase tracking-widest">{shortUrl}</span>
-                  <div className="flex gap-2">
-                    <button onClick={handleCopy} className="p-2 hover:bg-white/10 transition-colors">
-                      {copied ? <Check className="h-4 w-4 text-accent" /> : <Copy className="h-4 w-4" />}
-                    </button>
-                    <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-white/10 transition-colors">
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
+      <div className="grid lg:grid-cols-3 gap-8">
+         {/* Main Editor */}
+         <div className="lg:col-span-2 space-y-6">
+            <div className="card p-8">
+               <h2 className="text-lg font-bold text-slate-900 mb-6">Link Destination</h2>
+               
+               <div className="space-y-6">
+                  <div className="space-y-2">
+                     <Label className="text-sm font-semibold text-slate-700">Destination URL <span className="text-red-500">*</span></Label>
+                     <Input
+                        value={originalUrl}
+                        onChange={(e) => setOriginalUrl(e.target.value)}
+                        className="h-12 border-slate-200 bg-white"
+                        placeholder="https://example.com/very-long-url"
+                     />
                   </div>
-                </div>
 
-                <div className="pt-4 flex items-end justify-between border-t border-white/10">
-                   <div>
-                    <span className="text-[8px] font-mono font-bold uppercase opacity-30">TOTAL_REDIRECTIONS</span>
-                    <div className="text-5xl font-black italic tracking-tighter tabular-nums mt-1">{link.clickCount.toLocaleString()}</div>
-                   </div>
-                   <Button variant="outline" className="btn-ghost-mono px-4 h-10 text-[8px]" asChild>
-                    <Link href={`/dashboard/analytics?link=${link.id}`}>
-                      TELEMETRY_STREAM
-                    </Link>
-                   </Button>
-                </div>
-              </div>
-           </div>
-
-           <div className="space-y-4">
-              <Button onClick={handleSave} disabled={isSaving} className="btn-mono w-full h-16 text-sm">
-                {isSaving ? (
-                   <>
-                    <Loader2 className="mr-3 h-5 w-5 animate-spin" />
-                    SYNCING_LOGIC...
-                  </>
-                ) : (
-                  "COMMIT_PARAMETERS"
-                )}
-              </Button>
-              <Button variant="outline" className="btn-ghost-mono w-full h-14" asChild>
-                <Link href="/dashboard/links">ABORT_OPERATIONS</Link>
-              </Button>
-           </div>
-           
-           {error && (
-            <div className="card-mono border-red-500/50 bg-red-500/5 p-6 animate-shake">
-                <p className="text-[10px] font-mono uppercase text-red-500 font-black tracking-widest">{error}</p>
+                  <div className="space-y-2">
+                     <Label className="text-sm font-semibold text-slate-700">Title (Optional)</Label>
+                     <Input
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="h-12 border-slate-200 bg-white"
+                        placeholder="My awesome link"
+                     />
+                     <p className="text-xs text-slate-500">Helps you identify this link in your dashboard.</p>
+                  </div>
+               </div>
             </div>
-           )}
-        </div>
+
+            <div className="card p-8">
+               <h2 className="text-lg font-bold text-slate-900 mb-6">Security & Routing</h2>
+
+               <div className="space-y-8">
+                  {/* Status */}
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-8">
+                     <div>
+                        <Label className="text-base font-semibold text-slate-900">Active Status</Label>
+                        <p className="text-sm text-slate-500 mt-1">If turned off, the link will redirect to an error page.</p>
+                     </div>
+                     <Switch checked={isActive} onCheckedChange={setIsActive} />
+                  </div>
+
+                  {/* Password */}
+                  <div className="flex items-center justify-between">
+                     <div>
+                        <Label className="text-base font-semibold text-slate-900">Password Protection</Label>
+                        <p className="text-sm text-slate-500 mt-1">Require a password to access the destination URL.</p>
+                     </div>
+                     <Switch checked={usePassword} onCheckedChange={setUsePassword} />
+                  </div>
+                  {usePassword && (
+                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <Label className="text-sm font-semibold text-slate-700">Password</Label>
+                        <Input
+                           type="password"
+                           placeholder={link.password ? "Leave blank to keep existing password" : "Enter a secure password"}
+                           value={password}
+                           onChange={(e) => setPassword(e.target.value)}
+                           className="h-12 mt-2"
+                        />
+                     </div>
+                  )}
+
+                  <div className="w-full h-px bg-slate-100" />
+
+                  {/* Expiration */}
+                  <div className="flex items-center justify-between">
+                     <div>
+                        <Label className="text-base font-semibold text-slate-900">Link Expiration</Label>
+                        <p className="text-sm text-slate-500 mt-1">Automatically disable this link after a specific date.</p>
+                     </div>
+                     <Switch checked={useExpiration} onCheckedChange={setUseExpiration} />
+                  </div>
+                  {useExpiration && (
+                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <Label className="text-sm font-semibold text-slate-700">Expiration Date</Label>
+                        <Input
+                           type="datetime-local"
+                           value={expiresAt}
+                           onChange={(e) => setExpiresAt(e.target.value)}
+                           className="h-12 mt-2"
+                        />
+                     </div>
+                  )}
+               </div>
+            </div>
+
+            {error && (
+               <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600 font-medium font-sans">
+                  {error}
+               </div>
+            )}
+         </div>
+
+         {/* Sidebar Preview */}
+         <div className="lg:col-span-1 space-y-6">
+            <div className="card p-6 border-blue-100 shadow-xl shadow-blue-900/5">
+               <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Short Link</h3>
+               <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg mb-6">
+                  <div className="flex items-center gap-3 mb-2">
+                     <Link2 className="h-5 w-5 text-primary" />
+                     <span className="font-semibold text-slate-900 truncate">{shortUrl}</span>
+                  </div>
+                  <div className="flex gap-2">
+                     <Button variant="secondary" className="w-full bg-white h-9" onClick={handleCopy}>
+                        {copied ? "Copied!" : "Copy"}
+                     </Button>
+                     <Button variant="secondary" size="icon" className="w-9 shrink-0 bg-white" asChild>
+                        <a href={shortUrl} target="_blank" rel="noopener noreferrer">
+                           <ExternalLink className="h-4 w-4" />
+                        </a>
+                     </Button>
+                  </div>
+               </div>
+
+               <Button className="btn-primary w-full h-12 text-base" onClick={handleSave} disabled={isSaving}>
+                  {isSaving ? "Saving changes..." : "Save details"}
+               </Button>
+            </div>
+         </div>
       </div>
     </div>
   )

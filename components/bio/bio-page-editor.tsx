@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
 import { 
   ArrowLeft, 
-  Save, 
   Settings, 
   Palette,
   Plus,
@@ -24,9 +23,8 @@ import {
   Minus,
   Mail,
   Heading,
-  Terminal,
-  Activity,
-  Cpu
+  Smartphone,
+  Eye
 } from "lucide-react"
 import Link from "next/link"
 import { BioBlockItem } from "./bio-block-item"
@@ -59,6 +57,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [showAddBlock, setShowAddBlock] = useState(false)
   const [activeTab, setActiveTab] = useState("editor")
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false)
   const router = useRouter()
 
   const handleSave = async () => {
@@ -72,10 +71,10 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
         slug: page.slug
       })
       await saveBioBlocks(page.id, blocks)
-      toast.success("SEGMENT_COMMITTED")
+      toast.success("Design published successfully")
       router.refresh()
     } catch (error) {
-      toast.error("COMMIT_FAILED")
+      toast.error("Failed to publish design")
     } finally {
       setIsSaving(false)
     }
@@ -120,188 +119,167 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
   }, [])
 
   return (
-    <div className="h-[calc(100vh-5rem)] flex flex-col bg-black overflow-hidden relative">
-       {/* Structural Grid Background for Editor Area */}
-      <div className="absolute inset-0 grid-bg opacity-5 pointer-events-none" />
-
+    <div className="h-[calc(100vh-4rem)] flex flex-col bg-slate-50 overflow-hidden font-sans">
       {/* Editor Header */}
-      <div className="relative z-10 flex items-center justify-between border-b border-white/10 px-8 py-6 bg-black/40 backdrop-blur-md">
-        <div className="flex items-center gap-8">
-          <Button variant="outline" size="icon" className="h-12 w-12 border-white/10 bg-transparent hover:border-white transition-all rounded-none" asChild>
+      <div className="shrink-0 flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-white z-10">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-500 hover:bg-slate-100" asChild>
             <Link href="/dashboard/bio">
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-black uppercase italic tracking-tighter leading-none">{title || "UNTITLED_SEGMENT"}</h1>
-            <p className="text-[10px] font-mono text-white/40 uppercase mt-2 tracking-[0.4em]">ADDR: /p/{page.slug} // STATUS_LINKED</p>
+            <h1 className="text-xl font-bold text-slate-900 leading-none">{title || "Untitled Link-in-bio"}</h1>
+            <a href={`${process.env.NEXT_PUBLIC_APP_URL}/p/${page.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1">
+               linkforge.app/p/{page.slug}
+            </a>
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-4 border border-white/10 px-6 h-12 bg-black/60">
-            <Switch
-              id="publish"
-              checked={isPublished}
-              onCheckedChange={setIsPublished}
-              className="data-[state=checked]:bg-white"
-            />
-            <Label htmlFor="publish" className="text-[10px] font-black uppercase tracking-widest text-white/60">SEGMENT_LIVE</Label>
+        <div className="flex items-center gap-4">
+           {/* Mobile Preview Toggle (visible only on small screens) */}
+           <Button variant="secondary" className="md:hidden" onClick={() => setMobilePreviewOpen(!mobilePreviewOpen)}>
+              {mobilePreviewOpen ? <ArrowLeft className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+              {mobilePreviewOpen ? "Editor" : "Preview"}
+           </Button>
+
+          <div className="hidden sm:flex items-center gap-3 border border-slate-200 px-4 h-10 rounded-lg bg-slate-50">
+             <Label htmlFor="publish" className="text-sm font-semibold text-slate-700 cursor-pointer">Live</Label>
+             <Switch
+               id="publish"
+               checked={isPublished}
+               onCheckedChange={setIsPublished}
+             />
           </div>
           
-          <Button onClick={handleSave} disabled={isSaving} className="btn-mono h-12 px-8">
+          <Button onClick={handleSave} disabled={isSaving} className="btn-primary">
             {isSaving ? (
-              <Loader2 className="mr-3 h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="mr-3 h-4 w-4" />
-            )}
-            COMMIT_LOGIC
+               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : null}
+            Publish changes
           </Button>
         </div>
       </div>
 
       {/* Main Workspace */}
-      <div className="relative z-10 flex-1 flex overflow-hidden">
-        {/* Left Panel - Control Matrix */}
-        <div className="w-[55%] border-r border-white/10 overflow-auto p-12 bg-black/20">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="mb-12 w-full justify-start gap-4 bg-transparent p-0">
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Left Panel - Editor Form */}
+        <div className={`w-full md:w-[60%] lg:w-[55%] border-r border-slate-200 overflow-y-auto p-6 md:p-10 bg-white ${mobilePreviewOpen ? 'hidden md:block' : 'block'}`}>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-2xl mx-auto">
+            <TabsList className="mb-8 w-full justify-start gap-2 bg-transparent p-0 border-b border-slate-100 h-auto rounded-none">
               {[
-                { id: "editor", icon: Terminal, label: "BUFFER_BLOCKS" },
-                { id: "design", icon: Palette, label: "VISUAL_VECTOR" },
-                { id: "settings", icon: Settings, label: "SYS_CONFIG" }
+                { id: "editor", icon: LinkIcon, label: "Links & Blocks" },
+                { id: "design", icon: Palette, label: "Design" },
+                { id: "settings", icon: Settings, label: "Settings" }
               ].map((tab) => (
                 <TabsTrigger 
                   key={tab.id} 
                   value={tab.id}
-                  className="h-12 px-8 border border-white/10 data-[state=active]:border-white data-[state=active]:bg-white data-[state=active]:text-black rounded-none font-black uppercase italic text-[10px] tracking-widest transition-all"
+                  className="h-10 px-4 bg-transparent border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary rounded-none font-semibold text-sm transition-all text-slate-500"
                 >
-                  <tab.icon className="mr-3 size-4" />
+                  <tab.icon className="mr-2 h-4 w-4" />
                   {tab.label}
                 </TabsTrigger>
               ))}
             </TabsList>
 
-            <TabsContent value="editor" className="space-y-12 mt-0">
-               <div className="card-mono border-white/10 p-10">
-                <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-4">
-                  <div className="flex items-center gap-3">
-                    <Cpu className="h-4 w-4 text-white/40" />
-                    <h2 className="text-sm font-black uppercase italic tracking-widest">SEGMENT_META</h2>
-                  </div>
-                  <span className="text-[8px] font-mono font-bold opacity-20">[01]</span>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-3">
-                    <Label className="text-[10px] font-black uppercase tracking-widest leading-none">PRIMARY_IDENTIFIER</Label>
+            <TabsContent value="editor" className="space-y-8 mt-4 focus-visible:outline-none">
+               <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-slate-700">Profile Title</Label>
                     <Input
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      placeholder="ENTER_TITLE"
-                      className="border border-white/10 bg-white/5 h-14 px-6 text-[10px] font-mono uppercase tracking-widest rounded-none focus:border-white transition-all"
+                      placeholder="Your name or brand"
+                      className="h-12 border-slate-200 bg-white text-base"
                     />
                   </div>
-                  <div className="space-y-3">
-                    <Label className="text-[10px] font-black uppercase tracking-widest leading-none">DESCRIPTOR_STREAM</Label>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-slate-700">Bio description</Label>
                     <Input
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      placeholder="ENTER_DESCRIPTION"
-                      className="border border-white/10 bg-white/5 h-14 px-6 text-[10px] font-mono uppercase tracking-widest rounded-none focus:border-white transition-all"
+                      placeholder="A short description about you..."
+                      className="h-12 border-slate-200 bg-white text-base"
                     />
                   </div>
-                </div>
               </div>
 
-              <section className="space-y-8">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <div className="flex items-center gap-3">
-                    <Activity className="size-4 text-white/40" />
-                    <h2 className="text-sm font-black uppercase italic tracking-widest">LOGIC_BLOCKS</h2>
-                  </div>
-                  <Button variant="outline" size="sm" className="btn-ghost-mono h-10 px-4 text-[8px]" onClick={() => setShowAddBlock(true)}>
-                    <Plus className="mr-2 h-3 w-3" />
-                    ADD_BLOCK
-                  </Button>
-                </div>
+              <div className="pt-6 border-t border-slate-100">
+                <Button className="w-full h-12 btn-primary rounded-xl text-base" onClick={() => setShowAddBlock(true)}>
+                  <Plus className="mr-2 h-5 w-5" />
+                  Add Link or Block
+                </Button>
                 
-                <div className="space-y-4">
+                <div className="mt-8 space-y-4">
                   {blocks.length === 0 ? (
-                    <div className="card-mono border-dashed border-white/10 text-center py-24 opacity-40">
-                      <p className="text-[10px] font-mono uppercase tracking-[0.3em]">NO_ENTITIES_DETECTED_IN_SECTOR.</p>
-                      <Button variant="outline" className="btn-mono mt-8 h-12" onClick={() => setShowAddBlock(true)}>
-                        INITIALIZE_BLOCK
-                      </Button>
+                    <div className="border border-dashed border-slate-300 rounded-xl text-center py-16 bg-slate-50">
+                      <p className="text-sm font-medium text-slate-500">You don't have any links yet.</p>
+                      <p className="text-sm text-slate-400 mt-1">Add your first link to get started.</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       {blocks.map((block, index) => (
-                        <div key={block.id} className="relative group">
-                           {/* Coordinate Marker */}
-                           <div className="absolute -left-8 top-1/2 -translate-y-1/2 text-[10px] font-black italic opacity-10 group-hover:opacity-100 transition-opacity">
-                              [B{index.toString().padStart(2, '0')}]
-                           </div>
-                           <BioBlockItem
-                            block={block}
-                            index={index}
-                            totalBlocks={blocks.length}
-                            icon={blockTypeIcons[block.type]}
-                            onUpdate={handleUpdateBlock}
-                            onDelete={handleDeleteBlock}
-                            onToggleVisibility={handleToggleVisibility}
-                            onMoveUp={() => index > 0 && moveBlock(index, index - 1)}
-                            onMoveDown={() => index < blocks.length - 1 && moveBlock(index, index + 1)}
-                          />
-                        </div>
+                        <BioBlockItem
+                           key={block.id}
+                           block={block}
+                           index={index}
+                           totalBlocks={blocks.length}
+                           icon={blockTypeIcons[block.type]}
+                           onUpdate={handleUpdateBlock}
+                           onDelete={handleDeleteBlock}
+                           onToggleVisibility={handleToggleVisibility}
+                           onMoveUp={() => index > 0 && moveBlock(index, index - 1)}
+                           onMoveDown={() => index < blocks.length - 1 && moveBlock(index, index + 1)}
+                        />
                       ))}
                     </div>
                   )}
                 </div>
-              </section>
+              </div>
             </TabsContent>
 
-            <TabsContent value="design" className="space-y-8 mt-0">
-               <div className="card-mono p-10 border-white/20">
-                <h3 className="text-sm font-black uppercase italic tracking-widest mb-10 border-b border-white/10 pb-4">COLOR_PALETTE</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <TabsContent value="design" className="space-y-8 mt-4 focus-visible:outline-none">
+               <div className="card p-6">
+                <h3 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Colors</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {[
-                    { label: "BG_STREAM", key: "background" },
-                    { label: "TEXT_FLUX", key: "text" },
-                    { label: "ACCENT_PULSE", key: "accent" }
+                    { label: "Background", key: "background" },
+                    { label: "Card Text", key: "text" },
+                    { label: "Card Color", key: "accent" }
                   ].map((item) => (
-                    <div key={item.key} className="space-y-4">
-                      <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">{item.label}</Label>
-                      <div className="relative h-14 w-full border border-white/20 flex items-center justify-center overflow-hidden hover:border-white transition-colors">
+                    <div key={item.key} className="space-y-3">
+                      <Label className="text-sm font-semibold text-slate-700">{item.label}</Label>
+                      <div className="relative h-12 w-full border border-slate-200 rounded-lg flex items-center justify-center overflow-hidden hover:border-slate-300 transition-colors shadow-sm bg-white">
                         <input
                           type="color"
                           value={theme[item.key]}
                           onChange={(e) => setTheme({ ...theme, [item.key]: e.target.value })}
                           className="absolute inset-0 opacity-0 cursor-pointer"
                         />
-                        <span className="font-mono text-[10px] uppercase font-black tracking-widest">{theme[item.key]}</span>
+                        <span className="text-sm font-medium text-slate-700">{theme[item.key]}</span>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="card-mono p-10 border-white/10">
-                <h3 className="text-sm font-black uppercase italic tracking-widest mb-10 border-b border-white/10 pb-4">FRAME_STYLE</h3>
+              <div className="card p-6">
+                <h3 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Card Style</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { id: "minimal", label: "01_MINIMAL" },
-                    { id: "bold", label: "02_HARDWARE" },
-                    { id: "elegant", label: "03_SYNTH" },
-                    { id: "playful", label: "04_ABSTRACT" }
+                    { id: "minimal", label: "Minimal" },
+                    { id: "bold", label: "Bold Shadow" },
+                    { id: "elegant", label: "Elegant Rounded" },
+                    { id: "playful", label: "Pill Shape" }
                   ].map((style) => (
                     <button
                       key={style.id}
                       onClick={() => setTheme({ ...theme, style: style.id })}
-                      className={`h-16 px-6 text-[10px] font-black uppercase italic tracking-[0.2em] transition-all border ${
+                      className={`h-14 px-4 text-sm font-bold transition-all rounded-lg border ${
                         theme.style === style.id
-                          ? "bg-white text-black border-white"
-                          : "bg-transparent text-white/40 border-white/10 hover:border-white/40 hover:text-white"
+                          ? "bg-blue-50 text-primary border-primary"
+                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
                       }`}
                     >
                       {style.label}
@@ -311,19 +289,17 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
               </div>
             </TabsContent>
 
-            <TabsContent value="settings" className="space-y-8 mt-0">
-              <div className="card-mono p-10 border-white/20">
-                <h3 className="text-sm font-black uppercase italic tracking-widest mb-10 border-b border-white/10 pb-4">
-                  SEO_TELEMETRY
-                </h3>
-                <div className="space-y-8">
-                  <div className="space-y-3">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">META_TITLE_INDEX</Label>
-                    <Input placeholder="SEO_HEADER_VALUE" className="border border-white/10 bg-white/5 h-14 px-6 text-[10px] font-mono uppercase tracking-widest rounded-none focus:border-white transition-all" />
+            <TabsContent value="settings" className="space-y-8 mt-4 focus-visible:outline-none">
+              <div className="card p-6">
+                <h3 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Search Engine Optimization</h3>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-slate-700">SEO Title</Label>
+                    <Input placeholder="Enter title for search engines" className="h-12 border-slate-200 bg-white" />
                   </div>
-                  <div className="space-y-3">
-                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">META_DESC_BUFFER</Label>
-                    <Input placeholder="SEO_DESCRIPTION_DATA" className="border border-white/10 bg-white/5 h-14 px-6 text-[10px] font-mono uppercase tracking-widest rounded-none focus:border-white transition-all" />
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-slate-700">Meta Description</Label>
+                    <Input placeholder="Enter description for search engines" className="h-12 border-slate-200 bg-white" />
                   </div>
                 </div>
               </div>
@@ -331,30 +307,25 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
           </Tabs>
         </div>
 
-        {/* Right Panel - Reality Monitor (Preview) */}
-        <div className="flex-1 bg-black border-l border-white/10 overflow-auto p-16 relative">
-          <div className="absolute top-8 left-10 flex items-center gap-4">
-            <div className="relative">
-              <div className="size-2 bg-accent animate-ping absolute inset-0" />
-              <div className="size-2 bg-accent relative" />
-            </div>
-            <span className="text-[10px] font-black uppercase italic tracking-[0.3em] text-white/40">REALITY_MONITOR_V2.0</span>
-          </div>
-
-          <div className="mx-auto max-w-[420px] shadow-[0_0_100px_-20px_rgba(255,255,255,0.05)] border border-white/10">
-            <BioPreview
-              title={title}
-              description={description}
-              blocks={blocks}
-              theme={theme}
-            />
-          </div>
-
-          {/* Aesthetic Detail */}
-          <div className="absolute bottom-8 right-10 pointer-events-none text-right">
-             <div className="text-[8px] font-mono font-bold opacity-10 uppercase tracking-[0.5em] mb-1">DATA_STREAM_ENCRYPTED</div>
-             <div className="text-[8px] font-mono font-bold opacity-10 uppercase tracking-[0.5em]">LATENCY_12MS_STABLE</div>
-          </div>
+        {/* Right Panel - Phone Preview */}
+        <div className={`w-full md:w-[40%] lg:w-[45%] bg-slate-100 overflow-y-auto p-10 flex flex-col items-center border-l border-slate-200 ${mobilePreviewOpen ? 'block' : 'hidden md:flex'}`}>
+           <div className="mb-6 flex items-center justify-center gap-2 text-sm font-semibold text-slate-500">
+             <Smartphone className="h-4 w-4" />
+             Live Preview
+           </div>
+           
+           {/* Phone Frame */}
+           <div className="relative w-[340px] h-[720px] rounded-[3rem] border-8 border-slate-900 shadow-2xl overflow-hidden bg-white shrink-0">
+             <div className="absolute top-0 inset-x-0 h-6 bg-slate-900 rounded-b-3xl w-40 mx-auto z-50 flex items-center justify-center">
+                 <div className="h-2 w-12 bg-slate-800 rounded-full"></div>
+             </div>
+             <BioPreview
+               title={title}
+               description={description}
+               blocks={blocks}
+               theme={theme}
+             />
+           </div>
         </div>
       </div>
 
@@ -370,21 +341,21 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
 function getDefaultContent(type: string): any {
   switch (type) {
     case "link":
-      return { url: "", title: "RELAY_POINT", icon: "" }
+      return { url: "", title: "My New Link", icon: "" }
     case "header":
-      return { text: "HEADER_SEQUENCE", size: "medium" }
+      return { text: "Section Header", size: "medium" }
     case "text":
-      return { text: "ENTITY_DESCRIPTION_DATA_STREAM..." }
+      return { text: "Add some text here..." }
     case "image":
       return { url: "", alt: "" }
     case "social":
-      return { platform: "discord", url: "" }
+      return { platform: "instagram", url: "" }
     case "embed":
       return { url: "", type: "youtube" }
     case "divider":
       return { style: "line" }
     case "email-capture":
-      return { title: "SUBSCRIBE_PROTOCOL", placeholder: "EMAIL_BUFFER", button_text: "INITIALIZE" }
+      return { title: "Subscribe to my newsletter", placeholder: "Email address", button_text: "Subscribe" }
     default:
       return {}
   }

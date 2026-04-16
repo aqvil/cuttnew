@@ -8,31 +8,42 @@
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  --color-background: #000000;
-  --color-foreground: #ffffff;
+  /* Brand Colors - Bitly-inspired deep blue */
+  --color-background: #f4f6fb;
+  --color-foreground: #0f1728;
 
-  --color-primary: #ffffff;
-  --color-primary-foreground: #000000;
+  --color-primary: #1d4ed8;
+  --color-primary-foreground: #ffffff;
 
-  --color-secondary: #1a1a1a;
-  --color-secondary-foreground: #ffffff;
+  --color-secondary: #e8edf8;
+  --color-secondary-foreground: #0f1728;
 
-  --color-muted: #1a1a1a;
-  --color-muted-foreground: #a1a1aa;
+  --color-muted: #e8edf8;
+  --color-muted-foreground: #64748b;
 
-  --color-accent: #ff4d4d;
+  --color-accent: #7c3aed;
   --color-accent-foreground: #ffffff;
 
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
 
-  --color-border: rgba(255, 255, 255, 0.1);
-  --color-input: rgba(255, 255, 255, 0.1);
-  --color-ring: #ffffff;
+  --color-border: #e2e8f0;
+  --color-input: #e2e8f0;
+  --color-ring: #1d4ed8;
 
-  --radius-lg: 0px;
-  --radius-md: 0px;
-  --radius-sm: 0px;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f1728;
+
+  --radius-lg: 12px;
+  --radius-md: 8px;
+  --radius-sm: 6px;
+
+  /* Sidebar specific */
+  --color-sidebar: #0f1728;
+  --color-sidebar-foreground: #cbd5e1;
+  --color-sidebar-accent: #1e2d4a;
+  --color-sidebar-accent-foreground: #ffffff;
+  --color-sidebar-border: rgba(255, 255, 255, 0.06);
 }
 
 @layer base {
@@ -40,62 +51,48 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground antialiased selection:bg-primary selection:text-primary-foreground;
-    font-feature-settings: "ss01", "ss03", "cv01", "cv11";
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01", "cv01", "cv11";
   }
 }
 
 @layer components {
-  .grid-bg {
-    background-image: 
-      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    background-size: 4rem 4rem;
+  /* Card component */
+  .card {
+    @apply rounded-xl bg-card border border-border shadow-sm;
   }
 
-  .grid-bg-columns {
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    background-size: 8rem 100%;
+  /* Primary button - Bitly blue */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
   }
 
-  .card-mono {
-    @apply border border-white/10 bg-black/40 backdrop-blur-md p-8 transition-all hover:border-white/20;
-    position: relative;
+  /* Secondary/Ghost button */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-5 py-2.5 text-sm font-semibold text-foreground transition-all hover:bg-secondary active:scale-[0.98] disabled:opacity-50;
   }
 
-  .card-mono::before {
-    content: "";
-    @apply absolute -top-1 -right-1 h-2 w-2 border-t border-r border-white/40;
+  /* Shortener input - the hero element */
+  .shortener-input {
+    @apply h-14 w-full rounded-xl border-2 border-border bg-white px-5 text-base font-medium placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-all shadow-sm;
   }
 
-  .card-mono::after {
-    content: "";
-    @apply absolute -bottom-1 -left-1 h-2 w-2 border-b border-l border-white/40;
+  /* Stat card */
+  .stat-card {
+    @apply card p-6 flex flex-col gap-2;
   }
 
-  .btn-mono {
-    @apply inline-flex items-center justify-center border border-white bg-white px-8 py-4 text-[10px] font-black uppercase italic tracking-[0.2em] text-black transition-all hover:bg-black hover:text-white active:translate-y-0.5;
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
   }
-
-  .btn-ghost-mono {
-    @apply inline-flex items-center justify-center border border-white/20 bg-transparent px-8 py-4 text-[10px] font-black uppercase italic tracking-[0.2em] text-white transition-all hover:bg-white/10 hover:border-white;
+  .badge-blue {
+    @apply badge bg-blue-50 text-blue-700;
   }
-
-  .text-9xl-condensed {
-    @apply text-7xl font-black uppercase italic tracking-tighter leading-[0.85] md:text-9xl lg:text-[10rem];
+  .badge-green {
+    @apply badge bg-emerald-50 text-emerald-700;
   }
-
-  .tech-label {
-    @apply inline-flex items-center gap-2 border border-white/20 bg-black/60 px-3 py-1 text-[8px] font-mono font-black uppercase tracking-[0.3em] text-white/60;
+  .badge-purple {
+    @apply badge bg-violet-50 text-violet-700;
   }
-}
-
-.dark {
-  --color-background: #000000;
-  --color-foreground: #ffffff;
-  --color-primary: #ffffff;
-  --color-primary-foreground: #000000;
-  --color-muted: #111111;
-  --color-muted-foreground: #71717a;
-  --color-border: rgba(255, 255, 255, 0.1);
 }
