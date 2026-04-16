@@ -1,5 +1,8 @@
-import { createClient } from "@/lib/supabase/server"
-import { notFound } from "next/navigation"
+import { auth } from "@/auth"
+import { db } from "@/lib/db"
+import { shortLinks } from "@/lib/db/schema"
+import { eq, and } from "drizzle-orm"
+import { notFound, redirect } from "next/navigation"
 import { LinkEditor } from "@/components/links/link-editor"
 
 export const metadata = {
@@ -12,17 +15,17 @@ export default async function EditLinkPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    redirect("/auth/login")
+  }
 
-  const { data: link, error } = await supabase
-    .from("short_links")
-    .select("*")
-    .eq("id", id)
-    .eq("user_id", user?.id)
-    .single()
+  const link = await db.query.shortLinks.findFirst({
+    where: and(eq(shortLinks.id, id), eq(shortLinks.userId, session.user.id)),
+  })
 
-  if (error || !link) {
+  if (!link) {
     notFound()
   }
 

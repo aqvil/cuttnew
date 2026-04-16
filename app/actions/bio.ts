@@ -60,3 +60,25 @@ export async function subscribeToEmail(pageId: string, email: string) {
     email,
   })
 }
+
+export async function createBioPage(data: any) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+
+  const [page] = await db.insert(bioPages).values({
+    userId: session.user.id,
+    title: data.title || "Untitled",
+    slug: data.slug,
+    description: data.description,
+    theme: {
+      background: "#ffffff",
+      text: "#000000",
+      accent: "#000000",
+      style: "minimal"
+    },
+    isPublished: false,
+  }).returning()
+
+  revalidatePath("/dashboard/bio")
+  return page
+}

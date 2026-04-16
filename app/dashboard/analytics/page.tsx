@@ -1,80 +1,72 @@
-import { createClient } from "@/lib/supabase/server"
+import { auth } from "@/auth"
+import { db } from "@/lib/db"
+import { bioPages, shortLinks, pageViews, linkAnalytics } from "@/lib/db/schema"
+import { eq, inArray, gte, and, desc, sql } from "drizzle-orm"
 import { Eye, MousePointer, Globe, Smartphone, Monitor, Tablet, TrendingUp } from "lucide-react"
 import { AnalyticsChart } from "@/components/analytics/analytics-chart"
 import { TopLinksTable } from "@/components/analytics/top-links-table"
 import { GeoChart } from "@/components/analytics/geo-chart"
+import { redirect } from "next/navigation"
 
 export const metadata = {
   title: "Analytics",
 }
 
 export default async function AnalyticsPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-sm text-muted-foreground">Please sign in to view analytics</p>
-      </div>
-    )
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    redirect("/auth/login")
   }
 
+  const userId = session.user.id
+
   // Get user's bio page IDs first
-  const { data: userBioPages } = await supabase
-    .from("bio_pages")
-    .select("id")
-    .eq("user_id", user.id)
+  const userBioPages = await db.query.bioPages.findMany({
+    where: eq(bioPages.userId, userId),
+    columns: { id: true }
+  })
   
-  const bioPageIds = userBioPages?.map(p => p.id) || []
+  const bioPageIds = userBioPages.map(p => p.id)
 
   // Get user's short link IDs
-  const { data: userShortLinks } = await supabase
-    .from("short_links")
-    .select("id")
-    .eq("user_id", user.id)
+  const userShortLinks = await db.query.shortLinks.findMany({
+    where: eq(shortLinks.userId, userId),
+    columns: { id: true }
+  })
   
-  const shortLinkIds = userShortLinks?.map(l => l.id) || []
+  const shortLinkIds = userShortLinks.map(l => l.id)
 
   // Get total page views
   let totalPageViews = 0
   if (bioPageIds.length > 0) {
-    const { count } = await supabase
-      .from("page_views")
-      .select("id", { count: "exact" })
-      .in("page_id", bioPageIds)
-    totalPageViews = count || 0
+    const [result] = await db.select({ count: sql<number>`count(*)` }).from(pageViews).where(inArray(pageViews.pageId, bioPageIds))
+    totalPageViews = Number(result?.count || 0)
   }
 
   // Get total link clicks  
   let totalLinkClicks = 0
   if (shortLinkIds.length > 0) {
-    const { count } = await supabase
-      .from("link_analytics")
-      .select("id", { count: "exact" })
-      .in("link_id", shortLinkIds)
-    totalLinkClicks = count || 0
+    const [result] = await db.select({ count: sql<number>`count(*)` }).from(linkAnalytics).where(inArray(linkAnalytics.linkId, shortLinkIds))
+    totalLinkClicks = Number(result?.count || 0)
   }
 
   // Get clicks over the last 30 days
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  let recentClicks: Array<{ clicked_at: string }> = []
+  let recentClicks = []
   if (shortLinkIds.length > 0) {
-    const { data } = await supabase
-      .from("link_analytics")
-      .select("clicked_at")
-      .in("link_id", shortLinkIds)
-      .gte("clicked_at", thirtyDaysAgo.toISOString())
-      .order("clicked_at", { ascending: true })
-    recentClicks = data || []
+    recentClicks = await db.query.linkAnalytics.findMany({
+      where: and(inArray(linkAnalytics.linkId, shortLinkIds), gte(linkAnalytics.clickedAt, thirtyDaysAgo)),
+      orderBy: [desc(linkAnalytics.clickedAt)],
+    })
   }
 
   // Group clicks by date
   const clicksByDate: Record<string, number> = {}
   recentClicks.forEach(click => {
-    const date = new Date(click.clicked_at).toISOString().split('T')[0]
+    const date = new Date(click.clickedAt || Date.now()).toISOString().split('T')[0]
     clicksByDate[date] = (clicksByDate[date] || 0) + 1
   })
 
@@ -91,14 +83,12 @@ export default async function AnalyticsPage() {
   }
 
   // Get device breakdown
-  let deviceStats: Array<{ device: string | null }> = []
+  let deviceStats = []
   if (shortLinkIds.length > 0) {
-    const { data } = await supabase
-      .from("link_analytics")
-      .select("device")
-      .in("link_id", shortLinkIds)
-      .not("device", "is", null)
-    deviceStats = data || []
+    deviceStats = await db.query.linkAnalytics.findMany({
+      where: and(inArray(linkAnalytics.linkId, shortLinkIds), sql`${linkAnalytics.device} is not null`),
+      columns: { device: true },
+    })
   }
 
   const deviceCounts = {
@@ -114,15 +104,13 @@ export default async function AnalyticsPage() {
   const totalDevices = Object.values(deviceCounts).reduce((a, b) => a + b, 0)
 
   // Get country breakdown
-  let countryStats: Array<{ country: string | null }> = []
+  let countryStats = []
   if (shortLinkIds.length > 0) {
-    const { data } = await supabase
-      .from("link_analytics")
-      .select("country")
-      .in("link_id", shortLinkIds)
-      .not("country", "is", null)
-      .limit(1000)
-    countryStats = data || []
+    countryStats = await db.query.linkAnalytics.findMany({
+      where: and(inArray(linkAnalytics.linkId, shortLinkIds), sql`${linkAnalytics.country} is not null`),
+      columns: { country: true },
+      limit: 1000
+    })
   }
 
   const countryCounts: Record<string, number> = {}
@@ -137,124 +125,132 @@ export default async function AnalyticsPage() {
     .slice(0, 5)
 
   // Get top links
-  const { data: topLinks } = await supabase
-    .from("short_links")
-    .select("id, title, short_code, click_count, original_url")
-    .eq("user_id", user.id)
-    .order("click_count", { ascending: false })
-    .limit(10)
+  const topLinksData = await db.query.shortLinks.findMany({
+    where: eq(shortLinks.userId, userId),
+    orderBy: [desc(shortLinks.clickCount)],
+    limit: 10
+  })
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Analytics</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Track clicks, views, and engagement
+    <div className="space-y-10">
+      <div className="border-b-2 border-primary pb-6">
+        <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none">Analytics</h1>
+        <p className="mt-2 text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
+          Metric Stream // Region: Global // Duration: 30D
         </p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-border bg-card p-5">
-          <div className="flex items-center justify-between">
-            <Eye className="size-4 text-muted-foreground" />
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="card-mono !p-6">
+          <div className="flex items-center justify-between mb-4">
+            <Eye className="size-5 text-primary" />
+            <span className="flex items-center gap-1 text-[8px] font-mono font-black uppercase tracking-widest text-primary">
               <TrendingUp className="size-3" />
-              +0%
+              LIVE_DATA
             </span>
           </div>
-          <div className="mt-4">
-            <p className="text-3xl font-semibold tabular-nums tracking-tight">
+          <div>
+            <p className="text-4xl font-black italic tracking-tighter tabular-nums">
               {totalPageViews.toLocaleString()}
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">Page Views</p>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-2">PAGE_VIEWS</p>
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-5">
-          <div className="flex items-center justify-between">
-            <MousePointer className="size-4 text-muted-foreground" />
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="card-mono !p-6">
+          <div className="flex items-center justify-between mb-4">
+            <MousePointer className="size-5 text-primary" />
+            <span className="flex items-center gap-1 text-[8px] font-mono font-black uppercase tracking-widest text-primary">
               <TrendingUp className="size-3" />
-              +0%
+              IN_SYNC
             </span>
           </div>
-          <div className="mt-4">
-            <p className="text-3xl font-semibold tabular-nums tracking-tight">
+          <div>
+            <p className="text-4xl font-black italic tracking-tighter tabular-nums">
               {totalLinkClicks.toLocaleString()}
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">Link Clicks</p>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-2">LINK_CLICKS</p>
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-5">
-          <div className="flex items-center justify-between">
-            <Globe className="size-4 text-muted-foreground" />
+        <div className="card-mono !p-6">
+          <div className="flex items-center justify-between mb-4">
+            <Globe className="size-5 text-primary" />
           </div>
-          <div className="mt-4">
-            <p className="text-3xl font-semibold tracking-tight">
+          <div>
+            <p className="text-2xl font-black uppercase italic tracking-tight">
               {topCountries[0]?.[0] || "N/A"}
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">Top Country</p>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-2">TOP_ORIGIN</p>
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-5">
-          <div className="flex items-center gap-6 mt-4">
-            <div className="flex items-center gap-1.5">
-              <Monitor className="size-4 text-muted-foreground" />
-              <span className="text-sm font-medium tabular-nums">
+        <div className="card-mono !p-6">
+          <div className="space-y-3 mb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Monitor className="size-3 text-muted-foreground" />
+                <span className="text-[8px] font-mono font-black uppercase">DESKTOP</span>
+              </div>
+              <span className="text-[10px] font-mono font-bold tabular-nums">
                 {totalDevices > 0 ? Math.round((deviceCounts.desktop / totalDevices) * 100) : 0}%
               </span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Smartphone className="size-4 text-muted-foreground" />
-              <span className="text-sm font-medium tabular-nums">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Smartphone className="size-3 text-muted-foreground" />
+                <span className="text-[8px] font-mono font-black uppercase">MOBILE</span>
+              </div>
+              <span className="text-[10px] font-mono font-bold tabular-nums">
                 {totalDevices > 0 ? Math.round((deviceCounts.mobile / totalDevices) * 100) : 0}%
               </span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Tablet className="size-4 text-muted-foreground" />
-              <span className="text-sm font-medium tabular-nums">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Tablet className="size-3 text-muted-foreground" />
+                <span className="text-[8px] font-mono font-black uppercase">TABLET</span>
+              </div>
+              <span className="text-[10px] font-mono font-bold tabular-nums">
                 {totalDevices > 0 ? Math.round((deviceCounts.tablet / totalDevices) * 100) : 0}%
               </span>
             </div>
           </div>
-          <p className="mt-3 text-sm text-muted-foreground">Device Breakdown</p>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">HARDWARE_DECRYPT</p>
         </div>
       </div>
 
       {/* Chart */}
-      <div className="rounded-lg border border-border bg-card">
-        <div className="border-b border-border px-5 py-4">
-          <h2 className="text-sm font-medium">Clicks Over Time</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">Last 30 days</p>
+      <div className="card-mono !p-0 overflow-hidden">
+        <div className="border-b-2 border-primary px-8 py-5 bg-muted/20">
+          <h2 className="text-lg font-black uppercase italic tracking-tight italic tracking-tight">Access Frequency</h2>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">30_DAY_TEMPORAL_BUFFER</p>
         </div>
-        <div className="p-5">
+        <div className="p-8">
           <AnalyticsChart data={chartData} />
         </div>
       </div>
 
       {/* Bottom Grid */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-10 lg:grid-cols-2">
         {/* Top Links */}
-        <div className="rounded-lg border border-border bg-card">
-          <div className="border-b border-border px-5 py-4">
-            <h2 className="text-sm font-medium">Top Links</h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">Most clicked links</p>
+        <div className="card-mono !p-0 overflow-hidden">
+          <div className="border-b-2 border-primary px-8 py-5 bg-muted/20">
+            <h2 className="text-lg font-black uppercase italic tracking-tight">High_Yield_Nodes</h2>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">Most effective redirection points</p>
           </div>
-          <div className="p-5">
-            <TopLinksTable links={topLinks || []} />
+          <div className="p-4">
+            <TopLinksTable links={topLinksData.map(l => ({ ...l, short_code: l.shortCode, click_count: l.clickCount }))} />
           </div>
         </div>
 
         {/* Geographic */}
-        <div className="rounded-lg border border-border bg-card">
-          <div className="border-b border-border px-5 py-4">
-            <h2 className="text-sm font-medium">Geographic Distribution</h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">Where your clicks come from</p>
+        <div className="card-mono !p-0 overflow-hidden">
+          <div className="border-b-2 border-primary px-8 py-5 bg-muted/20">
+            <h2 className="text-lg font-black uppercase italic tracking-tight">Geospatial Distribution</h2>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">Vector origin mapping</p>
           </div>
-          <div className="p-5">
+          <div className="p-8">
             <GeoChart countries={topCountries} />
           </div>
         </div>

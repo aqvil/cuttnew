@@ -1,5 +1,8 @@
-import { createClient } from "@/lib/supabase/server"
-import { LinkIcon, ExternalLink, BarChart2, Copy, MoreHorizontal, Lock, Clock } from "lucide-react"
+import { auth } from "@/auth"
+import { db } from "@/lib/db"
+import { shortLinks } from "@/lib/db/schema"
+import { eq, desc } from "drizzle-orm"
+import { LinkIcon, ExternalLink, BarChart2, MoreHorizontal, Lock } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import {
@@ -9,113 +12,118 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import { redirect } from "next/navigation"
 
 export const metadata = {
   title: "Links",
 }
 
 export default async function ShortLinksPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    redirect("/auth/login")
+  }
 
-  const { data: links } = await supabase
-    .from("short_links")
-    .select("*")
-    .eq("user_id", user?.id)
-    .order("created_at", { ascending: false })
+  const userId = session.user.id
+
+  const data = await db.query.shortLinks.findMany({
+    where: eq(shortLinks.userId, userId),
+    orderBy: [desc(shortLinks.createdAt)],
+  })
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ""
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Links</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Shorten URLs and track clicks
+    <div className="space-y-10">
+      <div className="border-b-2 border-primary pb-6">
+        <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none">Short Links</h1>
+        <p className="mt-2 text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
+          Entities: {data.length} // Region: Central
         </p>
       </div>
 
-      {links && links.length > 0 ? (
-        <div className="rounded-lg border border-border bg-card">
+      {data && data.length > 0 ? (
+        <div className="card-mono !p-0 overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-12 gap-4 border-b border-border px-5 py-3 text-xs font-medium text-muted-foreground">
-            <div className="col-span-5">Link</div>
-            <div className="col-span-2">Short URL</div>
-            <div className="col-span-2">Clicks</div>
-            <div className="col-span-2">Created</div>
+          <div className="grid grid-cols-12 gap-4 border-b-2 border-primary bg-muted/20 px-6 py-4 text-[10px] font-black uppercase tracking-widest leading-none">
+            <div className="col-span-5">Entity_Identifier</div>
+            <div className="col-span-2">Access_Path</div>
+            <div className="col-span-2">Metrics</div>
+            <div className="col-span-2">Timestamp</div>
             <div className="col-span-1"></div>
           </div>
           
           {/* Table Rows */}
-          <div className="divide-y divide-border">
-            {links.map((link) => {
-              const isExpired = link.expires_at && new Date(link.expires_at) < new Date()
+          <div className="divide-y-2 divide-border">
+            {data.map((link) => {
+              const isExpired = link.expiresAt && new Date(link.expiresAt) < new Date()
               return (
                 <div 
                   key={link.id} 
-                  className="grid grid-cols-12 items-center gap-4 px-5 py-3 transition-colors hover:bg-accent/50"
+                  className="grid grid-cols-12 items-center gap-4 px-6 py-5 transition-colors hover:bg-primary group"
                 >
-                  <div className="col-span-5 flex items-center gap-3">
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
-                      <LinkIcon className="size-4 text-muted-foreground" />
+                  <div className="col-span-5 flex items-center gap-4">
+                    <div className="flex size-10 shrink-0 items-center justify-center border-2 border-primary bg-background group-hover:border-primary-foreground">
+                      <LinkIcon className="size-5 group-hover:text-primary" />
                     </div>
                     <div className="min-w-0">
                       <Link 
                         href={`/dashboard/links/${link.id}`}
-                        className="flex items-center gap-2 text-sm font-medium hover:underline"
+                        className="flex items-center gap-2 text-sm font-black uppercase tracking-tight group-hover:text-primary-foreground"
                       >
-                        <span className="truncate">{link.title || link.short_code}</span>
+                        <span className="truncate">{link.title || link.shortCode}</span>
                         {link.password && (
-                          <Lock className="size-3 text-muted-foreground" />
+                          <Lock className="size-3 opacity-50" />
                         )}
                         {isExpired && (
-                          <span className="rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
-                            Expired
+                          <span className="border-2 border-destructive px-1.5 py-0.5 text-[8px] font-black uppercase tracking-widest text-destructive group-hover:border-primary-foreground group-hover:text-primary-foreground">
+                            EXPIRED
                           </span>
                         )}
                       </Link>
-                      <p className="truncate text-xs text-muted-foreground max-w-[280px]">
-                        {link.original_url}
+                      <p className="truncate font-mono text-[10px] uppercase opacity-50 group-hover:text-primary-foreground group-hover:opacity-100 max-w-[280px]">
+                        {link.originalUrl}
                       </p>
                     </div>
                   </div>
                   
                   <div className="col-span-2">
-                    <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">
-                      /l/{link.short_code}
+                    <code className="border-2 border-border px-1.5 py-0.5 text-[10px] font-mono group-hover:border-primary-foreground group-hover:text-primary-foreground">
+                      /L/{link.shortCode}
                     </code>
                   </div>
                   
-                  <div className="col-span-2">
-                    <span className="text-sm tabular-nums">{link.click_count}</span>
+                  <div className="col-span-2 text-[10px] font-mono font-bold group-hover:text-primary-foreground tabular-nums">
+                    {link.clickCount}
                   </div>
                   
                   <div className="col-span-2">
-                    <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(link.created_at), { addSuffix: true })}
+                    <span className="font-mono text-[10px] uppercase group-hover:text-primary-foreground">
+                      {formatDistanceToNow(new Date(link.createdAt || Date.now()), { addSuffix: true })}
                     </span>
                   </div>
                   
                   <div className="col-span-1 flex justify-end">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
+                        <Button variant="ghost" size="icon" className="size-8 border-2 border-transparent hover:border-primary rounded-none group-hover:border-primary-foreground group-hover:text-primary-foreground">
                           <MoreHorizontal className="size-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
+                      <DropdownMenuContent align="end" className="rounded-none border-2 border-primary">
+                        <DropdownMenuItem asChild className="focus:bg-primary focus:text-primary-foreground rounded-none px-4 py-2 font-black uppercase text-[10px]">
                           <Link href={`/dashboard/links/${link.id}`}>
                             Edit Link
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <a href={`${baseUrl}/l/${link.short_code}`} target="_blank" rel="noopener noreferrer">
+                        <DropdownMenuItem asChild className="focus:bg-primary focus:text-primary-foreground rounded-none px-4 py-2 font-black uppercase text-[10px]">
+                          <a href={`${baseUrl}/l/${link.shortCode}`} target="_blank" rel="noopener noreferrer">
                             <ExternalLink className="mr-2 size-4" />
                             Open Link
                           </a>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
+                        <DropdownMenuItem asChild className="focus:bg-primary focus:text-primary-foreground rounded-none px-4 py-2 font-black uppercase text-[10px]">
                           <Link href={`/dashboard/analytics?link=${link.id}`}>
                             <BarChart2 className="mr-2 size-4" />
                             Analytics
@@ -130,19 +138,17 @@ export default async function ShortLinksPage() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16">
-          <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-            <LinkIcon className="size-6 text-muted-foreground" />
-          </div>
-          <h3 className="mt-4 text-sm font-medium">No links yet</h3>
-          <p className="mt-1 text-center text-xs text-muted-foreground max-w-sm">
-            Create your first shortened URL with custom slug and analytics.
+        <div className="flex flex-col items-center justify-center p-20 border-4 border-dashed border-border card-mono">
+          <LinkIcon className="size-12 opacity-20 mb-6" />
+          <h3 className="text-lg font-black uppercase italic">No entities detected</h3>
+          <p className="mt-2 text-center font-mono text-[10px] uppercase tracking-widest text-muted-foreground max-w-sm">
+            Sector remains empty. Initialize your first trackable segment.
           </p>
           <Link
             href="/dashboard/links/new"
-            className="mt-4 rounded-md bg-foreground px-3 py-1.5 text-xs font-medium text-background transition-opacity hover:opacity-90"
+            className="btn-mono mt-8"
           >
-            Create Link
+            New Short Link
           </Link>
         </div>
       )}

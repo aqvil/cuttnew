@@ -1,232 +1,176 @@
-"use client"
+'use client'
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { updateProfile } from "@/app/actions/profile"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/hooks/use-toast"
-import { Loader2, AtSign } from "lucide-react"
-import type { Profile } from "@/lib/types/database"
+import { Loader2, AtSign, Settings as SettingsIcon } from "lucide-react"
+import { toast } from "sonner"
+import { useSession } from "next-auth/react"
 import Link from "next/link"
 
 export default function SettingsPage() {
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { data: session, status } = useSession()
+  const [displayName, setDisplayName] = useState("")
+  const [username, setUsername] = useState("")
+  const [bio, setBio] = useState("")
   const [saving, setSaving] = useState(false)
-  const [email, setEmail] = useState("")
-  const { toast } = useToast()
-  const supabase = createClient()
-
+  
   useEffect(() => {
-    async function loadProfile() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      setEmail(user.email || "")
-
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single()
-
-      if (data) {
-        setProfile(data as Profile)
-      }
-      setLoading(false)
+    if (session?.user) {
+      setDisplayName(session.user.name || "")
+      // Mock loading remaining profile data or fetch via action
     }
-
-    loadProfile()
-  }, [supabase])
+  }, [session])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!profile) return
-
     setSaving(true)
-    const formData = new FormData(e.currentTarget)
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        username: formData.get("username") as string,
-        display_name: formData.get("display_name") as string,
-        bio: formData.get("bio") as string,
-        updated_at: new Date().toISOString(),
+    try {
+      await updateProfile({
+        displayName,
+        username,
+        bio,
       })
-      .eq("id", profile.id)
-
-    setSaving(false)
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      })
-    } else {
-      toast({
-        title: "Settings saved",
-        description: "Your profile has been updated.",
-      })
+      toast.success("Configuration updated")
+    } catch (err: any) {
+      toast.error(`ERROR: ${err.message?.toUpperCase() || "UPDATE_FAILED"}`)
+    } finally {
+      setSaving(false)
     }
   }
 
-  if (loading) {
+  if (status === "loading") {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        <Loader2 className="size-8 animate-spin text-primary" />
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage your account settings and profile
+    <div className="space-y-10">
+      <div className="border-b-2 border-primary pb-6">
+        <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none">Settings</h1>
+        <p className="mt-2 text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
+          System Configuration // Node: {session?.user?.id?.slice(0, 8).toUpperCase()}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
+      <form onSubmit={handleSubmit} className="space-y-10 max-w-2xl">
         {/* Profile Section */}
-        <div className="rounded-lg border border-border bg-card">
-          <div className="border-b border-border px-5 py-4">
-            <h2 className="text-sm font-medium">Profile Information</h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Update your personal information
+        <div className="card-mono">
+          <div className="mb-8 border-b-2 border-primary pb-4">
+            <h2 className="text-xl font-black uppercase italic tracking-tight">Profile Data</h2>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">
+              Public entity identifiers
             </p>
           </div>
-          <div className="space-y-4 p-5">
+          <div className="space-y-8">
             <div className="space-y-2">
-              <Label htmlFor="display_name" className="text-xs font-medium">
+              <Label htmlFor="display_name" className="text-[10px] font-black uppercase tracking-widest">
                 Display Name
               </Label>
               <Input
                 id="display_name"
-                name="display_name"
-                defaultValue={profile?.display_name || ""}
-                placeholder="Your name"
-                className="h-9 bg-background"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="ENTITY_NAME"
+                className="border-2 border-primary bg-background font-bold h-12 uppercase"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-xs font-medium">
+              <Label htmlFor="username" className="text-[10px] font-black uppercase tracking-widest">
                 Username
               </Label>
               <div className="relative">
-                <AtSign className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+                <AtSign className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-primary" />
                 <Input
                   id="username"
-                  name="username"
-                  defaultValue={profile?.username || ""}
-                  placeholder="username"
-                  className="h-9 bg-background pl-9"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="USERNAME"
+                  className="border-2 border-primary bg-background font-bold h-12 pl-10 uppercase"
                 />
               </div>
-              <p className="text-[11px] text-muted-foreground">
-                This will be used for your public profile URL
+              <p className="text-[8px] font-mono uppercase tracking-widest opacity-50 mt-2">
+                PATH_ID FOR PUBLIC PROFILE SEGMENTS
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="bio" className="text-xs font-medium">
-                Bio
+              <Label htmlFor="bio" className="text-[10px] font-black uppercase tracking-widest">
+                Bio Data
               </Label>
               <Textarea
                 id="bio"
-                name="bio"
-                defaultValue={profile?.bio || ""}
-                placeholder="Tell us about yourself..."
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="DESCRIBE_ENTITY_FUNCTIONS..."
                 rows={3}
-                className="bg-background resize-none"
+                className="border-2 border-primary bg-background font-bold rounded-none uppercase"
               />
             </div>
           </div>
         </div>
 
         {/* Email Section */}
-        <div className="rounded-lg border border-border bg-card">
-          <div className="border-b border-border px-5 py-4">
-            <h2 className="text-sm font-medium">Email</h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Your email address is used for signing in
+        <div className="card-mono opacity-50">
+          <div className="mb-6 border-b-2 border-primary pb-4">
+            <h2 className="text-lg font-black uppercase italic tracking-tight">Primary Communication</h2>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">
+              System access address
             </p>
           </div>
-          <div className="p-5">
-            <Input
-              type="email"
-              value={email}
-              disabled
-              className="h-9 bg-muted"
-            />
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              Contact support to change your email address
-            </p>
-          </div>
+          <Input
+            type="email"
+            value={session?.user?.email || ""}
+            disabled
+            className="border-2 border-primary bg-muted/20 font-bold h-12 uppercase"
+          />
+          <p className="mt-4 text-[8px] font-mono uppercase tracking-widest">
+            CONTACT_OPERATIONS TO ALTER COMMUNICATION_NODE
+          </p>
         </div>
 
         {/* Subscription Section */}
-        <div className="rounded-lg border border-border bg-card">
-          <div className="border-b border-border px-5 py-4">
-            <h2 className="text-sm font-medium">Subscription</h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Your current plan
+        <div className="card-mono">
+          <div className="mb-6 border-b-2 border-primary pb-4">
+            <h2 className="text-lg font-black uppercase italic tracking-tight">Logistics Plan</h2>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">
+              Current throughput allocation
             </p>
           </div>
-          <div className="flex items-center justify-between p-5">
+          <div className="flex items-center justify-between border-4 border-primary p-6 bg-muted/10">
             <div>
-              <p className="text-sm font-medium capitalize">{profile?.plan || "free"} Plan</p>
-              <p className="text-xs text-muted-foreground">
-                {profile?.plan === "free" 
-                  ? "Upgrade to unlock more features"
-                  : "You have access to all premium features"}
+              <p className="text-2xl font-black uppercase italic tracking-tighter">FREE_ACCESS</p>
+              <p className="text-[10px] font-mono uppercase tracking-widest opacity-60 mt-1">
+                BASELINE_OPERATIONAL_CAPACITY
               </p>
             </div>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/dashboard/billing">Manage</Link>
+            <Button variant="outline" size="sm" className="btn-mono" asChild>
+              <Link href="/dashboard/billing">MANAGE_PLAN</Link>
             </Button>
           </div>
         </div>
 
-        <div className="flex justify-end">
-          <Button type="submit" disabled={saving} className="h-9">
+        <div className="flex justify-end pt-6">
+          <Button type="submit" disabled={saving} className="btn-mono h-14 px-12 text-lg">
             {saving ? (
               <>
-                <Loader2 className="mr-2 size-3.5 animate-spin" />
-                Saving...
+                <Loader2 className="mr-3 size-5 animate-spin" />
+                UPDATING...
               </>
             ) : (
-              "Save Changes"
+              "SYNC_CHANGES"
             )}
           </Button>
         </div>
       </form>
-
-      {/* Danger Zone */}
-      <div className="max-w-xl rounded-lg border border-destructive/50 bg-card">
-        <div className="border-b border-destructive/50 px-5 py-4">
-          <h2 className="text-sm font-medium text-destructive">Danger Zone</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Irreversible actions
-          </p>
-        </div>
-        <div className="flex items-center justify-between p-5">
-          <div>
-            <p className="text-sm font-medium">Delete Account</p>
-            <p className="text-xs text-muted-foreground">
-              Permanently delete your account and all data
-            </p>
-          </div>
-          <Button variant="destructive" size="sm" disabled>
-            Delete
-          </Button>
-        </div>
-      </div>
     </div>
   )
 }

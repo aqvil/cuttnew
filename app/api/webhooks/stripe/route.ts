@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
-import { createClient } from '@supabase/supabase-js'
+import { db } from '@/lib/db'
+import { profiles } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import Stripe from 'stripe'
-
-// Use service role key for webhook handling
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 export async function POST(req: NextRequest) {
   const body = await req.text()
@@ -23,7 +19,7 @@ export async function POST(req: NextRequest) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder'
     )
   } catch (err) {
     console.error('Webhook signature verification failed:', err)
@@ -45,15 +41,15 @@ export async function POST(req: NextRequest) {
           plan = 'business'
         }
 
-        // Update user's plan in the database
-        await supabaseAdmin
-          .from('profiles')
-          .update({
-            plan,
-            stripe_customer_id: session.customer as string,
-            stripe_subscription_id: session.subscription as string,
+        // Update user's plan in the database using Drizzle
+        await db.update(profiles)
+          .set({
+            plan: plan as any,
+            stripeCustomerId: session.customer as string,
+            stripeSubscriptionId: session.subscription as string,
+            updatedAt: new Date(),
           })
-          .eq('id', userId)
+          .where(eq(profiles.id, userId))
       }
       break
     }
@@ -63,11 +59,9 @@ export async function POST(req: NextRequest) {
       const customerId = subscription.customer as string
 
       // Find user by Stripe customer ID
-      const { data: profile } = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .eq('stripe_customer_id', customerId)
-        .single()
+      const profile = await db.query.profiles.findFirst({
+        where: eq(profiles.stripeCustomerId, customerId),
+      })
 
       if (profile) {
         // Update subscription status
@@ -76,10 +70,9 @@ export async function POST(req: NextRequest) {
 
         if (!isActive) {
           // Downgrade to free if subscription is not active
-          await supabaseAdmin
-            .from('profiles')
-            .update({ plan: 'free' })
-            .eq('id', profile.id)
+          await db.update(profiles)
+            .set({ plan: 'free', updatedAt: new Date() })
+            .where(eq(profiles.id, profile.id))
         }
       }
       break
@@ -90,20 +83,18 @@ export async function POST(req: NextRequest) {
       const customerId = subscription.customer as string
 
       // Find user by Stripe customer ID and downgrade to free
-      const { data: profile } = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .eq('stripe_customer_id', customerId)
-        .single()
+      const profile = await db.query.profiles.findFirst({
+        where: eq(profiles.stripeCustomerId, customerId),
+      })
 
       if (profile) {
-        await supabaseAdmin
-          .from('profiles')
-          .update({
+        await db.update(profiles)
+          .set({
             plan: 'free',
-            stripe_subscription_id: null,
+            stripeSubscriptionId: null,
+            updatedAt: new Date(),
           })
-          .eq('id', profile.id)
+          .where(eq(profiles.id, profile.id))
       }
       break
     }

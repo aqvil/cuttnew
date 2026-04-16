@@ -2,12 +2,10 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { ShortLink } from "@/lib/types/database"
+import { updateShortLink, deleteShortLink } from "@/app/actions/links"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { 
   AlertDialog,
@@ -20,23 +18,24 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { ArrowLeft, Loader2, ExternalLink, Copy, Check, Trash2, QrCode } from "lucide-react"
+import { ArrowLeft, Loader2, ExternalLink, Copy, Check, Trash2, BarChart2 } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 interface LinkEditorProps {
-  link: ShortLink
+  link: any
 }
 
 export function LinkEditor({ link }: LinkEditorProps) {
-  const [originalUrl, setOriginalUrl] = useState(link.original_url)
+  const [originalUrl, setOriginalUrl] = useState(link.originalUrl)
   const [title, setTitle] = useState(link.title || "")
   const [password, setPassword] = useState("")
-  const [usePassword, setUsePassword] = useState(link.is_password_protected)
+  const [usePassword, setUsePassword] = useState(!!link.password)
   const [expiresAt, setExpiresAt] = useState(
-    link.expires_at ? new Date(link.expires_at).toISOString().slice(0, 16) : ""
+    link.expiresAt ? new Date(link.expiresAt).toISOString().slice(0, 16) : ""
   )
-  const [useExpiration, setUseExpiration] = useState(!!link.expires_at)
-  const [isActive, setIsActive] = useState(link.is_active)
+  const [useExpiration, setUseExpiration] = useState(!!link.expiresAt)
+  const [isActive, setIsActive] = useState(link.isActive)
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -44,11 +43,12 @@ export function LinkEditor({ link }: LinkEditorProps) {
   const router = useRouter()
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://linkforge.app"
-  const shortUrl = `${baseUrl}/l/${link.short_code}`
+  const shortUrl = `${baseUrl}/l/${link.shortCode}`
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(shortUrl)
     setCopied(true)
+    toast.success("URL_COPIED_TO_CLIPBOARD")
     setTimeout(() => setCopied(false), 2000)
   }
 
@@ -56,85 +56,72 @@ export function LinkEditor({ link }: LinkEditorProps) {
     setIsSaving(true)
     setError(null)
 
-    const supabase = createClient()
-
-    const updateData: Partial<ShortLink> = {
-      original_url: originalUrl,
-      title: title || null,
-      is_password_protected: usePassword,
-      is_active: isActive,
-      expires_at: useExpiration && expiresAt ? new Date(expiresAt).toISOString() : null,
-      updated_at: new Date().toISOString(),
-    }
-
-    // Only update password if a new one is provided
-    if (usePassword && password) {
-      updateData.password = password
-    } else if (!usePassword) {
-      updateData.password = null
-    }
-
-    const { error: updateError } = await supabase
-      .from("short_links")
-      .update(updateData)
-      .eq("id", link.id)
-
-    if (updateError) {
-      setError(updateError.message)
+    try {
+      await updateShortLink(link.id, {
+        originalUrl,
+        title: title || null,
+        password: usePassword ? (password || link.password) : null,
+        expiresAt: useExpiration && expiresAt ? expiresAt : null,
+        isActive,
+      })
+      toast.success("Parameters updated")
+      router.refresh()
+    } catch (err: any) {
+      setError(`ERROR: ${err.message?.toUpperCase() || "UPDATE_FAILED"}`)
+    } finally {
       setIsSaving(false)
-      return
     }
-
-    setIsSaving(false)
-    router.refresh()
   }
 
   const handleDelete = async () => {
     setIsDeleting(true)
-    const supabase = createClient()
-
-    await supabase.from("short_links").delete().eq("id", link.id)
-    router.push("/dashboard/links")
+    try {
+      await deleteShortLink(link.id)
+      toast.success("Entity purged")
+      router.push("/dashboard/links")
+    } catch (err) {
+      toast.error("PURGE_FAILED")
+      setIsDeleting(false)
+    }
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
+    <div className="max-w-2xl mx-auto space-y-10">
+      <div className="flex items-center justify-between border-b-2 border-primary pb-8">
+        <div className="flex items-center gap-6">
+          <Button variant="ghost" size="icon" className="border-2 border-primary hover:bg-primary hover:text-primary-foreground" asChild>
             <Link href="/dashboard/links">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Edit Link</h1>
-            <p className="text-muted-foreground">{link.short_code}</p>
+            <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none">Modify Link</h1>
+            <p className="mt-2 text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">ID: {link.shortCode} // Status: Active</p>
           </div>
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm">
+            <Button variant="ghost" size="sm" className="border-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground uppercase font-black tracking-widest text-xs px-4">
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete
+              Purge
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent className="rounded-none border-4 border-primary">
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete this link?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the short link
-                and all associated analytics data.
+              <AlertDialogTitle className="font-black uppercase italic">Confirm Entity Purge?</AlertDialogTitle>
+              <AlertDialogDescription className="font-mono text-[10px] uppercase tracking-widest">
+                This process is irreversible. All linked metadata and analytics buffers will be terminated.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+              <AlertDialogCancel className="rounded-none border-2 border-primary uppercase font-black text-xs">Abort</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="rounded-none bg-destructive text-destructive-foreground uppercase font-black text-xs hover:bg-destructive/90">
                 {isDeleting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <Trash2 className="mr-2 h-4 w-4" />
                 )}
-                Delete
+                Initialize Purge
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -142,156 +129,161 @@ export function LinkEditor({ link }: LinkEditorProps) {
       </div>
 
       {/* Short URL Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Short URL</CardTitle>
-          <CardDescription>Share this link with anyone</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-2">
-            <Input
-              value={shortUrl}
-              readOnly
-              className="font-mono"
-            />
-            <Button variant="outline" onClick={handleCopy}>
-              {copied ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
-            </Button>
-            <Button variant="outline" asChild>
-              <a href={shortUrl} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4" />
-              </a>
-            </Button>
+      <div className="card-mono">
+        <div className="mb-6">
+          <h2 className="text-xl font-black uppercase italic tracking-tight">Access Point</h2>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">Direct redirection bridge</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Input
+            value={shortUrl}
+            readOnly
+            className="border-2 border-primary bg-muted/20 font-mono text-xs font-bold uppercase"
+          />
+          <Button variant="outline" className="border-2 border-primary rounded-none hover:bg-primary hover:text-primary-foreground" onClick={handleCopy}>
+            {copied ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
+          </Button>
+          <Button variant="outline" className="border-2 border-primary rounded-none hover:bg-primary hover:text-primary-foreground" asChild>
+            <a href={shortUrl} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </Button>
+        </div>
+        <div className="mt-8 flex items-center justify-between border-4 border-primary p-6 bg-muted/10">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest">Aggregate_Clicks</p>
+            <p className="text-4xl font-black italic tracking-tighter mt-1">{link.clickCount}</p>
           </div>
-          <div className="mt-4 flex items-center justify-between rounded-lg bg-muted p-3">
-            <div>
-              <p className="text-sm font-medium">Total Clicks</p>
-              <p className="text-2xl font-bold">{link.click_count}</p>
-            </div>
-            <Button variant="outline" asChild>
-              <Link href={`/dashboard/analytics?link=${link.id}`}>
-                View Analytics
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          <Button variant="outline" className="btn-mono" asChild>
+            <Link href={`/dashboard/analytics?link=${link.id}`}>
+              <BarChart2 className="mr-2 h-4 w-4" />
+              Metrics_Buffer
+            </Link>
+          </Button>
+        </div>
+      </div>
 
       {/* Edit Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Link Settings</CardTitle>
-          <CardDescription>Modify your link settings</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div className="flex items-center justify-between rounded-lg border p-4">
+      <div className="card-mono">
+        <div className="mb-8">
+          <h2 className="text-xl font-black uppercase italic tracking-tight">Link Parameters</h2>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">Adjust operational logic</p>
+        </div>
+        
+        <div className="space-y-8">
+          <div className="flex items-center justify-between border-2 border-primary p-6 bg-muted/10">
+            <div>
+              <Label className="text-[10px] font-black uppercase tracking-widest leading-none">Operational Status</Label>
+              <p className="text-[10px] font-mono uppercase tracking-widest opacity-50 mt-1">Toggle redirection logic</p>
+            </div>
+            <Switch
+              checked={isActive}
+              onCheckedChange={setIsActive}
+              className="data-[state=checked]:bg-primary"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="url" className="text-[10px] font-black uppercase tracking-widest leading-none">Destination Buffer (URL)</Label>
+            <Input
+              id="url"
+              type="url"
+              value={originalUrl}
+              onChange={(e) => setOriginalUrl(e.target.value)}
+              className="border-2 border-primary bg-background font-bold h-12"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-[10px] font-black uppercase tracking-widest leading-none">Entity Alias</Label>
+            <Input
+              id="title"
+              placeholder="MY TRACKABLE ENTITY"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="border-2 border-primary bg-background font-bold h-12 uppercase"
+            />
+          </div>
+
+          {/* Password Protection */}
+          <div className="space-y-4 border-2 border-primary p-6 bg-muted/10">
+            <div className="flex items-center justify-between">
               <div>
-                <Label>Active Status</Label>
-                <p className="text-xs text-muted-foreground">
-                  Disable to temporarily deactivate this link
+                <Label className="text-[10px] font-black uppercase tracking-widest leading-none">Gateway Lock</Label>
+                <p className="text-[10px] font-mono uppercase tracking-widest opacity-50 mt-1">
+                  {link.password ? "STATUS: ENCRYPTED" : "STATUS: UNLOCKED"}
                 </p>
               </div>
               <Switch
-                checked={isActive}
-                onCheckedChange={setIsActive}
+                checked={usePassword}
+                onCheckedChange={setUsePassword}
+                className="data-[state=checked]:bg-primary"
               />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="url">Destination URL</Label>
-              <Input
-                id="url"
-                type="url"
-                value={originalUrl}
-                onChange={(e) => setOriginalUrl(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                placeholder="My Awesome Link"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-
-            {/* Password Protection */}
-            <div className="space-y-4 rounded-lg border p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Password Protection</Label>
-                  <p className="text-xs text-muted-foreground">
-                    {link.is_password_protected ? "Currently protected" : "Not protected"}
-                  </p>
-                </div>
-                <Switch
-                  checked={usePassword}
-                  onCheckedChange={setUsePassword}
+            {usePassword && (
+              <div className="space-y-2 pt-2">
+                <Input
+                  type="password"
+                  placeholder={link.password ? "NEW ENCRYPTION KEY (NULL TO RETAIN)" : "SET ENCRYPTION KEY"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="border-2 border-primary bg-background font-bold h-10"
                 />
               </div>
-              {usePassword && (
-                <div className="space-y-2">
-                  <Input
-                    type="password"
-                    placeholder={link.is_password_protected ? "Enter new password (leave empty to keep current)" : "Enter password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Expiration */}
-            <div className="space-y-4 rounded-lg border p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Expiration Date</Label>
-                  <p className="text-xs text-muted-foreground">
-                    {link.expires_at 
-                      ? `Expires ${new Date(link.expires_at).toLocaleDateString()}`
-                      : "No expiration set"
-                    }
-                  </p>
-                </div>
-                <Switch
-                  checked={useExpiration}
-                  onCheckedChange={setUseExpiration}
-                />
-              </div>
-              {useExpiration && (
-                <div className="space-y-2">
-                  <Input
-                    type="datetime-local"
-                    value={expiresAt}
-                    onChange={(e) => setExpiresAt(e.target.value)}
-                  />
-                </div>
-              )}
-            </div>
-
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
             )}
-
-            <div className="flex items-center gap-4">
-              <Button onClick={handleSave} disabled={isSaving}>
-                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/dashboard/links">Cancel</Link>
-              </Button>
-            </div>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Expiration */}
+          <div className="space-y-4 border-2 border-primary p-6 bg-muted/10">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-[10px] font-black uppercase tracking-widest leading-none">Decay Timer</Label>
+                <p className="text-[10px] font-mono uppercase tracking-widest opacity-50 mt-1">
+                  {link.expiresAt 
+                    ? `END_SEQUENCE: ${new Date(link.expiresAt).toLocaleDateString().toUpperCase()}`
+                    : "STABLE: NO_DECAY_DETECTOR"
+                  }
+                </p>
+              </div>
+              <Switch
+                checked={useExpiration}
+                onCheckedChange={setUseExpiration}
+                className="data-[state=checked]:bg-primary"
+              />
+            </div>
+            {useExpiration && (
+              <div className="space-y-2 pt-2">
+                <Input
+                  type="datetime-local"
+                  value={expiresAt}
+                  onChange={(e) => setExpiresAt(e.target.value)}
+                  className="border-2 border-primary bg-background font-bold h-10"
+                />
+              </div>
+            )}
+          </div>
+
+          {error && (
+            <div className="border-2 border-destructive p-4 bg-destructive/10">
+              <p className="text-[10px] font-mono uppercase text-destructive font-black tracking-widest">{error}</p>
+            </div>
+          )}
+
+          <div className="flex items-center gap-4 pt-4">
+            <Button onClick={handleSave} disabled={isSaving} className="btn-mono">
+              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Update Parameters
+            </Button>
+            <Button variant="outline" className="border-2 border-border hover:border-primary px-6 py-2 uppercase font-black tracking-widest text-xs" asChild>
+              <Link href="/dashboard/links">Abort</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

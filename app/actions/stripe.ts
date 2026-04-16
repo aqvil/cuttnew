@@ -1,8 +1,11 @@
 'use server'
 
+import { auth } from '@/auth'
+import { db } from '@/lib/db'
+import { profiles } from '@/lib/db/schema'
 import { stripe } from '@/lib/stripe'
 import { PRODUCTS } from '@/lib/products'
-import { createClient } from '@/lib/supabase/server'
+import { eq } from 'drizzle-orm'
 
 export async function startCheckoutSession(productId: string) {
   const product = PRODUCTS.find((p) => p.id === productId)
@@ -10,14 +13,14 @@ export async function startCheckoutSession(productId: string) {
     throw new Error(`Product with id "${productId}" not found`)
   }
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const session = await auth()
+  const user = session?.user
 
-  if (!user) {
+  if (!user?.id || !user.email) {
     throw new Error('User not authenticated')
   }
 
-  const session = await stripe.checkout.sessions.create({
+  const stripeSession = await stripe.checkout.sessions.create({
     ui_mode: 'embedded',
     redirect_on_completion: 'never',
     customer_email: user.email,
@@ -35,41 +38,42 @@ export async function startCheckoutSession(productId: string) {
           },
           unit_amount: product.priceInCents,
           recurring: product.mode === 'subscription' ? {
-            interval: product.interval || 'month',
+            interval: (product.interval as any) || 'month',
           } : undefined,
         },
         quantity: 1,
       },
     ],
-    mode: product.mode,
+    mode: product.mode as any,
   })
 
-  return session.client_secret
+  return stripeSession.client_secret
 }
 
 export async function createPortalSession() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const session = await auth()
+  const user = session?.user
 
-  if (!user) {
+  if (!user?.id) {
     throw new Error('User not authenticated')
   }
 
-  // Get user's Stripe customer ID from profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('stripe_customer_id')
-    .eq('id', user.id)
-    .single()
+  // Get user's Stripe customer ID from profile using Drizzle
+  const profile = await db.query.profiles.findFirst({
+    where: eq(profiles.id, user.id),
+    columns: {
+      stripeCustomerId: true,
+    }
+  })
 
-  if (!profile?.stripe_customer_id) {
+  if (!profile?.stripeCustomerId) {
     throw new Error('No subscription found')
   }
 
-  const session = await stripe.billingPortal.sessions.create({
-    customer: profile.stripe_customer_id,
+  const portalSession = await stripe.billingPortal.sessions.create({
+    customer: profile.stripeCustomerId,
     return_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/dashboard/billing`,
   })
 
-  return session.url
+  return portalSession.url
 }

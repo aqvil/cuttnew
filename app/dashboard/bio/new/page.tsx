@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
+import { createBioPage } from "@/app/actions/bio"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 export default function NewBioPage() {
   const [title, setTitle] = useState("")
@@ -39,122 +40,105 @@ export default function NewBioPage() {
     setIsLoading(true)
     setError(null)
 
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      setError("You must be logged in")
-      setIsLoading(false)
-      return
-    }
-
-    const finalSlug = slug || generateSlug(title) || `page-${Date.now()}`
-
-    const { data, error: insertError } = await supabase
-      .from("bio_pages")
-      .insert({
-        user_id: user.id,
-        title: title || "Untitled",
+    try {
+      const finalSlug = slug || generateSlug(title) || `page-${Date.now()}`
+      const page = await createBioPage({
+        title: title || "UNTITLED",
         slug: finalSlug,
         description,
-        theme: {
-          background: "#ffffff",
-          text: "#000000",
-          accent: "#000000",
-          style: "minimal"
-        },
-        is_published: false,
       })
-      .select()
-      .single()
 
-    if (insertError) {
-      if (insertError.message.includes("duplicate")) {
-        setError("This slug is already taken. Please choose a different one.")
+      toast.success("Sector initialized")
+      router.push(`/dashboard/bio/${page.id}`)
+    } catch (err: any) {
+      if (err.message?.includes("duplicate")) {
+        setError("CONFLICT: SLUG_ALREADY_EXISTS")
       } else {
-        setError(insertError.message)
+        setError(`ERROR: ${err.message?.toUpperCase() || "UNKNOWN_ERROR"}`)
       }
+    } finally {
       setIsLoading(false)
-      return
     }
-
-    router.push(`/dashboard/bio/${data.id}`)
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
+    <div className="max-w-2xl mx-auto space-y-10">
+      <div className="flex items-center gap-6 border-b-2 border-primary pb-8">
+        <Button variant="ghost" size="icon" className="border-2 border-primary hover:bg-primary hover:text-primary-foreground" asChild>
           <Link href="/dashboard/bio">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Create Bio Page</h1>
-          <p className="text-muted-foreground">Set up your new link-in-bio page</p>
+          <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none">Initialize Bio</h1>
+          <p className="mt-2 text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">New Entity Sequence // Sector: Alpha</p>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Page Details</CardTitle>
-          <CardDescription>Enter the basic information for your bio page</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Page Title</Label>
+      <div className="card-mono">
+        <div className="mb-8">
+          <h2 className="text-xl font-black uppercase italic italic tracking-tight">Entity Configuration</h2>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">Input baseline parameters</p>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-[10px] font-black uppercase tracking-widest leading-none">Page Title</Label>
+            <Input
+              id="title"
+              placeholder="MY AWESOME BIO"
+              value={title}
+              onChange={handleTitleChange}
+              className="border-2 border-primary bg-background font-bold h-12 uppercase"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="slug" className="text-[10px] font-black uppercase tracking-widest leading-none">URL Slug</Label>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-sm font-bold">/P/</span>
               <Input
-                id="title"
-                placeholder="My Awesome Bio"
-                value={title}
-                onChange={handleTitleChange}
+                id="slug"
+                placeholder="MY-AWESOME-BIO"
+                value={slug}
+                onChange={(e) => setSlug(generateSlug(e.target.value))}
+                className="border-2 border-primary bg-background font-bold h-12 uppercase"
               />
             </div>
+            <p className="text-[10px] font-mono uppercase tracking-widest opacity-50 mt-2">
+              PUBLIC_PATH: LINKFORGE.APP/P/{slug || "YOUR-SLUG"}
+            </p>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="slug">URL Slug</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">/p/</span>
-                <Input
-                  id="slug"
-                  placeholder="my-awesome-bio"
-                  value={slug}
-                  onChange={(e) => setSlug(generateSlug(e.target.value))}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                This will be your public URL: linkforge.app/p/{slug || "your-slug"}
-              </p>
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-[10px] font-black uppercase tracking-widest leading-none">Description (optional)</Label>
+            <Textarea
+              id="description"
+              placeholder="EXPLAIN THE ENTITY PURPOSE..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              className="border-2 border-primary bg-background font-bold rounded-none uppercase"
+            />
+          </div>
+
+          {error && (
+            <div className="border-2 border-destructive p-4 bg-destructive/10">
+              <p className="text-[10px] font-mono uppercase text-destructive font-black tracking-widest">{error}</p>
             </div>
+          )}
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description (optional)</Label>
-              <Textarea
-                id="description"
-                placeholder="Tell visitors what your page is about..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-              />
-            </div>
-
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
-
-            <div className="flex items-center gap-4">
-              <Button type="submit" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create Page
-              </Button>
-              <Button type="button" variant="outline" asChild>
-                <Link href="/dashboard/bio">Cancel</Link>
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+          <div className="flex items-center gap-4 pt-4">
+            <Button type="submit" disabled={isLoading} className="btn-mono">
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Initialize Segment
+            </Button>
+            <Button type="button" variant="outline" className="border-2 border-border hover:border-primary px-6 py-2 uppercase font-black tracking-widest text-xs" asChild>
+              <Link href="/dashboard/bio">Abort</Link>
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }
