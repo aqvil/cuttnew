@@ -132,7 +132,7 @@ export default async function DashboardPage() {
                 <h2 className="text-lg font-black uppercase italic tracking-tight">ACTIVE_SEGMENTS</h2>
               </div>
               <Link href="/dashboard/bio" className="text-[8px] font-black uppercase tracking-widest hover:text-accent transition-colors">
-                FULL_INDEX ->
+                FULL_INDEX {"->"}
               </Link>
             </div>
             
@@ -166,7 +166,7 @@ export default async function DashboardPage() {
                 <h2 className="text-lg font-black uppercase italic tracking-tight">RELAY_POINTS</h2>
               </div>
               <Link href="/dashboard/links" className="text-[8px] font-black uppercase tracking-widest hover:text-accent transition-colors">
-                NETWORK_MAP ->
+                NETWORK_MAP {"->"}
               </Link>
             </div>
             
