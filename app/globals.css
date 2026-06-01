@@ -131,11 +131,11 @@
   }
 
   .dash-page {
-    @apply mx-auto w-full max-w-[1180px] space-y-8 px-4 py-6 pb-16 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[1440px] space-y-8 px-4 py-6 pb-16 sm:px-6 lg:px-10;
   }
 
   .dash-narrow {
-    @apply mx-auto w-full max-w-[1040px] space-y-8 px-4 py-6 pb-16 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[1120px] space-y-8 px-4 py-6 pb-16 sm:px-6 lg:px-10;
   }
 
   .dash-hero {

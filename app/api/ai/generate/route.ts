@@ -53,5 +53,5 @@ Return just the CTA text.`
     output: Output.object({ schema }),
   })
 
-  return Response.json({ result: result.object.result })
+  return Response.json({ result: result.output.result })
 }

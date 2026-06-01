@@ -6,6 +6,7 @@ import { redirect } from "next/navigation"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
 import { DashboardHeader } from "@/components/dashboard/header"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { SessionProvider } from "@/components/auth/session-provider"
 
 export default async function DashboardLayout({
   children,
@@ -25,19 +26,21 @@ export default async function DashboardLayout({
   })
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen bg-background text-foreground">
-        <DashboardSidebar user={session.user} profile={profile} />
-        <SidebarInset className="border-l border-border bg-background">
-          <DashboardHeader />
-          <main className="relative flex-1 overflow-auto">
-            <div className="pointer-events-none absolute inset-0 mono-grid opacity-45" />
-            <div className="relative">
-              {children}
-            </div>
-          </main>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
+    <SessionProvider session={session}>
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full bg-background text-foreground">
+          <DashboardSidebar user={session.user} profile={profile} />
+          <SidebarInset className="min-w-0 border-l border-border bg-background">
+            <DashboardHeader />
+            <main className="relative flex-1 overflow-auto">
+              <div className="pointer-events-none absolute inset-0 mono-grid opacity-45" />
+              <div className="relative w-full">
+                {children}
+              </div>
+            </main>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+    </SessionProvider>
   )
 }

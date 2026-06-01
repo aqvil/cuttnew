@@ -21,7 +21,7 @@ export async function startCheckoutSession(productId: string) {
   }
 
   const stripeSession = await stripe.checkout.sessions.create({
-    ui_mode: 'embedded',
+    ui_mode: 'embedded_page',
     redirect_on_completion: 'never',
     customer_email: user.email,
     metadata: {
@@ -46,6 +46,10 @@ export async function startCheckoutSession(productId: string) {
     ],
     mode: product.mode as any,
   })
+
+  if (!stripeSession.client_secret) {
+    throw new Error('Stripe did not return a checkout client secret')
+  }
 
   return stripeSession.client_secret
 }
