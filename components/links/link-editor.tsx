@@ -90,14 +90,14 @@ export function LinkEditor({ link }: LinkEditorProps) {
       {/* Header */}
       <div className="flex items-center justify-between pb-6 border-b border-border">
          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="h-10 w-10 text-slate-500 hover:bg-slate-100 hover:text-slate-900" asChild>
+            <Button variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground hover:bg-muted hover:text-foreground" asChild>
               <Link href="/dashboard/links">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
             </Button>
             <div>
-               <h1 className="text-2xl font-bold text-slate-900">Edit Link</h1>
-               <p className="text-sm text-slate-500 mt-1">Manage destination and link security</p>
+               <h1 className="text-2xl font-bold text-foreground">Edit Link</h1>
+               <p className="text-sm text-muted-foreground mt-1">Manage destination, access, and redirects</p>
             </div>
          </div>
 
@@ -112,8 +112,8 @@ export function LinkEditor({ link }: LinkEditorProps) {
                 </AlertDialogTrigger>
                 <AlertDialogContent className="rounded-xl">
                   <AlertDialogHeader>
-                    <AlertDialogTitle className="text-xl font-bold text-slate-900">Delete Link?</AlertDialogTitle>
-                    <AlertDialogDescription className="text-base text-slate-600">
+                    <AlertDialogTitle className="text-xl font-bold text-foreground">Delete Link?</AlertDialogTitle>
+                    <AlertDialogDescription className="text-base text-muted-foreground">
                       Are you sure you want to delete this link? This action cannot be undone and will break any existing URLs shared.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
@@ -133,41 +133,41 @@ export function LinkEditor({ link }: LinkEditorProps) {
          {/* Main Editor */}
          <div className="lg:col-span-2 space-y-6">
             <div className="card p-8">
-               <h2 className="text-lg font-bold text-slate-900 mb-6">Link Destination</h2>
+               <h2 className="text-lg font-bold text-foreground mb-6">Link Destination</h2>
                
                <div className="space-y-6">
                   <div className="space-y-2">
-                     <Label className="text-sm font-semibold text-slate-700">Destination URL <span className="text-red-500">*</span></Label>
+                     <Label className="text-sm font-semibold text-foreground">Destination URL <span className="text-red-500">*</span></Label>
                      <Input
                         value={originalUrl}
                         onChange={(e) => setOriginalUrl(e.target.value)}
-                        className="h-12 border-slate-200 bg-white"
+                        className="h-12 border-border bg-background"
                         placeholder="https://example.com/very-long-url"
                      />
                   </div>
 
                   <div className="space-y-2">
-                     <Label className="text-sm font-semibold text-slate-700">Title (Optional)</Label>
+                     <Label className="text-sm font-semibold text-foreground">Title (Optional)</Label>
                      <Input
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="h-12 border-slate-200 bg-white"
+                        className="h-12 border-border bg-background"
                         placeholder="My awesome link"
                      />
-                     <p className="text-xs text-slate-500">Helps you identify this link in your dashboard.</p>
+                     <p className="text-xs text-muted-foreground">Helps you identify this link in your dashboard.</p>
                   </div>
                </div>
             </div>
 
             <div className="card p-8">
-               <h2 className="text-lg font-bold text-slate-900 mb-6">Security & Routing</h2>
+               <h2 className="text-lg font-bold text-foreground mb-6">Access & Routing</h2>
 
                <div className="space-y-8">
                   {/* Status */}
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-8">
+                  <div className="flex items-center justify-between border-b border-border pb-8">
                      <div>
-                        <Label className="text-base font-semibold text-slate-900">Active Status</Label>
-                        <p className="text-sm text-slate-500 mt-1">If turned off, the link will redirect to an error page.</p>
+                        <Label className="text-base font-semibold text-foreground">Active Status</Label>
+                        <p className="text-sm text-muted-foreground mt-1">If turned off, the link will redirect to an error page.</p>
                      </div>
                      <Switch checked={isActive} onCheckedChange={setIsActive} />
                   </div>
@@ -175,14 +175,14 @@ export function LinkEditor({ link }: LinkEditorProps) {
                   {/* Password */}
                   <div className="flex items-center justify-between">
                      <div>
-                        <Label className="text-base font-semibold text-slate-900">Password Protection</Label>
-                        <p className="text-sm text-slate-500 mt-1">Require a password to access the destination URL.</p>
+                        <Label className="text-base font-semibold text-foreground">Password Protection</Label>
+                        <p className="text-sm text-muted-foreground mt-1">Require a password to access the destination URL.</p>
                      </div>
                      <Switch checked={usePassword} onCheckedChange={setUsePassword} />
                   </div>
                   {usePassword && (
-                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                        <Label className="text-sm font-semibold text-slate-700">Password</Label>
+                     <div className="bg-background p-4 rounded-lg border border-border">
+                        <Label className="text-sm font-semibold text-foreground">Password</Label>
                         <Input
                            type="password"
                            placeholder={link.password ? "Leave blank to keep existing password" : "Enter a secure password"}
@@ -193,19 +193,19 @@ export function LinkEditor({ link }: LinkEditorProps) {
                      </div>
                   )}
 
-                  <div className="w-full h-px bg-slate-100" />
+                  <div className="w-full h-px bg-border" />
 
                   {/* Expiration */}
                   <div className="flex items-center justify-between">
                      <div>
-                        <Label className="text-base font-semibold text-slate-900">Link Expiration</Label>
-                        <p className="text-sm text-slate-500 mt-1">Automatically disable this link after a specific date.</p>
+                        <Label className="text-base font-semibold text-foreground">Link Expiration</Label>
+                        <p className="text-sm text-muted-foreground mt-1">Automatically disable this link after a specific date.</p>
                      </div>
                      <Switch checked={useExpiration} onCheckedChange={setUseExpiration} />
                   </div>
                   {useExpiration && (
-                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                        <Label className="text-sm font-semibold text-slate-700">Expiration Date</Label>
+                     <div className="bg-background p-4 rounded-lg border border-border">
+                        <Label className="text-sm font-semibold text-foreground">Expiration Date</Label>
                         <Input
                            type="datetime-local"
                            value={expiresAt}
@@ -226,18 +226,18 @@ export function LinkEditor({ link }: LinkEditorProps) {
 
          {/* Sidebar Preview */}
          <div className="lg:col-span-1 space-y-6">
-            <div className="card p-6 border-blue-100 shadow-xl shadow-blue-900/5">
-               <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Short Link</h3>
-               <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg mb-6">
+            <div className="card p-6 shadow-xl shadow-foreground/5">
+               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Short Link</h3>
+               <div className="p-4 bg-background border border-border rounded-lg mb-6">
                   <div className="flex items-center gap-3 mb-2">
                      <Link2 className="h-5 w-5 text-primary" />
-                     <span className="font-semibold text-slate-900 truncate">{shortUrl}</span>
+                     <span className="font-semibold text-foreground truncate">{shortUrl}</span>
                   </div>
                   <div className="flex gap-2">
-                     <Button variant="secondary" className="w-full bg-white h-9" onClick={handleCopy}>
+                     <Button variant="secondary" className="w-full bg-card h-9" onClick={handleCopy}>
                         {copied ? "Copied!" : "Copy"}
                      </Button>
-                     <Button variant="secondary" size="icon" className="w-9 shrink-0 bg-white" asChild>
+                     <Button variant="secondary" size="icon" className="w-9 shrink-0 bg-card" asChild>
                         <a href={shortUrl} target="_blank" rel="noopener noreferrer">
                            <ExternalLink className="h-4 w-4" />
                         </a>

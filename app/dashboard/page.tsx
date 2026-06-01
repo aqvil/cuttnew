@@ -70,10 +70,10 @@ export default async function DashboardPage() {
       {/* Welcome Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">
             Dashboard
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Welcome back, {session.user.name || "User"}. Here's an overview of your connections.
           </p>
         </div>
@@ -86,15 +86,15 @@ export default async function DashboardPage() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <div key={stat.title} className="stat-card">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
+            <div className="flex items-center justify-between text-muted-foreground mb-2">
               <span className="text-sm font-semibold">{stat.title}</span>
               <stat.icon className="h-4 w-4" />
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-slate-900 tabular-nums">
+              <span className="text-3xl font-bold text-foreground tabular-nums">
                 {stat.value.toLocaleString()}
               </span>
-              <span className="text-xs font-medium text-slate-500">{stat.suffix}</span>
+              <span className="text-xs font-medium text-muted-foreground">{stat.suffix}</span>
             </div>
           </div>
         ))}
@@ -102,8 +102,8 @@ export default async function DashboardPage() {
 
       {/* Recent Links Chart / List Area */}
       <div className="card w-full overflow-hidden">
-        <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-slate-50/50">
-          <h2 className="text-lg font-bold text-slate-900">Recent Links</h2>
+        <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-muted/40">
+          <h2 className="text-lg font-bold text-foreground">Recent Links</h2>
           <Button variant="link" className="text-sm font-semibold text-primary" asChild>
             <Link href="/dashboard/links">View all links</Link>
           </Button>
@@ -112,16 +112,16 @@ export default async function DashboardPage() {
         <div className="divide-y divide-border">
           {recentLinksData.length > 0 ? (
             recentLinksData.map((link) => (
-              <div key={link.id} className="flex items-center justify-between p-6 hover:bg-slate-50/50 transition-colors">
+              <div key={link.id} className="flex items-center justify-between p-6 hover:bg-muted/40 transition-colors">
                 <div className="flex items-start gap-4 flex-1 min-w-0">
-                  <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                  <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center shrink-0">
                     <LinkIcon className="h-5 w-5 text-primary" />
                   </div>
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-3">
                       <Link 
                         href={`/dashboard/links/${link.id}`}
-                        className="text-base font-bold text-slate-900 hover:text-primary hover:underline truncate"
+                        className="text-base font-bold text-foreground hover:text-primary hover:underline truncate"
                       >
                         {link.title || 'Untitled Link'}
                       </Link>
@@ -135,12 +135,12 @@ export default async function DashboardPage() {
                       >
                          {process.env.NEXT_PUBLIC_APP_URL?.replace('https://', '')}/l/{link.shortCode}
                       </a>
-                      <span className="text-slate-300">|</span>
-                      <a href={link.originalUrl} target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-700 truncate max-w-[300px]">
+                      <span className="text-border">|</span>
+                      <a href={link.originalUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground truncate max-w-[300px]">
                         {link.originalUrl}
                       </a>
                     </div>
-                    <div className="text-xs text-slate-400 font-medium">
+                    <div className="text-xs text-muted-foreground font-medium">
                       {formatDistanceToNow(new Date(link.createdAt || Date.now()), { addSuffix: true })}
                     </div>
                   </div>
@@ -148,18 +148,18 @@ export default async function DashboardPage() {
 
                 <div className="flex items-center gap-8 pl-4">
                   <div className="text-right hidden sm:block">
-                    <div className="text-xl font-bold text-slate-900 tabular-nums">
+                    <div className="text-xl font-bold text-foreground tabular-nums">
                       {link.clickCount.toLocaleString()}
                     </div>
-                    <div className="text-xs font-semibold text-slate-500 uppercase">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase">
                       Engagements
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary hover:bg-blue-50">
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-muted">
                       <Copy className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary hover:bg-blue-50" asChild>
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-muted" asChild>
                       <Link href={`/dashboard/analytics?link=${link.id}`}>
                         <Eye className="h-4 w-4" />
                       </Link>
@@ -169,9 +169,9 @@ export default async function DashboardPage() {
               </div>
             ))
           ) : (
-            <div className="p-12 text-center text-slate-500">
-               <LinkIcon className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-               <p className="text-lg font-medium text-slate-900 mb-2">No links created yet</p>
+            <div className="p-12 text-center text-muted-foreground">
+               <LinkIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+               <p className="text-lg font-medium text-foreground mb-2">No links created yet</p>
                <p className="text-sm mb-6">Create your first shortened link to start tracking engagements.</p>
                <Button className="btn-primary" asChild>
                   <Link href="/dashboard/links/new">Create a link</Link>

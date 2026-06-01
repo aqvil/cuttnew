@@ -8,45 +8,68 @@
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Brand Colors - Bitly-inspired deep blue */
-  --color-background: #f4f6fb;
-  --color-foreground: #0f1728;
+  /* Monochrome brand system */
+  --color-background: #f7f7f4;
+  --color-foreground: #111111;
 
-  --color-primary: #1d4ed8;
-  --color-primary-foreground: #ffffff;
+  --color-primary: #111111;
+  --color-primary-foreground: #fafafa;
 
-  --color-secondary: #e8edf8;
-  --color-secondary-foreground: #0f1728;
+  --color-secondary: #ededeb;
+  --color-secondary-foreground: #111111;
 
-  --color-muted: #e8edf8;
-  --color-muted-foreground: #64748b;
+  --color-muted: #ebebe7;
+  --color-muted-foreground: #6d6a64;
 
-  --color-accent: #7c3aed;
-  --color-accent-foreground: #ffffff;
+  --color-accent: #e3e3df;
+  --color-accent-foreground: #111111;
 
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
 
-  --color-border: #e2e8f0;
-  --color-input: #e2e8f0;
-  --color-ring: #1d4ed8;
+  --color-border: #d8d6d0;
+  --color-input: #d8d6d0;
+  --color-ring: #111111;
 
-  --color-card: #ffffff;
-  --color-card-foreground: #0f1728;
+  --color-card: #fffffc;
+  --color-card-foreground: #111111;
 
   --radius-lg: 12px;
   --radius-md: 8px;
   --radius-sm: 6px;
 
   /* Sidebar specific */
-  --color-sidebar: #0f1728;
-  --color-sidebar-foreground: #cbd5e1;
-  --color-sidebar-accent: #1e2d4a;
-  --color-sidebar-accent-foreground: #ffffff;
-  --color-sidebar-border: rgba(255, 255, 255, 0.06);
+  --color-sidebar: #111111;
+  --color-sidebar-foreground: #d8d6d0;
+  --color-sidebar-accent: #242424;
+  --color-sidebar-accent-foreground: #fafafa;
+  --color-sidebar-border: rgba(255, 255, 255, 0.1);
 }
 
 @layer base {
+  .dark {
+    --color-background: #0b0b0b;
+    --color-foreground: #f4f4f0;
+    --color-primary: #f4f4f0;
+    --color-primary-foreground: #0b0b0b;
+    --color-secondary: #1a1a1a;
+    --color-secondary-foreground: #f4f4f0;
+    --color-muted: #1d1d1b;
+    --color-muted-foreground: #a7a39a;
+    --color-accent: #242424;
+    --color-accent-foreground: #f4f4f0;
+    --color-border: #2e2e2a;
+    --color-input: #2e2e2a;
+    --color-ring: #f4f4f0;
+    --color-card: #101010;
+    --color-card-foreground: #f4f4f0;
+    --color-sidebar: #050505;
+    --color-sidebar-foreground: #d8d6d0;
+    --color-sidebar-accent: #1b1b1b;
+    --color-sidebar-accent-foreground: #ffffff;
+    --color-sidebar-border: rgba(255, 255, 255, 0.12);
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
@@ -54,27 +77,31 @@
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "ss01", "cv01", "cv11";
   }
+
+  ::selection {
+    @apply bg-foreground text-background;
+  }
 }
 
 @layer components {
   /* Card component */
   .card {
-    @apply rounded-xl bg-card border border-border shadow-sm;
+    @apply rounded-lg bg-card border border-border shadow-sm shadow-foreground/5;
   }
 
-  /* Primary button - Bitly blue */
+  /* Primary button */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
   }
 
   /* Secondary/Ghost button */
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-5 py-2.5 text-sm font-semibold text-foreground transition-all hover:bg-secondary active:scale-[0.98] disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-all hover:bg-secondary active:scale-[0.98] disabled:opacity-50;
   }
 
   /* Shortener input - the hero element */
   .shortener-input {
-    @apply h-14 w-full rounded-xl border-2 border-border bg-white px-5 text-base font-medium placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-all shadow-sm;
+    @apply h-14 w-full rounded-md border border-border bg-card px-5 text-base font-medium placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-all shadow-sm;
   }
 
   /* Stat card */
@@ -87,12 +114,19 @@
     @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
   }
   .badge-blue {
-    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-blue-50 text-blue-700;
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-muted text-foreground border border-border;
   }
   .badge-green {
-    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700;
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-muted text-foreground border border-border;
   }
   .badge-purple {
-    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-violet-50 text-violet-700;
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-muted text-foreground border border-border;
+  }
+
+  .mono-grid {
+    background-image:
+      linear-gradient(to right, color-mix(in srgb, currentColor 7%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, currentColor 7%, transparent) 1px, transparent 1px);
+    background-size: 48px 48px;
   }
 }

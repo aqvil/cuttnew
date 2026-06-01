@@ -16,10 +16,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'LinkForge - High-Performance Bio Pages',
+    default: 'LinkForge - URL Shortener',
     template: '%s | LinkForge',
   },
-  description: 'The tactical edge for your digital presence. High-performance bio pages and link management.',
+  description: 'Create short links, QR codes, and link-in-bio pages with clean analytics.',
 }
 
 export const viewport: Viewport = {
