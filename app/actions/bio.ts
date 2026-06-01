@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
-import { bioPages, bioBlocks } from "@/lib/db/schema"
+import { bioPages, bioBlocks, linkAnalytics, emailSubscribers } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 

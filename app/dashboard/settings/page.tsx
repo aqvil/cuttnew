@@ -50,92 +50,95 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-8 pb-12 max-w-4xl mx-auto p-8 font-sans">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-6 border-b border-border">
+    <div className="dash-narrow font-sans">
+      <div className="dash-hero flex items-center justify-between">
          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Settings</h1>
-            <p className="text-sm text-slate-500 mt-1">Manage your account settings and preferences.</p>
+            <div className="dash-kicker mb-4">
+              <User className="size-3.5" />
+              Account
+            </div>
+            <h1 className="dash-title">Settings</h1>
+            <p className="dash-subtitle">Manage your public profile, account identity, and connected sign-in methods.</p>
          </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-         <div className="card overflow-hidden">
-            <div className="px-8 flex items-center justify-between border-b border-border bg-slate-50 py-4">
+         <div className="dash-panel overflow-hidden">
+            <div className="dash-panel-header">
                <div>
-                  <h2 className="text-lg font-bold text-slate-900">Profile Details</h2>
+                  <h2 className="dash-panel-title">Profile Details</h2>
                </div>
             </div>
             
             <div className="p-8 space-y-6">
                <div className="space-y-2">
-                 <Label htmlFor="display_name" className="text-sm font-semibold text-slate-700">Display Name</Label>
+                 <Label htmlFor="display_name" className="text-sm font-semibold text-foreground">Display Name</Label>
                  <Input
                    id="display_name"
                    value={displayName}
                    onChange={(e) => setDisplayName(e.target.value)}
                    placeholder="e.g. John Doe"
-                   className="h-12 border-slate-200 bg-white md:max-w-md"
+                   className="dash-field md:max-w-md"
                  />
-                 <p className="text-xs text-slate-500">This is your public display name.</p>
+                 <p className="text-xs text-muted-foreground">This is your public display name.</p>
                </div>
 
                <div className="space-y-2">
-                 <Label htmlFor="username" className="text-sm font-semibold text-slate-700">Username</Label>
+                 <Label htmlFor="username" className="text-sm font-semibold text-foreground">Username</Label>
                  <div className="relative md:max-w-md">
-                   <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                   <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                    <Input
                      id="username"
                      value={username}
                      onChange={(e) => setUsername(e.target.value)}
                      placeholder="johndoe"
-                     className="h-12 pl-10 border-slate-200 bg-white"
+                     className="dash-field pl-10"
                    />
                  </div>
-                 <p className="text-xs text-slate-500">This will be used for your public profile URL.</p>
+                 <p className="text-xs text-muted-foreground">This will be used for your public profile URL.</p>
                </div>
 
                <div className="space-y-2">
-                 <Label htmlFor="bio" className="text-sm font-semibold text-slate-700">Bio</Label>
+                 <Label htmlFor="bio" className="text-sm font-semibold text-foreground">Bio</Label>
                  <Textarea
                    id="bio"
                    value={bio}
                    onChange={(e) => setBio(e.target.value)}
                    placeholder="Tell us a little bit about yourself"
                    rows={4}
-                   className="border-slate-200 bg-white resize-none"
+                   className="border-border bg-background resize-none"
                  />
                </div>
             </div>
          </div>
 
-         <div className="card overflow-hidden">
-            <div className="px-8 flex items-center justify-between border-b border-border bg-slate-50 py-4">
+         <div className="dash-panel overflow-hidden">
+            <div className="dash-panel-header">
                <div>
-                  <h2 className="text-lg font-bold text-slate-900">Account Security</h2>
+                  <h2 className="dash-panel-title">Account Access</h2>
                </div>
             </div>
             
             <div className="p-8 space-y-6">
                <div className="space-y-2">
-                 <Label className="text-sm font-semibold text-slate-700">Email Address</Label>
+                 <Label className="text-sm font-semibold text-foreground">Email Address</Label>
                  <div className="flex gap-4 md:max-w-md">
                     <div className="relative flex-1">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                       <Input
                         value={session?.user?.email || ""}
                         disabled
-                        className="h-12 pl-10 border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed"
+                        className="h-12 pl-10 border-border bg-muted text-muted-foreground cursor-not-allowed"
                       />
                     </div>
                  </div>
-                 <p className="text-xs text-slate-500">Contact support to change your email address.</p>
+                 <p className="text-xs text-muted-foreground">Contact support to change your email address.</p>
                </div>
                
-               <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+               <div className="pt-4 border-t border-border flex items-center justify-between">
                   <div>
-                     <h3 className="text-sm font-semibold text-slate-900">Connected Accounts</h3>
-                     <p className="text-xs text-slate-500">Manage OAuth associations.</p>
+                     <h3 className="text-sm font-semibold text-foreground">Connected Accounts</h3>
+                     <p className="text-xs text-muted-foreground">Manage OAuth associations.</p>
                   </div>
                   <Button variant="secondary" disabled>Connect Discord</Button>
                </div>

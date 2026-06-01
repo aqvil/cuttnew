@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { bioPages, shortLinks, pageViews, linkAnalytics } from "@/lib/db/schema"
 import { eq, desc, count, inArray } from "drizzle-orm"
-import { FileText, LinkIcon, Eye, MousePointer, ExternalLink, Copy } from "lucide-react"
+import { FileText, LinkIcon, Eye, MousePointer, ExternalLink, Copy, Activity, ArrowUpRight } from "lucide-react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -66,32 +66,39 @@ export default async function DashboardPage() {
   })
 
   return (
-    <div className="space-y-8 pb-12 max-w-7xl mx-auto p-8">
-      {/* Welcome Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="dash-page">
+      <div className="dash-hero flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground tracking-tight">
-            Dashboard
+          <div className="dash-kicker mb-4">
+            <Activity className="size-3.5" />
+            Workspace
+          </div>
+          <h1 className="dash-title">
+            Welcome back, {session.user.name || "User"}.
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Welcome back, {session.user.name || "User"}. Here's an overview of your connections.
+          <p className="dash-subtitle">
+            Your links, bio pages, and recent click activity in one clean control surface.
           </p>
         </div>
-        <Button className="btn-primary" asChild>
-          <Link href="/dashboard/links/new">Create new link</Link>
+        <Button className="btn-primary h-11 px-5" asChild>
+          <Link href="/dashboard/links/new">
+            Create link
+            <ArrowUpRight className="size-4" />
+          </Link>
         </Button>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <div key={stat.title} className="stat-card">
-            <div className="flex items-center justify-between text-muted-foreground mb-2">
+          <div key={stat.title} className="dash-panel p-5">
+            <div className="flex items-center justify-between text-muted-foreground mb-5">
               <span className="text-sm font-semibold">{stat.title}</span>
-              <stat.icon className="h-4 w-4" />
+              <div className="dash-icon size-9">
+                <stat.icon className="h-4 w-4" />
+              </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-foreground tabular-nums">
+              <span className="text-4xl font-semibold text-foreground tabular-nums tracking-tight">
                 {stat.value.toLocaleString()}
               </span>
               <span className="text-xs font-medium text-muted-foreground">{stat.suffix}</span>
@@ -100,10 +107,9 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Recent Links Chart / List Area */}
-      <div className="card w-full overflow-hidden">
-        <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-muted/40">
-          <h2 className="text-lg font-bold text-foreground">Recent Links</h2>
+      <div className="dash-panel w-full overflow-hidden">
+        <div className="dash-panel-header">
+          <h2 className="dash-panel-title">Recent Links</h2>
           <Button variant="link" className="text-sm font-semibold text-primary" asChild>
             <Link href="/dashboard/links">View all links</Link>
           </Button>
@@ -112,9 +118,9 @@ export default async function DashboardPage() {
         <div className="divide-y divide-border">
           {recentLinksData.length > 0 ? (
             recentLinksData.map((link) => (
-              <div key={link.id} className="flex items-center justify-between p-6 hover:bg-muted/40 transition-colors">
+              <div key={link.id} className="flex items-center justify-between p-5 hover:bg-muted/35 transition-colors">
                 <div className="flex items-start gap-4 flex-1 min-w-0">
-                  <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center shrink-0">
+                  <div className="dash-icon">
                     <LinkIcon className="h-5 w-5 text-primary" />
                   </div>
                   <div className="space-y-1 min-w-0 flex-1">
@@ -140,7 +146,7 @@ export default async function DashboardPage() {
                         {link.originalUrl}
                       </a>
                     </div>
-                    <div className="text-xs text-muted-foreground font-medium">
+                    <div className="text-xs text-muted-foreground font-medium font-mono">
                       {formatDistanceToNow(new Date(link.createdAt || Date.now()), { addSuffix: true })}
                     </div>
                   </div>
@@ -149,7 +155,7 @@ export default async function DashboardPage() {
                 <div className="flex items-center gap-8 pl-4">
                   <div className="text-right hidden sm:block">
                     <div className="text-xl font-bold text-foreground tabular-nums">
-                      {link.clickCount.toLocaleString()}
+                      {(link.clickCount || 0).toLocaleString()}
                     </div>
                     <div className="text-xs font-semibold text-muted-foreground uppercase">
                       Engagements
@@ -169,10 +175,12 @@ export default async function DashboardPage() {
               </div>
             ))
           ) : (
-            <div className="p-12 text-center text-muted-foreground">
-               <LinkIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-               <p className="text-lg font-medium text-foreground mb-2">No links created yet</p>
-               <p className="text-sm mb-6">Create your first shortened link to start tracking engagements.</p>
+            <div className="dash-empty">
+               <div className="dash-icon mx-auto mb-5 size-14">
+                <LinkIcon className="h-6 w-6" />
+               </div>
+               <p className="text-lg font-semibold text-foreground mb-2">No links created yet</p>
+               <p className="text-sm text-muted-foreground mb-6">Create your first shortened link to start tracking engagements.</p>
                <Button className="btn-primary" asChild>
                   <Link href="/dashboard/links/new">Create a link</Link>
                </Button>

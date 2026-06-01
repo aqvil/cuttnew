@@ -22,11 +22,11 @@ export function DashboardHeader() {
   }
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-border px-6 bg-card shrink-0">
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border px-4 sm:px-6 bg-card/90 backdrop-blur-xl shrink-0">
       <div className="flex items-center gap-4">
         <SidebarTrigger className="h-9 w-9 border border-border text-muted-foreground hover:bg-muted transition-colors" />
         <div className="h-6 w-px bg-border hidden sm:block" />
-        <h1 className="text-xl font-bold text-foreground hidden sm:block">
+        <h1 className="text-base font-semibold tracking-tight text-foreground hidden sm:block">
           {getPageTitle()}
         </h1>
       </div>

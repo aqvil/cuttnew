@@ -3,7 +3,6 @@
 import { useSearchParams } from "next/navigation"
 import { Checkout } from "@/components/billing/checkout"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Shield } from "lucide-react"
 import Link from "next/link"
 import { PRODUCTS } from "@/lib/products"
@@ -17,18 +16,16 @@ function CheckoutContent() {
 
   if (!planId || !product) {
     return (
-      <div className="max-w-lg mx-auto space-y-6">
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <h3 className="text-lg font-medium mb-2">Invalid Plan</h3>
+      <div className="dash-narrow">
+        <div className="dash-empty">
+            <h3 className="text-lg font-semibold mb-2">Invalid Plan</h3>
             <p className="text-sm text-muted-foreground text-center mb-4">
               The selected plan was not found. Please select a valid plan.
             </p>
             <Button asChild>
               <Link href="/dashboard/billing">View Plans</Link>
             </Button>
-          </CardContent>
-        </Card>
+        </div>
       </div>
     )
   }
@@ -38,15 +35,16 @@ function CheckoutContent() {
     : `$${(product.priceInCents / 100).toFixed(0)}/month`
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
+    <div className="dash-narrow">
+      <div className="dash-hero flex items-center gap-4">
+        <Button variant="ghost" size="icon" className="text-muted-foreground hover:bg-muted" asChild>
           <Link href="/dashboard/billing">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Checkout</h1>
+          <div className="dash-kicker mb-3">Checkout</div>
+          <h1 className="dash-title">Checkout</h1>
           <p className="text-muted-foreground">
             Subscribe to {product.name}
           </p>
@@ -55,19 +53,21 @@ function CheckoutContent() {
 
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Order Summary */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base">Order Summary</CardTitle>
-            <CardDescription>
+        <div className="dash-panel lg:col-span-2">
+          <div className="dash-panel-header">
+            <div>
+            <h2 className="dash-panel-title">Order Summary</h2>
+            <p className="text-sm text-muted-foreground">
               {product.name}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </p>
+            </div>
+          </div>
+          <div className="space-y-4 p-5">
             <div className="flex items-center justify-between">
               <span className="text-sm">{product.name}</span>
               <span className="font-medium">{priceDisplay}</span>
             </div>
-            <hr />
+            <hr className="border-border" />
             <div className="flex items-center justify-between font-medium">
               <span>Total</span>
               <span>{priceDisplay}</span>
@@ -76,21 +76,23 @@ function CheckoutContent() {
               <Shield className="h-4 w-4" />
               <span>Secure payment powered by Stripe</span>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Checkout Form */}
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle className="text-base">Payment Details</CardTitle>
-            <CardDescription>
+        <div className="dash-panel lg:col-span-3">
+          <div className="dash-panel-header">
+            <div>
+            <h2 className="dash-panel-title">Payment Details</h2>
+            <p className="text-sm text-muted-foreground">
               Enter your payment information to complete your subscription
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </p>
+            </div>
+          </div>
+          <div className="p-5">
             <Checkout productId={planId} />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

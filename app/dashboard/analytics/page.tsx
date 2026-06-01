@@ -55,7 +55,7 @@ export default async function AnalyticsPage() {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  let recentClicks = []
+  let recentClicks: Array<{ clickedAt: Date | null }> = []
   if (shortLinkIds.length > 0) {
     recentClicks = await db.query.linkAnalytics.findMany({
       where: and(inArray(linkAnalytics.linkId, shortLinkIds), gte(linkAnalytics.clickedAt, thirtyDaysAgo)),
@@ -83,7 +83,7 @@ export default async function AnalyticsPage() {
   }
 
   // Get device breakdown
-  let deviceStats = []
+  let deviceStats: Array<{ device: string | null }> = []
   if (shortLinkIds.length > 0) {
     deviceStats = await db.query.linkAnalytics.findMany({
       where: and(inArray(linkAnalytics.linkId, shortLinkIds), sql`${linkAnalytics.device} is not null`),
@@ -104,7 +104,7 @@ export default async function AnalyticsPage() {
   const totalDevices = Object.values(deviceCounts).reduce((a, b) => a + b, 0)
 
   // Get country breakdown
-  let countryStats = []
+  let countryStats: Array<{ country: string | null }> = []
   if (shortLinkIds.length > 0) {
     countryStats = await db.query.linkAnalytics.findMany({
       where: and(inArray(linkAnalytics.linkId, shortLinkIds), sql`${linkAnalytics.country} is not null`),
@@ -132,80 +132,83 @@ export default async function AnalyticsPage() {
   })
 
   return (
-    <div className="space-y-8 pb-12 max-w-7xl mx-auto p-8 font-sans">
-      <div className="flex items-center justify-between pb-6 border-b border-border">
+    <div className="dash-page font-sans">
+      <div className="dash-hero flex items-end justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Analytics</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            View your engagements and trends from the last 30 days.
+          <div className="dash-kicker mb-4">
+            <TrendingUp className="size-3.5" />
+            Measurement
+          </div>
+          <h1 className="dash-title">Analytics</h1>
+          <p className="dash-subtitle">
+            Read clicks, devices, countries, and top performers across the last 30 days.
           </p>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="stat-card">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="dash-panel p-5">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-semibold text-slate-500">Page Views</span>
-            <Eye className="size-4 text-slate-400" />
+            <span className="text-sm font-semibold text-muted-foreground">Page Views</span>
+            <div className="dash-icon size-9"><Eye className="size-4" /></div>
           </div>
           <div>
-            <p className="text-3xl font-bold text-slate-900 tabular-nums">
+            <p className="text-4xl font-semibold text-foreground tabular-nums tracking-tight">
               {totalPageViews.toLocaleString()}
             </p>
           </div>
         </div>
 
-        <div className="stat-card">
+        <div className="dash-panel p-5">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-semibold text-slate-500">Link Clicks</span>
-            <MousePointer className="size-4 text-slate-400" />
+            <span className="text-sm font-semibold text-muted-foreground">Link Clicks</span>
+            <div className="dash-icon size-9"><MousePointer className="size-4" /></div>
           </div>
           <div>
-            <p className="text-3xl font-bold text-slate-900 tabular-nums">
+            <p className="text-4xl font-semibold text-foreground tabular-nums tracking-tight">
               {totalLinkClicks.toLocaleString()}
             </p>
           </div>
         </div>
 
-        <div className="stat-card">
+        <div className="dash-panel p-5">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-semibold text-slate-500">Top Origin</span>
-            <Globe className="size-4 text-slate-400" />
+            <span className="text-sm font-semibold text-muted-foreground">Top Origin</span>
+            <div className="dash-icon size-9"><Globe className="size-4" /></div>
           </div>
           <div>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-3xl font-semibold text-foreground">
               {topCountries[0]?.[0] || "N/A"}
             </p>
           </div>
         </div>
 
-        <div className="stat-card">
+        <div className="dash-panel p-5">
           <div className="space-y-3 mb-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Monitor className="size-3.5 text-slate-500" />
-                <span className="text-xs font-semibold text-slate-600">Desktop</span>
+                <Monitor className="size-3.5 text-muted-foreground" />
+                <span className="text-xs font-semibold text-muted-foreground">Desktop</span>
               </div>
-              <span className="text-xs font-bold tabular-nums text-slate-900">
+              <span className="text-xs font-bold tabular-nums text-foreground">
                 {totalDevices > 0 ? Math.round((deviceCounts.desktop / totalDevices) * 100) : 0}%
               </span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Smartphone className="size-3.5 text-slate-500" />
-                <span className="text-xs font-semibold text-slate-600">Mobile</span>
+                <Smartphone className="size-3.5 text-muted-foreground" />
+                <span className="text-xs font-semibold text-muted-foreground">Mobile</span>
               </div>
-              <span className="text-xs font-bold tabular-nums text-slate-900">
+              <span className="text-xs font-bold tabular-nums text-foreground">
                 {totalDevices > 0 ? Math.round((deviceCounts.mobile / totalDevices) * 100) : 0}%
               </span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Tablet className="size-3.5 text-slate-500" />
-                <span className="text-xs font-semibold text-slate-600">Tablet</span>
+                <Tablet className="size-3.5 text-muted-foreground" />
+                <span className="text-xs font-semibold text-muted-foreground">Tablet</span>
               </div>
-              <span className="text-xs font-bold tabular-nums text-slate-900">
+              <span className="text-xs font-bold tabular-nums text-foreground">
                 {totalDevices > 0 ? Math.round((deviceCounts.tablet / totalDevices) * 100) : 0}%
               </span>
             </div>
@@ -213,12 +216,11 @@ export default async function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Chart */}
-      <div className="card overflow-hidden">
-        <div className="border-b border-border px-8 py-5 bg-slate-50">
-          <h2 className="text-lg font-bold text-slate-900">Engagements Over Time</h2>
+      <div className="dash-panel overflow-hidden">
+        <div className="dash-panel-header">
+          <h2 className="dash-panel-title">Engagements Over Time</h2>
         </div>
-        <div className="p-8">
+        <div className="p-5 sm:p-8">
           <AnalyticsChart data={chartData} />
         </div>
       </div>
@@ -226,19 +228,25 @@ export default async function AnalyticsPage() {
       {/* Bottom Grid */}
       <div className="grid gap-8 lg:grid-cols-2">
         {/* Top Links */}
-        <div className="card overflow-hidden">
-          <div className="border-b border-border px-8 py-5 bg-slate-50">
-            <h2 className="text-lg font-bold text-slate-900">Top Performing Links</h2>
+        <div className="dash-panel overflow-hidden">
+          <div className="dash-panel-header">
+            <h2 className="dash-panel-title">Top Performing Links</h2>
           </div>
           <div className="p-4">
-            <TopLinksTable links={topLinksData.map(l => ({ ...l, short_code: l.shortCode, click_count: l.clickCount }))} />
+            <TopLinksTable links={topLinksData.map(l => ({
+              id: l.id,
+              title: l.title,
+              short_code: l.shortCode,
+              click_count: l.clickCount || 0,
+              original_url: l.originalUrl,
+            }))} />
           </div>
         </div>
 
         {/* Geographic */}
-        <div className="card overflow-hidden">
-          <div className="border-b border-border px-8 py-5 bg-slate-50">
-            <h2 className="text-lg font-bold text-slate-900">Geographic Distribution</h2>
+        <div className="dash-panel overflow-hidden">
+          <div className="dash-panel-header">
+            <h2 className="dash-panel-title">Geographic Distribution</h2>
           </div>
           <div className="p-8">
             <GeoChart countries={topCountries} />

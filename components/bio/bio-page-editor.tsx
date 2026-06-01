@@ -119,17 +119,17 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
   }, [])
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col bg-slate-50 overflow-hidden font-sans">
+    <div className="h-[calc(100vh-4rem)] flex flex-col bg-background overflow-hidden font-sans">
       {/* Editor Header */}
-      <div className="shrink-0 flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-white z-10">
+      <div className="shrink-0 flex items-center justify-between border-b border-border px-4 sm:px-6 py-4 bg-card/90 backdrop-blur-xl z-10">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-500 hover:bg-slate-100" asChild>
+          <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:bg-muted" asChild>
             <Link href="/dashboard/bio">
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 leading-none">{title || "Untitled Link-in-bio"}</h1>
+            <h1 className="text-xl font-semibold text-foreground leading-none">{title || "Untitled Link-in-bio"}</h1>
             <a href={`${process.env.NEXT_PUBLIC_APP_URL}/p/${page.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1">
                linkforge.app/p/{page.slug}
             </a>
@@ -143,8 +143,8 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
               {mobilePreviewOpen ? "Editor" : "Preview"}
            </Button>
 
-          <div className="hidden sm:flex items-center gap-3 border border-slate-200 px-4 h-10 rounded-lg bg-slate-50">
-             <Label htmlFor="publish" className="text-sm font-semibold text-slate-700 cursor-pointer">Live</Label>
+          <div className="hidden sm:flex items-center gap-3 border border-border px-4 h-10 rounded-md bg-background">
+             <Label htmlFor="publish" className="text-sm font-semibold text-foreground cursor-pointer">Live</Label>
              <Switch
                id="publish"
                checked={isPublished}
@@ -164,9 +164,9 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
       {/* Main Workspace */}
       <div className="flex-1 flex overflow-hidden relative">
         {/* Left Panel - Editor Form */}
-        <div className={`w-full md:w-[60%] lg:w-[55%] border-r border-slate-200 overflow-y-auto p-6 md:p-10 bg-white ${mobilePreviewOpen ? 'hidden md:block' : 'block'}`}>
+        <div className={`w-full md:w-[60%] lg:w-[55%] border-r border-border overflow-y-auto p-6 md:p-10 bg-card ${mobilePreviewOpen ? 'hidden md:block' : 'block'}`}>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-2xl mx-auto">
-            <TabsList className="mb-8 w-full justify-start gap-2 bg-transparent p-0 border-b border-slate-100 h-auto rounded-none">
+            <TabsList className="mb-8 w-full justify-start gap-2 bg-transparent p-0 border-b border-border h-auto rounded-none">
               {[
                 { id: "editor", icon: LinkIcon, label: "Links & Blocks" },
                 { id: "design", icon: Palette, label: "Design" },
@@ -175,7 +175,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                 <TabsTrigger 
                   key={tab.id} 
                   value={tab.id}
-                  className="h-10 px-4 bg-transparent border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary rounded-none font-semibold text-sm transition-all text-slate-500"
+                  className="h-10 px-4 bg-transparent border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary rounded-none font-semibold text-sm transition-all text-muted-foreground"
                 >
                   <tab.icon className="mr-2 h-4 w-4" />
                   {tab.label}
@@ -186,36 +186,36 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
             <TabsContent value="editor" className="space-y-8 mt-4 focus-visible:outline-none">
                <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-slate-700">Profile Title</Label>
+                    <Label className="text-sm font-semibold text-foreground">Profile Title</Label>
                     <Input
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="Your name or brand"
-                      className="h-12 border-slate-200 bg-white text-base"
+                      className="dash-field text-base"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-slate-700">Bio description</Label>
+                    <Label className="text-sm font-semibold text-foreground">Bio description</Label>
                     <Input
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="A short description about you..."
-                      className="h-12 border-slate-200 bg-white text-base"
+                      className="dash-field text-base"
                     />
                   </div>
               </div>
 
-              <div className="pt-6 border-t border-slate-100">
-                <Button className="w-full h-12 btn-primary rounded-xl text-base" onClick={() => setShowAddBlock(true)}>
+              <div className="pt-6 border-t border-border">
+                <Button className="w-full h-12 btn-primary rounded-md text-base" onClick={() => setShowAddBlock(true)}>
                   <Plus className="mr-2 h-5 w-5" />
                   Add Link or Block
                 </Button>
                 
                 <div className="mt-8 space-y-4">
                   {blocks.length === 0 ? (
-                    <div className="border border-dashed border-slate-300 rounded-xl text-center py-16 bg-slate-50">
-                      <p className="text-sm font-medium text-slate-500">You don't have any links yet.</p>
-                      <p className="text-sm text-slate-400 mt-1">Add your first link to get started.</p>
+                    <div className="dash-empty">
+                      <p className="text-sm font-medium text-muted-foreground">You don't have any links yet.</p>
+                      <p className="text-sm text-muted-foreground mt-1">Add your first link to get started.</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -240,8 +240,8 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
             </TabsContent>
 
             <TabsContent value="design" className="space-y-8 mt-4 focus-visible:outline-none">
-               <div className="card p-6">
-                <h3 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Colors</h3>
+               <div className="dash-panel p-6">
+                <h3 className="dash-panel-title mb-6 border-b border-border pb-4">Colors</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {[
                     { label: "Background", key: "background" },
@@ -249,23 +249,23 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                     { label: "Card Color", key: "accent" }
                   ].map((item) => (
                     <div key={item.key} className="space-y-3">
-                      <Label className="text-sm font-semibold text-slate-700">{item.label}</Label>
-                      <div className="relative h-12 w-full border border-slate-200 rounded-lg flex items-center justify-center overflow-hidden hover:border-slate-300 transition-colors shadow-sm bg-white">
+                      <Label className="text-sm font-semibold text-foreground">{item.label}</Label>
+                      <div className="relative h-12 w-full border border-border rounded-md flex items-center justify-center overflow-hidden hover:bg-muted transition-colors shadow-sm bg-background">
                         <input
                           type="color"
                           value={theme[item.key]}
                           onChange={(e) => setTheme({ ...theme, [item.key]: e.target.value })}
                           className="absolute inset-0 opacity-0 cursor-pointer"
                         />
-                        <span className="text-sm font-medium text-slate-700">{theme[item.key]}</span>
+                        <span className="text-sm font-medium text-foreground font-mono">{theme[item.key]}</span>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="card p-6">
-                <h3 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Card Style</h3>
+              <div className="dash-panel p-6">
+                <h3 className="dash-panel-title mb-6 border-b border-border pb-4">Card Style</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {[
                     { id: "minimal", label: "Minimal" },
@@ -278,8 +278,8 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                       onClick={() => setTheme({ ...theme, style: style.id })}
                       className={`h-14 px-4 text-sm font-bold transition-all rounded-lg border ${
                         theme.style === style.id
-                          ? "bg-blue-50 text-primary border-primary"
-                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+                          ? "bg-foreground text-background border-foreground"
+                          : "bg-background text-muted-foreground border-border hover:text-foreground"
                       }`}
                     >
                       {style.label}
@@ -290,16 +290,16 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
             </TabsContent>
 
             <TabsContent value="settings" className="space-y-8 mt-4 focus-visible:outline-none">
-              <div className="card p-6">
-                <h3 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Search Engine Optimization</h3>
+              <div className="dash-panel p-6">
+                <h3 className="dash-panel-title mb-6 border-b border-border pb-4">Search Engine Optimization</h3>
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-slate-700">SEO Title</Label>
-                    <Input placeholder="Enter title for search engines" className="h-12 border-slate-200 bg-white" />
+                    <Label className="text-sm font-semibold text-foreground">SEO Title</Label>
+                    <Input placeholder="Enter title for search engines" className="dash-field" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-slate-700">Meta Description</Label>
-                    <Input placeholder="Enter description for search engines" className="h-12 border-slate-200 bg-white" />
+                    <Label className="text-sm font-semibold text-foreground">Meta Description</Label>
+                    <Input placeholder="Enter description for search engines" className="dash-field" />
                   </div>
                 </div>
               </div>
@@ -308,16 +308,16 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
         </div>
 
         {/* Right Panel - Phone Preview */}
-        <div className={`w-full md:w-[40%] lg:w-[45%] bg-slate-100 overflow-y-auto p-10 flex flex-col items-center border-l border-slate-200 ${mobilePreviewOpen ? 'block' : 'hidden md:flex'}`}>
-           <div className="mb-6 flex items-center justify-center gap-2 text-sm font-semibold text-slate-500">
+        <div className={`w-full md:w-[40%] lg:w-[45%] bg-background overflow-y-auto p-10 flex flex-col items-center border-l border-border mono-grid ${mobilePreviewOpen ? 'block' : 'hidden md:flex'}`}>
+           <div className="mb-6 flex items-center justify-center gap-2 text-sm font-semibold text-muted-foreground">
              <Smartphone className="h-4 w-4" />
              Live Preview
            </div>
            
            {/* Phone Frame */}
-           <div className="relative w-[340px] h-[720px] rounded-[3rem] border-8 border-slate-900 shadow-2xl overflow-hidden bg-white shrink-0">
-             <div className="absolute top-0 inset-x-0 h-6 bg-slate-900 rounded-b-3xl w-40 mx-auto z-50 flex items-center justify-center">
-                 <div className="h-2 w-12 bg-slate-800 rounded-full"></div>
+           <div className="relative w-[340px] h-[720px] rounded-[2.5rem] border-8 border-foreground shadow-2xl shadow-foreground/20 overflow-hidden bg-card shrink-0">
+             <div className="absolute top-0 inset-x-0 h-6 bg-foreground rounded-b-3xl w-40 mx-auto z-50 flex items-center justify-center">
+                 <div className="h-2 w-12 bg-background/30 rounded-full"></div>
              </div>
              <BioPreview
                title={title}

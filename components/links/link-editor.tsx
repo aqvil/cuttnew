@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { ArrowLeft, ExternalLink, Copy, Check, Trash2, LayoutTemplate, Link2 } from "lucide-react"
+import { ArrowLeft, ExternalLink, Copy, Check, Trash2, Link2, SlidersHorizontal } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -86,9 +86,8 @@ export function LinkEditor({ link }: LinkEditorProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-32 pt-8">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-6 border-b border-border">
+    <div className="dash-narrow">
+      <div className="dash-hero flex items-center justify-between gap-4">
          <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground hover:bg-muted hover:text-foreground" asChild>
               <Link href="/dashboard/links">
@@ -96,7 +95,11 @@ export function LinkEditor({ link }: LinkEditorProps) {
               </Link>
             </Button>
             <div>
-               <h1 className="text-2xl font-bold text-foreground">Edit Link</h1>
+               <div className="dash-kicker mb-3">
+                  <Link2 className="size-3.5" />
+                  Short link
+               </div>
+               <h1 className="dash-title">Edit Link</h1>
                <p className="text-sm text-muted-foreground mt-1">Manage destination, access, and redirects</p>
             </div>
          </div>
@@ -132,8 +135,8 @@ export function LinkEditor({ link }: LinkEditorProps) {
       <div className="grid lg:grid-cols-3 gap-8">
          {/* Main Editor */}
          <div className="lg:col-span-2 space-y-6">
-            <div className="card p-8">
-               <h2 className="text-lg font-bold text-foreground mb-6">Link Destination</h2>
+            <div className="dash-panel p-6 sm:p-8">
+               <h2 className="dash-panel-title mb-6">Link Destination</h2>
                
                <div className="space-y-6">
                   <div className="space-y-2">
@@ -159,8 +162,8 @@ export function LinkEditor({ link }: LinkEditorProps) {
                </div>
             </div>
 
-            <div className="card p-8">
-               <h2 className="text-lg font-bold text-foreground mb-6">Access & Routing</h2>
+            <div className="dash-panel p-6 sm:p-8">
+               <h2 className="dash-panel-title mb-6">Access & Routing</h2>
 
                <div className="space-y-8">
                   {/* Status */}
@@ -226,7 +229,11 @@ export function LinkEditor({ link }: LinkEditorProps) {
 
          {/* Sidebar Preview */}
          <div className="lg:col-span-1 space-y-6">
-            <div className="card p-6 shadow-xl shadow-foreground/5">
+            <div className="dash-panel p-6 shadow-xl shadow-foreground/5">
+               <div className="mb-4 flex items-center gap-3 text-sm font-semibold text-muted-foreground">
+                  <SlidersHorizontal className="size-4" />
+                  Link controls
+               </div>
                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Short Link</h3>
                <div className="p-4 bg-background border border-border rounded-lg mb-6">
                   <div className="flex items-center gap-3 mb-2">

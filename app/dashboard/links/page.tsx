@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { shortLinks } from "@/lib/db/schema"
 import { eq, desc } from "drizzle-orm"
-import { LinkIcon, ExternalLink, BarChart2, MoreHorizontal, Lock, Search, Copy, Calendar } from "lucide-react"
+import { LinkIcon, ExternalLink, BarChart2, MoreHorizontal, Lock, Search, Copy, Calendar, ArrowUpRight } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -26,21 +26,25 @@ export default async function LinksPage() {
   })
 
   return (
-    <div className="space-y-8 pb-12 max-w-7xl mx-auto p-8">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="dash-page">
+      <div className="dash-hero flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground tracking-tight">
-            Links
-          </h1>
+          <div className="dash-kicker mb-4">
+            <LinkIcon className="size-3.5" />
+            Short links
+          </div>
+          <h1 className="dash-title">Links</h1>
+          <p className="dash-subtitle">Create, copy, and track every destination without leaving the workspace.</p>
         </div>
-        <Button className="btn-primary" asChild>
-          <Link href="/dashboard/links/new">Create new link</Link>
+        <Button className="btn-primary h-11 px-5" asChild>
+          <Link href="/dashboard/links/new">
+            Create new link
+            <ArrowUpRight className="size-4" />
+          </Link>
         </Button>
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between gap-4 bg-card p-4 rounded-lg shadow-sm border border-border">
+      <div className="dash-control flex items-center justify-between gap-4">
         <div className="relative w-full md:w-[400px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input 
@@ -48,7 +52,7 @@ export default async function LinksPage() {
             className="pl-10 h-10 bg-background border-border focus-visible:ring-primary rounded-md text-sm"
           />
         </div>
-        <div className="hidden sm:flex items-center text-sm font-medium text-muted-foreground bg-background px-4 py-2 border border-border rounded-md">
+        <div className="dash-muted-pill hidden sm:flex">
           <Calendar className="h-4 w-4 mr-2" />
           All time
         </div>
@@ -60,10 +64,10 @@ export default async function LinksPage() {
           links.map((link) => (
             <div 
               key={link.id}
-              className="card flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 gap-6 hover:shadow-md transition-shadow"
+              className="dash-panel flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 gap-6 transition-colors hover:bg-muted/30"
             >
               <div className="flex items-start gap-4 flex-1 min-w-0">
-                <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center shrink-0">
+                <div className="dash-icon">
                   <LinkIcon className="h-5 w-5 text-primary" />
                 </div>
                 <div className="space-y-1 min-w-0 flex-1">
@@ -95,7 +99,7 @@ export default async function LinksPage() {
                       {link.originalUrl}
                     </a>
                   </div>
-                  <div className="text-xs text-muted-foreground font-medium pt-1">
+                  <div className="text-xs text-muted-foreground font-medium pt-1 font-mono">
                     {formatDistanceToNow(new Date(link.createdAt || Date.now()), { addSuffix: true })}
                   </div>
                 </div>
@@ -106,7 +110,7 @@ export default async function LinksPage() {
                   <div className="flex flex-col sm:items-end">
                     <div className="text-lg font-bold text-foreground flex items-center gap-1.5">
                       <BarChart2 className="h-4 w-4 text-muted-foreground" />
-                      {link.clickCount.toLocaleString()}
+                      {(link.clickCount || 0).toLocaleString()}
                     </div>
                     <div className="text-xs font-semibold text-muted-foreground cursor-help" title="Total Engagements">
                       Engagements
@@ -129,11 +133,11 @@ export default async function LinksPage() {
             </div>
           ))
         ) : (
-          <div className="card text-center py-20 flex flex-col items-center">
-             <div className="h-16 w-16 bg-muted rounded-md flex items-center justify-center mb-6">
-                <LinkIcon className="h-8 w-8 text-primary" />
+          <div className="dash-empty flex flex-col items-center">
+             <div className="dash-icon size-16 mb-6">
+                <LinkIcon className="h-7 w-7 text-primary" />
              </div>
-             <h3 className="text-xl font-bold text-foreground mb-2">No links created yet</h3>
+             <h3 className="text-xl font-semibold text-foreground mb-2">No links created yet</h3>
              <p className="text-muted-foreground max-w-sm mb-6">Create shortened links to track clicks, customize destinations, and analyze your audience.</p>
              <Button className="btn-primary px-8" asChild>
                 <Link href="/dashboard/links/new">Create your first link</Link>

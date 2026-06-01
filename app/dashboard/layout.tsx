@@ -28,10 +28,11 @@ export default async function DashboardLayout({
     <SidebarProvider>
       <div className="flex min-h-screen bg-background text-foreground">
         <DashboardSidebar user={session.user} profile={profile} />
-        <SidebarInset className="border-l-2 border-border bg-background">
-          <DashboardHeader user={session.user} profile={profile} />
-          <main className="flex-1 overflow-auto">
-            <div className="mx-auto max-w-7xl px-8 py-10">
+        <SidebarInset className="border-l border-border bg-background">
+          <DashboardHeader />
+          <main className="relative flex-1 overflow-auto">
+            <div className="pointer-events-none absolute inset-0 mono-grid opacity-45" />
+            <div className="relative">
               {children}
             </div>
           </main>

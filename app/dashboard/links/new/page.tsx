@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { ArrowLeft, Loader2 } from "lucide-react"
+import { ArrowLeft, Loader2, Link2, SlidersHorizontal } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -76,26 +76,30 @@ export default function NewLinkPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-32 pt-8">
-      {/* Header */}
-      <div className="flex items-center pb-6 border-b border-border">
-         <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 mr-4" asChild>
+    <div className="dash-narrow">
+      <div className="dash-hero flex items-center gap-4">
+         <Button variant="ghost" size="icon" className="text-muted-foreground hover:bg-muted" asChild>
           <Link href="/dashboard/links">
             <ArrowLeft className="h-5 w-5" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Create new link</h1>
+          <div className="dash-kicker mb-3">
+            <Link2 className="size-3.5" />
+            New short link
+          </div>
+          <h1 className="dash-title">Create new link</h1>
+          <p className="dash-subtitle">Paste a destination, choose a clean back-half, and add access rules when needed.</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-           <div className="card p-8">
-             <h2 className="text-lg font-bold text-slate-900 mb-6">Destination</h2>
+           <div className="dash-panel p-6 sm:p-8">
+             <h2 className="dash-panel-title mb-6">Destination</h2>
              <div className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="url" className="text-sm font-semibold text-slate-700">Destination URL <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="url" className="text-sm font-semibold text-foreground">Destination URL <span className="text-red-500">*</span></Label>
                   <Input
                     id="url"
                     type="url"
@@ -103,27 +107,27 @@ export default function NewLinkPage() {
                     value={originalUrl}
                     onChange={(e) => setOriginalUrl(e.target.value)}
                     required
-                    className="h-12 border-slate-200 bg-white"
+                    className="dash-field"
                   />
-                  <p className="text-xs text-slate-500">You can create multiple links to the same destination.</p>
+                  <p className="text-xs text-muted-foreground">You can create multiple links to the same destination.</p>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="title" className="text-sm font-semibold text-slate-700">Title (optional)</Label>
+                  <Label htmlFor="title" className="text-sm font-semibold text-foreground">Title (optional)</Label>
                   <Input
                     id="title"
                     placeholder="E.g. Fall Campaign"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="h-12 border-slate-200 bg-white"
+                    className="dash-field"
                   />
                 </div>
              </div>
            </div>
 
-           <div className="card p-8">
+           <div className="dash-panel p-6 sm:p-8">
              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold text-slate-900">Custom back-half</h2>
+                <h2 className="dash-panel-title">Custom back-half</h2>
                 <Switch
                   checked={useCustomSlug}
                   onCheckedChange={setUseCustomSlug}
@@ -131,38 +135,38 @@ export default function NewLinkPage() {
              </div>
              {useCustomSlug ? (
                <div className="space-y-2">
-                 <Label className="text-sm font-semibold text-slate-700">Domain / Custom back-half</Label>
+                 <Label className="text-sm font-semibold text-foreground">Domain / Custom back-half</Label>
                  <div className="flex items-center gap-2">
-                   <div className="h-12 px-4 flex items-center bg-slate-50 border border-slate-200 rounded-lg text-slate-500 font-medium">
+                   <div className="h-12 px-4 flex items-center bg-background border border-border rounded-md text-muted-foreground font-medium">
                      linkforge.app/l/
                    </div>
                    <Input
                      placeholder="custom-alias"
                      value={customSlug}
                      onChange={(e) => setCustomSlug(e.target.value.replace(/[^a-zA-Z0-9-_]/g, ''))}
-                     className="h-12 border-slate-200 bg-white flex-1"
+                     className="dash-field flex-1"
                    />
                  </div>
                </div>
              ) : (
-                <p className="text-sm text-slate-500">Toggle to customize how your link looks. Leave off to auto-generate.</p>
+                <p className="text-sm text-muted-foreground">Toggle to customize how your link looks. Leave off to auto-generate.</p>
              )}
            </div>
 
-           <div className="card p-8">
-              <h2 className="text-lg font-bold text-slate-900 mb-6 border-b border-slate-100 pb-4">Security & Routing</h2>
+           <div className="dash-panel p-6 sm:p-8">
+              <h2 className="dash-panel-title mb-6 border-b border-border pb-4">Access & Routing</h2>
               <div className="space-y-8 pt-2">
                  {/* Password */}
                   <div className="flex items-center justify-between">
                      <div>
-                        <Label className="text-base font-semibold text-slate-900">Password Protection</Label>
-                        <p className="text-sm text-slate-500 mt-1">Require a password to access the destination URL.</p>
+                        <Label className="text-base font-semibold text-foreground">Password Protection</Label>
+                        <p className="text-sm text-muted-foreground mt-1">Require a password to access the destination URL.</p>
                      </div>
                      <Switch checked={usePassword} onCheckedChange={setUsePassword} />
                   </div>
                   {usePassword && (
-                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                        <Label className="text-sm font-semibold text-slate-700">Password</Label>
+                     <div className="bg-background p-4 rounded-lg border border-border">
+                        <Label className="text-sm font-semibold text-foreground">Password</Label>
                         <Input
                            type="password"
                            placeholder="Enter a secure password"
@@ -174,19 +178,19 @@ export default function NewLinkPage() {
                      </div>
                   )}
 
-                  <div className="w-full h-px bg-slate-100" />
+                  <div className="w-full h-px bg-border" />
 
                   {/* Expiration */}
                   <div className="flex items-center justify-between">
                      <div>
-                        <Label className="text-base font-semibold text-slate-900">Link Expiration</Label>
-                        <p className="text-sm text-slate-500 mt-1">Automatically disable this link after a specific date.</p>
+                        <Label className="text-base font-semibold text-foreground">Link Expiration</Label>
+                        <p className="text-sm text-muted-foreground mt-1">Automatically disable this link after a specific date.</p>
                      </div>
                      <Switch checked={useExpiration} onCheckedChange={setUseExpiration} />
                   </div>
                   {useExpiration && (
-                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                        <Label className="text-sm font-semibold text-slate-700">Expiration Date</Label>
+                     <div className="bg-background p-4 rounded-lg border border-border">
+                        <Label className="text-sm font-semibold text-foreground">Expiration Date</Label>
                         <Input
                            type="datetime-local"
                            value={expiresAt}
@@ -208,12 +212,16 @@ export default function NewLinkPage() {
 
         <div className="lg:col-span-1">
            <div className="sticky top-24">
-             <div className="card p-6 shadow-sm">
+             <div className="dash-panel p-6">
+                <div className="mb-4 flex items-center gap-3 text-sm font-semibold text-muted-foreground">
+                  <SlidersHorizontal className="size-4" />
+                  Ready to create
+                </div>
                 <Button type="submit" disabled={isLoading} className="btn-primary w-full h-12 text-base">
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                   Create Link
                 </Button>
-                <Button type="button" variant="ghost" className="w-full mt-2 text-slate-500" asChild>
+                <Button type="button" variant="ghost" className="w-full mt-2 text-muted-foreground" asChild>
                    <Link href="/dashboard/links">Cancel</Link>
                 </Button>
              </div>
