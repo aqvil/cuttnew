@@ -8,9 +8,32 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- 1. NextAuth Users Table (replacing auth.users)
 CREATE TABLE IF NOT EXISTS "user" (
   "id" TEXT PRIMARY KEY,
+  "username" TEXT UNIQUE,
+  "first_name" TEXT,
+  "last_name" TEXT,
+  "avatar_url" TEXT,
+  "gender" TEXT,
+  "legacy_permissions" TEXT,
   "name" TEXT,
   "email" TEXT UNIQUE,
+  "password" TEXT,
+  "two_factor_secret" TEXT,
+  "two_factor_recovery_codes" TEXT,
+  "two_factor_confirmed_at" TIMESTAMP,
+  "card_brand" TEXT,
+  "card_last_four" TEXT,
+  "remember_token" TEXT,
   "emailVerified" TIMESTAMP,
+  "language" TEXT,
+  "country" TEXT,
+  "timezone" TEXT,
+  "avatar" TEXT,
+  "stripe_id" TEXT,
+  "available_space" BIGINT,
+  "card_expires" TEXT,
+  "banned_at" TIMESTAMP,
+  "created_at" TIMESTAMPTZ DEFAULT NOW(),
+  "updated_at" TIMESTAMPTZ DEFAULT NOW(),
   "image" TEXT
 );
 
@@ -151,5 +174,8 @@ CREATE TABLE IF NOT EXISTS ai_generations (
 );
 
 -- Indexes for performance
+CREATE INDEX IF NOT EXISTS user_username_idx ON "user"(username);
+CREATE INDEX IF NOT EXISTS user_created_at_idx ON "user"(created_at);
+CREATE INDEX IF NOT EXISTS user_updated_at_idx ON "user"(updated_at);
 CREATE INDEX idx_bio_pages_slug ON bio_pages(slug);
 CREATE INDEX idx_short_links_short_code ON short_links(short_code);

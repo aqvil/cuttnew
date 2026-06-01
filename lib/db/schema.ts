@@ -7,6 +7,7 @@ import {
   integer,
   jsonb,
   primaryKey,
+  bigint,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
@@ -16,9 +17,32 @@ export const users = pgTable("user", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
+  username: text("username").unique(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  avatarUrl: text("avatar_url"),
+  gender: text("gender"),
+  legacyPermissions: text("legacy_permissions"),
   name: text("name"),
   email: text("email").unique(),
+  password: text("password"),
+  twoFactorSecret: text("two_factor_secret"),
+  twoFactorRecoveryCodes: text("two_factor_recovery_codes"),
+  twoFactorConfirmedAt: timestamp("two_factor_confirmed_at", { mode: "date" }),
+  cardBrand: text("card_brand"),
+  cardLastFour: text("card_last_four"),
+  rememberToken: text("remember_token"),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
+  language: text("language"),
+  country: text("country"),
+  timezone: text("timezone"),
+  avatar: text("avatar"),
+  stripeId: text("stripe_id"),
+  availableSpace: bigint("available_space", { mode: "number" }),
+  cardExpires: text("card_expires"),
+  bannedAt: timestamp("banned_at", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
   image: text("image"),
 });
 
