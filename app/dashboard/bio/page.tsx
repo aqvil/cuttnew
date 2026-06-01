@@ -189,7 +189,7 @@ export default async function BioPagesPage() {
                         </>
                       )}
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer">
+                      <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
                         Delete page
                       </DropdownMenuItem>
                     </DropdownMenuContent>

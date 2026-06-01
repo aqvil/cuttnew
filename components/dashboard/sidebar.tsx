@@ -28,7 +28,6 @@ import {
   FileText,
   LinkIcon,
   BarChart2,
-  Settings,
   CreditCard,
   ChevronsUpDown,
   LogOut,
@@ -48,11 +47,6 @@ const navItems = [
   { title: "Analytics", url: "/dashboard/analytics", icon: BarChart2 },
 ]
 
-const bottomItems = [
-  { title: "Settings", url: "/dashboard/settings", icon: Settings },
-  { title: "Billing", url: "/dashboard/billing", icon: CreditCard },
-]
-
 export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
   const pathname = usePathname()
 
@@ -66,30 +60,30 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
 
   return (
     <Sidebar collapsible="icon" className="border-r-0 bg-sidebar text-sidebar-foreground">
-      <SidebarHeader className="h-16 flex items-center px-4 border-b border-sidebar-border pb-0 pt-0">
+      <SidebarHeader className="h-16 flex items-center border-b border-sidebar-border px-4 pb-0 pt-0 group-data-[collapsible=icon]:px-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors duration-200 cursor-pointer">
-              <Link href="/dashboard" className="flex items-center gap-3 w-full">
+            <SidebarMenuButton size="lg" asChild className="cursor-pointer transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:justify-center">
+              <Link href="/dashboard" className="flex w-full items-center gap-3 group-data-[collapsible=icon]:justify-center">
                 <div className="flex size-8 items-center justify-center rounded-md bg-sidebar-accent-foreground text-sidebar shadow-sm shrink-0">
                   <Link2 className="size-4 stroke-[3]" />
                 </div>
-                <span className="text-lg font-bold text-sidebar-accent-foreground tracking-tight">LinkForge</span>
+                <span className="text-lg font-bold text-sidebar-accent-foreground tracking-tight group-data-[collapsible=icon]:hidden">LinkForge</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       
-      <SidebarContent className="px-3 py-6 space-y-6">
+      <SidebarContent className="space-y-6 px-3 py-6 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="gap-2">
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Create short link" className="h-10 rounded-md bg-sidebar-accent-foreground px-3 text-sidebar hover:bg-sidebar-accent-foreground/90 hover:text-sidebar font-semibold">
-                  <Link href="/dashboard/links/new" className="flex items-center w-full">
-                    <LinkIcon className="size-4 mr-3" />
-                    <span className="text-sm">New short link</span>
+                <SidebarMenuButton asChild tooltip="Create short link" className="h-10 rounded-md bg-sidebar-accent-foreground px-3 font-semibold text-sidebar hover:bg-sidebar-accent-foreground/90 hover:text-sidebar group-data-[collapsible=icon]:justify-center">
+                  <Link href="/dashboard/links/new" className="flex w-full items-center group-data-[collapsible=icon]:justify-center">
+                    <LinkIcon className="mr-3 size-4 group-data-[collapsible=icon]:mr-0" />
+                    <span className="text-sm group-data-[collapsible=icon]:hidden">New short link</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -98,7 +92,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
         </SidebarGroup>
 
         <SidebarGroup>
-           <div className="px-3 mb-2">
+           <div className="mb-2 px-3 group-data-[collapsible=icon]:hidden">
             <span className="text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider">Manage</span>
           </div>
           <SidebarGroupContent>
@@ -118,8 +112,8 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
                       `}
                     >
                       <Link href={item.url} className="flex items-center w-full">
-                        <item.icon className={`size-4 mr-3 ${isActive ? 'text-current' : 'text-sidebar-foreground/60'}`} />
-                        <span className="text-sm">{item.title}</span>
+                        <item.icon className={`mr-3 size-4 group-data-[collapsible=icon]:mr-0 ${isActive ? 'text-current' : 'text-sidebar-foreground/60'}`} />
+                        <span className="text-sm group-data-[collapsible=icon]:hidden">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -129,40 +123,9 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <div className="px-3 mb-2">
-              <span className="text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider">Account</span>
-            </div>
-            <SidebarMenu className="gap-1.5">
-              {bottomItems.map((item) => {
-                const isActive = pathname === item.url
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                      tooltip={item.title}
-                      className={`h-10 rounded-md px-3 transition-colors duration-200
-                        hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
-                        data-[active=true]:bg-sidebar-accent-foreground data-[active=true]:text-sidebar font-medium
-                        ${isActive ? 'text-sidebar-accent-foreground' : 'text-sidebar-foreground'}
-                      `}
-                    >
-                      <Link href={item.url} className="flex items-center w-full">
-                        <item.icon className={`size-4 mr-3 ${isActive ? 'text-current' : 'text-sidebar-foreground/60'}`} />
-                        <span className="text-sm">{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-4">
+      <SidebarFooter className="border-t border-sidebar-border p-4 group-data-[collapsible=icon]:p-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
@@ -177,11 +140,11 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
                       {initials}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="grid flex-1 text-left leading-tight ml-3">
+                  <div className="ml-3 grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
                     <span className="truncate text-sm font-semibold text-sidebar-accent-foreground">{displayName}</span>
                     <span className="truncate text-xs text-sidebar-foreground/60">{planLabel}</span>
                   </div>
-                  <ChevronsUpDown className="ml-auto size-4 text-sidebar-foreground/60" />
+                  <ChevronsUpDown className="ml-auto size-4 text-sidebar-foreground/60 group-data-[collapsible=icon]:hidden" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -208,7 +171,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-border my-1" />
-                  <DropdownMenuItem onClick={handleSignOut} className="rounded-md px-3 py-2 text-sm font-medium text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer">
+                  <DropdownMenuItem onClick={handleSignOut} className="rounded-md px-3 py-2 text-sm font-medium text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
                     <LogOut className="mr-2 size-4" />
                     Sign out
                   </DropdownMenuItem>

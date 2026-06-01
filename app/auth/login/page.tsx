@@ -120,7 +120,7 @@ export default function LoginPage() {
                   "Connecting..."
                 ) : (
                   <>
-                    <Discord className="mr-3 h-5 w-5 text-[#5865F2]" />
+                    <Discord className="mr-3 h-5 w-5 text-foreground" />
                     Continue with Discord
                   </>
                 )}

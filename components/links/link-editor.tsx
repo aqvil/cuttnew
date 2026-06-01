@@ -105,10 +105,10 @@ export function LinkEditor({ link }: LinkEditorProps) {
          </div>
 
          <div className="absolute right-4 top-4 flex items-center gap-3">
-             <Button variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50" asChild>
+             <Button variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive" asChild>
                <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50 font-medium">
+                  <Button variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive font-medium">
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete
                   </Button>
@@ -122,7 +122,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
                   </AlertDialogHeader>
                   <AlertDialogFooter className="mt-6">
                     <AlertDialogCancel className="btn-secondary">Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="btn-primary bg-red-600 hover:bg-red-700">
+                    <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                       {isDeleting ? "Deleting..." : "Yes, delete link"}
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -140,7 +140,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
                
                <div className="space-y-6">
                   <div className="space-y-2">
-                     <Label className="text-sm font-semibold text-foreground">Destination URL <span className="text-red-500">*</span></Label>
+                     <Label className="text-sm font-semibold text-foreground">Destination URL <span className="text-destructive">*</span></Label>
                      <Input
                         value={originalUrl}
                         onChange={(e) => setOriginalUrl(e.target.value)}
@@ -221,7 +221,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
             </div>
 
             {error && (
-               <div className="p-4 bg-red-50 border border-red-200 rounded-md text-sm text-red-600 font-medium font-sans">
+               <div className="p-4 bg-destructive/10 border border-destructive/25 rounded-md text-sm text-destructive font-medium font-sans">
                   {error}
                </div>
             )}

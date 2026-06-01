@@ -48,6 +48,24 @@ const blockTypeIcons: Record<string, React.ElementType> = {
   "email-capture": Mail,
 }
 
+function createBlockId() {
+  if (globalThis.crypto?.randomUUID) {
+    return globalThis.crypto.randomUUID()
+  }
+
+  if (globalThis.crypto?.getRandomValues) {
+    return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (char) => {
+      const value = Number(char)
+      return (value ^ (globalThis.crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (value / 4)))).toString(16)
+    })
+  }
+
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (char) => {
+    const value = Math.floor(Math.random() * 16)
+    return (char === "x" ? value : (value & 0x3) | 0x8).toString(16)
+  })
+}
+
 export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
   const [blocks, setBlocks] = useState<any[]>(initialBlocks)
   const [title, setTitle] = useState(page.title || "")
@@ -82,7 +100,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
 
   const handleAddBlock = (type: string) => {
     const newBlock = {
-      id: crypto.randomUUID(),
+      id: createBlockId(),
       pageId: page.id,
       type,
       content: getDefaultContent(type),

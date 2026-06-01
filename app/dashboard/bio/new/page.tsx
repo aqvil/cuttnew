@@ -129,7 +129,7 @@ export default function NewBioPage() {
             </div>
 
             {error && (
-               <div className="p-4 bg-red-50 border border-red-200 rounded-md text-sm text-red-600 font-medium">
+               <div className="p-4 bg-destructive/10 border border-destructive/25 rounded-md text-sm text-destructive font-medium">
                   {error}
                </div>
             )}

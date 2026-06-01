@@ -147,7 +147,7 @@ export default function SignUpPage() {
                   "Connecting..."
                 ) : (
                   <>
-                    <Discord className="mr-3 h-5 w-5 text-[#5865F2]" />
+                    <Discord className="mr-3 h-5 w-5 text-foreground" />
                     Sign up with Discord
                   </>
                 )}

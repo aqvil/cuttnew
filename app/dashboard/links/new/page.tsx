@@ -109,7 +109,7 @@ export default function NewLinkPage() {
              </div>
              <div className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="url" className="text-sm font-semibold text-foreground">Destination URL <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="url" className="text-sm font-semibold text-foreground">Destination URL <span className="text-destructive">*</span></Label>
                   <Input
                     id="url"
                     type="url"
@@ -220,7 +220,7 @@ export default function NewLinkPage() {
            </div>
 
            {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-md text-sm text-red-600 font-medium">
+            <div className="p-4 bg-destructive/10 border border-destructive/25 rounded-md text-sm text-destructive font-medium">
               {error}
             </div>
           )}

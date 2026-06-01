@@ -90,7 +90,7 @@ export function EmailCaptureForm({
           </button>
         </form>
         {error && (
-          <p className="text-[10px] font-mono uppercase text-red-500 mt-4 text-center">{error}</p>
+          <p className="text-[10px] font-mono uppercase text-destructive mt-4 text-center">{error}</p>
         )}
       </div>
     </div>
