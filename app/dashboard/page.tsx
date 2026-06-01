@@ -2,10 +2,11 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { bioPages, shortLinks, pageViews, linkAnalytics } from "@/lib/db/schema"
 import { eq, desc, count, inArray } from "drizzle-orm"
-import { FileText, LinkIcon, Eye, MousePointer, ExternalLink, Copy, Activity, ArrowUpRight } from "lucide-react"
+import { FileText, LinkIcon, Eye, MousePointer, Copy, Activity, ArrowUpRight, BarChart3 } from "lucide-react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { QuickLinkForm } from "@/components/dashboard/quick-link-form"
 import { formatDistanceToNow } from "date-fns"
 
 export const metadata = {
@@ -56,7 +57,31 @@ export default async function DashboardPage() {
     { title: "Total Clicks", value: linkClicksCount, icon: MousePointer, suffix: "clicks" },
     { title: "Total Views", value: pageViewsCount, icon: Eye, suffix: "views" },
     { title: "Active Links", value: shortLinksCount[0]?.value || 0, icon: LinkIcon, suffix: "links" },
-    { title: "Link-in-bio Pages", value: bioPagesCount[0]?.value || 0, icon: FileText, suffix: "pages" },
+    { title: "Bio Pages", value: bioPagesCount[0]?.value || 0, icon: FileText, suffix: "pages" },
+  ]
+
+  const workflows = [
+    {
+      title: "Shorten a link",
+      description: "Create a clean short URL, customize the back-half, and share it anywhere.",
+      href: "/dashboard/links/new",
+      icon: LinkIcon,
+      action: "Create link",
+    },
+    {
+      title: "Make a bio page",
+      description: "Collect multiple destinations behind one public profile link.",
+      href: "/dashboard/bio/new",
+      icon: FileText,
+      action: "Create page",
+    },
+    {
+      title: "Read performance",
+      description: "See clicks, top links, countries, and devices once traffic starts coming in.",
+      href: "/dashboard/analytics",
+      icon: BarChart3,
+      action: "View analytics",
+    },
   ]
 
   const recentLinksData = await db.query.shortLinks.findMany({
@@ -67,7 +92,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="dash-page">
-      <div className="dash-hero flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div className="dash-hero flex flex-col items-center gap-6">
         <div>
           <div className="dash-kicker mb-4">
             <Activity className="size-3.5" />
@@ -77,15 +102,29 @@ export default async function DashboardPage() {
             Welcome back, {session.user.name || "User"}.
           </h1>
           <p className="dash-subtitle">
-            Your links, bio pages, and recent click activity in one clean control surface.
+            Start by shortening a URL. Add bio pages and analytics only when you need them.
           </p>
+          <QuickLinkForm />
         </div>
-        <Button className="btn-primary h-11 px-5" asChild>
-          <Link href="/dashboard/links/new">
-            Create link
-            <ArrowUpRight className="size-4" />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {workflows.map((workflow, index) => (
+          <Link key={workflow.title} href={workflow.href} className="dash-panel group p-5 transition-colors hover:bg-muted/35">
+            <div className="mb-6 flex items-center justify-between">
+              <div className="dash-icon">
+                <workflow.icon className="size-5" />
+              </div>
+              <span className="font-mono text-xs text-muted-foreground">0{index + 1}</span>
+            </div>
+            <h2 className="text-lg font-semibold text-foreground">{workflow.title}</h2>
+            <p className="mt-2 min-h-12 text-sm leading-6 text-muted-foreground">{workflow.description}</p>
+            <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-foreground">
+              {workflow.action}
+              <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </div>
           </Link>
-        </Button>
+        ))}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -109,7 +148,10 @@ export default async function DashboardPage() {
 
       <div className="dash-panel w-full overflow-hidden">
         <div className="dash-panel-header">
-          <h2 className="dash-panel-title">Recent Links</h2>
+          <div>
+            <h2 className="dash-panel-title">Recent Links</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Your latest short links appear here after creation.</p>
+          </div>
           <Button variant="link" className="text-sm font-semibold text-primary" asChild>
             <Link href="/dashboard/links">View all links</Link>
           </Button>
@@ -180,7 +222,7 @@ export default async function DashboardPage() {
                 <LinkIcon className="h-6 w-6" />
                </div>
                <p className="text-lg font-semibold text-foreground mb-2">No links created yet</p>
-               <p className="text-sm text-muted-foreground mb-6">Create your first shortened link to start tracking engagements.</p>
+               <p className="text-sm text-muted-foreground mb-6">Paste a URL above or create a link manually to start tracking clicks.</p>
                <Button className="btn-primary" asChild>
                   <Link href="/dashboard/links/new">Create a link</Link>
                </Button>

@@ -42,9 +42,9 @@ interface DashboardSidebarProps {
 }
 
 const navItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutGrid },
-  { title: "Link-in-bio", url: "/dashboard/bio", icon: FileText },
+  { title: "Home", url: "/dashboard", icon: LayoutGrid },
   { title: "Links", url: "/dashboard/links", icon: LinkIcon },
+  { title: "Bio Pages", url: "/dashboard/bio", icon: FileText },
   { title: "Analytics", url: "/dashboard/analytics", icon: BarChart2 },
 ]
 
@@ -83,8 +83,23 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
       
       <SidebarContent className="px-3 py-6 space-y-6">
         <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-2">
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Create short link" className="h-10 rounded-md bg-sidebar-accent-foreground px-3 text-sidebar hover:bg-sidebar-accent-foreground/90 hover:text-sidebar font-semibold">
+                  <Link href="/dashboard/links/new" className="flex items-center w-full">
+                    <LinkIcon className="size-4 mr-3" />
+                    <span className="text-sm">New short link</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
            <div className="px-3 mb-2">
-            <span className="text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider">Workspace</span>
+            <span className="text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider">Manage</span>
           </div>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
@@ -96,7 +111,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
                       asChild
                       isActive={isActive}
                       tooltip={item.title}
-                      className={`h-10 rounded-lg px-3 transition-colors duration-200
+                      className={`h-10 rounded-md px-3 transition-colors duration-200
                         hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
                         data-[active=true]:bg-sidebar-accent-foreground data-[active=true]:text-sidebar font-medium
                         ${isActive ? 'text-sidebar-accent-foreground' : 'text-sidebar-foreground'}
@@ -128,7 +143,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
                       asChild
                       isActive={isActive}
                       tooltip={item.title}
-                      className={`h-10 rounded-lg px-3 transition-colors duration-200
+                      className={`h-10 rounded-md px-3 transition-colors duration-200
                         hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
                         data-[active=true]:bg-sidebar-accent-foreground data-[active=true]:text-sidebar font-medium
                         ${isActive ? 'text-sidebar-accent-foreground' : 'text-sidebar-foreground'}
@@ -154,7 +169,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="h-12 w-full rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors duration-200"
+                  className="h-12 w-full rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors duration-200"
                 >
                   <Avatar className="size-8 rounded-md bg-sidebar-accent text-sidebar-accent-foreground">
                     <AvatarImage src={profile?.avatarUrl || user?.image || undefined} alt={displayName} />
@@ -170,7 +185,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-56 rounded-lg border border-border bg-card shadow-lg"
+                className="w-56 rounded-md border border-border bg-card shadow-lg"
                 side="top"
                 align="start"
                 sideOffset={8}

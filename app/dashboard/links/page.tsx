@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { shortLinks } from "@/lib/db/schema"
 import { eq, desc } from "drizzle-orm"
-import { LinkIcon, ExternalLink, BarChart2, MoreHorizontal, Lock, Search, Copy, Calendar, ArrowUpRight } from "lucide-react"
+import { LinkIcon, ExternalLink, BarChart2, MoreHorizontal, Lock, Search, Copy, Calendar, ArrowUpRight, MousePointerClick, PencilLine } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,14 +27,14 @@ export default async function LinksPage() {
 
   return (
     <div className="dash-page">
-      <div className="dash-hero flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div className="dash-hero flex flex-col items-center gap-6">
         <div>
           <div className="dash-kicker mb-4">
             <LinkIcon className="size-3.5" />
             Short links
           </div>
           <h1 className="dash-title">Links</h1>
-          <p className="dash-subtitle">Create, copy, and track every destination without leaving the workspace.</p>
+          <p className="dash-subtitle">Your primary workspace. Shorten URLs, copy them, edit destinations, and watch clicks roll in.</p>
         </div>
         <Button className="btn-primary h-11 px-5" asChild>
           <Link href="/dashboard/links/new">
@@ -56,6 +56,25 @@ export default async function LinksPage() {
           <Calendar className="h-4 w-4 mr-2" />
           All time
         </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {[
+          { title: "Create", text: "Paste a long URL and choose the short back-half.", icon: LinkIcon },
+          { title: "Share", text: "Copy the short URL anywhere your audience clicks.", icon: Copy },
+          { title: "Measure", text: "Track clicks and open analytics from each link.", icon: MousePointerClick },
+        ].map((step, index) => (
+          <div key={step.title} className="dash-panel p-4">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="dash-icon size-9">
+                <step.icon className="size-4" />
+              </div>
+              <span className="font-mono text-xs text-muted-foreground">0{index + 1}</span>
+            </div>
+            <h2 className="font-semibold text-foreground">{step.title}</h2>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">{step.text}</p>
+          </div>
+        ))}
       </div>
 
       {/* Links List */}
@@ -137,10 +156,13 @@ export default async function LinksPage() {
              <div className="dash-icon size-16 mb-6">
                 <LinkIcon className="h-7 w-7 text-primary" />
              </div>
-             <h3 className="text-xl font-semibold text-foreground mb-2">No links created yet</h3>
-             <p className="text-muted-foreground max-w-sm mb-6">Create shortened links to track clicks, customize destinations, and analyze your audience.</p>
+             <h3 className="text-xl font-semibold text-foreground mb-2">Start with one destination URL</h3>
+             <p className="text-muted-foreground max-w-sm mb-6">Create a short link first. You can edit the destination and settings after it exists.</p>
              <Button className="btn-primary px-8" asChild>
-                <Link href="/dashboard/links/new">Create your first link</Link>
+                <Link href="/dashboard/links/new">
+                  <PencilLine className="size-4" />
+                  Create your first link
+                </Link>
              </Button>
           </div>
         )}

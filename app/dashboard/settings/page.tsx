@@ -51,14 +51,14 @@ export default function SettingsPage() {
 
   return (
     <div className="dash-narrow font-sans">
-      <div className="dash-hero flex items-center justify-between">
+      <div className="dash-hero flex flex-col items-center">
          <div>
             <div className="dash-kicker mb-4">
               <User className="size-3.5" />
               Account
             </div>
-            <h1 className="dash-title">Settings</h1>
-            <p className="dash-subtitle">Manage your public profile, account identity, and connected sign-in methods.</p>
+            <h1 className="dash-title">Account settings</h1>
+            <p className="dash-subtitle">Keep your profile and sign-in details tidy. Link creation stays in the Links workspace.</p>
          </div>
       </div>
 
@@ -66,7 +66,7 @@ export default function SettingsPage() {
          <div className="dash-panel overflow-hidden">
             <div className="dash-panel-header">
                <div>
-                  <h2 className="dash-panel-title">Profile Details</h2>
+                  <h2 className="dash-panel-title">Public identity</h2>
                </div>
             </div>
             
@@ -95,7 +95,7 @@ export default function SettingsPage() {
                      className="dash-field pl-10"
                    />
                  </div>
-                 <p className="text-xs text-muted-foreground">This will be used for your public profile URL.</p>
+                 <p className="text-xs text-muted-foreground">This can be used for public profile and bio page URLs.</p>
                </div>
 
                <div className="space-y-2">
@@ -115,7 +115,7 @@ export default function SettingsPage() {
          <div className="dash-panel overflow-hidden">
             <div className="dash-panel-header">
                <div>
-                  <h2 className="dash-panel-title">Account Access</h2>
+                  <h2 className="dash-panel-title">Sign-in access</h2>
                </div>
             </div>
             

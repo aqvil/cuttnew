@@ -49,7 +49,7 @@ export function BioPreview({ title, description, blocks, theme }: BioPreviewProp
   return (
     <div className="mx-auto max-w-sm">
       <div 
-        className="rounded-2xl overflow-hidden shadow-lg"
+        className="rounded-md overflow-hidden shadow-lg"
         style={{ backgroundColor: theme.background }}
       >
         <div className="p-6 space-y-6">
@@ -134,7 +134,7 @@ function PreviewBlock({
           href={content.url || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between rounded-lg p-3 transition-transform hover:scale-[1.02]"
+          className="flex items-center justify-between rounded-sm p-3 transition-transform hover:scale-[1.02]"
           style={buttonStyle}
         >
           <span className="font-medium">{content.title || "Link"}</span>
@@ -180,7 +180,7 @@ function PreviewBlock({
           href={content.url || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center rounded-lg p-3 transition-transform hover:scale-[1.02]"
+          className="flex items-center justify-center rounded-sm p-3 transition-transform hover:scale-[1.02]"
           style={buttonStyle}
         >
           <Icon className="h-5 w-5" />
@@ -192,7 +192,7 @@ function PreviewBlock({
     case "email-capture": {
       const content = block.content as EmailCaptureBlockContent
       return (
-        <div className="rounded-lg p-4" style={{ backgroundColor: `${theme.accent}10` }}>
+        <div className="rounded-sm p-4" style={{ backgroundColor: `${theme.accent}10` }}>
           <p 
             className="text-sm font-medium text-center mb-3"
             style={{ color: theme.text }}
@@ -203,11 +203,11 @@ function PreviewBlock({
             <input
               type="email"
               placeholder={content.placeholder || "Enter your email"}
-              className="flex-1 rounded-lg px-3 py-2 text-sm border"
+              className="flex-1 rounded-sm px-3 py-2 text-sm border"
               style={{ backgroundColor: theme.background, color: theme.text }}
             />
             <button
-              className="rounded-lg px-4 py-2 text-sm font-medium"
+              className="rounded-sm px-4 py-2 text-sm font-medium"
               style={buttonStyle}
             >
               {content.button_text || "Subscribe"}

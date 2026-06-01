@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { createShortLink } from "@/app/actions/links"
 import { Button } from "@/components/ui/button"
@@ -32,6 +32,13 @@ export default function NewLinkPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+
+  useEffect(() => {
+    const url = new URLSearchParams(window.location.search).get("url")
+    if (url) {
+      setOriginalUrl(url)
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -77,8 +84,8 @@ export default function NewLinkPage() {
 
   return (
     <div className="dash-narrow">
-      <div className="dash-hero flex items-center gap-4">
-         <Button variant="ghost" size="icon" className="text-muted-foreground hover:bg-muted" asChild>
+      <div className="dash-hero flex flex-col items-center gap-4">
+         <Button variant="ghost" size="icon" className="absolute left-4 top-4 text-muted-foreground hover:bg-muted" asChild>
           <Link href="/dashboard/links">
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -88,15 +95,18 @@ export default function NewLinkPage() {
             <Link2 className="size-3.5" />
             New short link
           </div>
-          <h1 className="dash-title">Create new link</h1>
-          <p className="dash-subtitle">Paste a destination, choose a clean back-half, and add access rules when needed.</p>
+          <h1 className="dash-title">Create a short link</h1>
+          <p className="dash-subtitle">Paste a destination first. Custom slugs, passwords, and expiration are optional.</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
            <div className="dash-panel p-6 sm:p-8">
-             <h2 className="dash-panel-title mb-6">Destination</h2>
+             <div className="mb-6">
+              <h2 className="dash-panel-title">1. Destination</h2>
+              <p className="mt-1 text-sm text-muted-foreground">This is the long URL people will be redirected to.</p>
+             </div>
              <div className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="url" className="text-sm font-semibold text-foreground">Destination URL <span className="text-red-500">*</span></Label>
@@ -126,8 +136,11 @@ export default function NewLinkPage() {
            </div>
 
            <div className="dash-panel p-6 sm:p-8">
-             <div className="flex items-center justify-between mb-6">
-                <h2 className="dash-panel-title">Custom back-half</h2>
+             <div className="flex items-start justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="dash-panel-title">2. Short link</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">Leave this off for an automatic code.</p>
+                </div>
                 <Switch
                   checked={useCustomSlug}
                   onCheckedChange={setUseCustomSlug}
@@ -154,7 +167,10 @@ export default function NewLinkPage() {
            </div>
 
            <div className="dash-panel p-6 sm:p-8">
-              <h2 className="dash-panel-title mb-6 border-b border-border pb-4">Access & Routing</h2>
+              <div className="mb-6 border-b border-border pb-4">
+                <h2 className="dash-panel-title">3. Optional rules</h2>
+                <p className="mt-1 text-sm text-muted-foreground">Use these only when the link needs extra control.</p>
+              </div>
               <div className="space-y-8 pt-2">
                  {/* Password */}
                   <div className="flex items-center justify-between">
@@ -165,7 +181,7 @@ export default function NewLinkPage() {
                      <Switch checked={usePassword} onCheckedChange={setUsePassword} />
                   </div>
                   {usePassword && (
-                     <div className="bg-background p-4 rounded-lg border border-border">
+                     <div className="bg-background p-4 rounded-md border border-border">
                         <Label className="text-sm font-semibold text-foreground">Password</Label>
                         <Input
                            type="password"
@@ -189,7 +205,7 @@ export default function NewLinkPage() {
                      <Switch checked={useExpiration} onCheckedChange={setUseExpiration} />
                   </div>
                   {useExpiration && (
-                     <div className="bg-background p-4 rounded-lg border border-border">
+                     <div className="bg-background p-4 rounded-md border border-border">
                         <Label className="text-sm font-semibold text-foreground">Expiration Date</Label>
                         <Input
                            type="datetime-local"
@@ -204,7 +220,7 @@ export default function NewLinkPage() {
            </div>
 
            {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600 font-medium">
+            <div className="p-4 bg-red-50 border border-red-200 rounded-md text-sm text-red-600 font-medium">
               {error}
             </div>
           )}

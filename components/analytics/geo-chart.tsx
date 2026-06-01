@@ -67,9 +67,9 @@ export function GeoChart({ countries }: GeoChartProps) {
                   {count.toLocaleString()} ({percentage.toFixed(1)}%)
                 </span>
               </div>
-              <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">
+              <div className="mt-1.5 h-1.5 rounded-sm bg-muted overflow-hidden">
                 <div 
-                  className="h-full bg-foreground/50 rounded-full transition-all"
+                  className="h-full bg-foreground/50 rounded-sm transition-all"
                   style={{ width: `${percentage}%` }}
                 />
               </div>

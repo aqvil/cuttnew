@@ -87,9 +87,9 @@ export function LinkEditor({ link }: LinkEditorProps) {
 
   return (
     <div className="dash-narrow">
-      <div className="dash-hero flex items-center justify-between gap-4">
-         <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground hover:bg-muted hover:text-foreground" asChild>
+      <div className="dash-hero flex flex-col items-center gap-4">
+         <div className="flex flex-col items-center gap-4">
+            <Button variant="ghost" size="icon" className="absolute left-4 top-4 h-10 w-10 text-muted-foreground hover:bg-muted hover:text-foreground" asChild>
               <Link href="/dashboard/links">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
@@ -104,7 +104,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
             </div>
          </div>
 
-         <div className="flex items-center gap-3">
+         <div className="absolute right-4 top-4 flex items-center gap-3">
              <Button variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50" asChild>
                <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -113,7 +113,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
                     Delete
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="rounded-xl">
+                <AlertDialogContent className="rounded-md">
                   <AlertDialogHeader>
                     <AlertDialogTitle className="text-xl font-bold text-foreground">Delete Link?</AlertDialogTitle>
                     <AlertDialogDescription className="text-base text-muted-foreground">
@@ -184,7 +184,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
                      <Switch checked={usePassword} onCheckedChange={setUsePassword} />
                   </div>
                   {usePassword && (
-                     <div className="bg-background p-4 rounded-lg border border-border">
+                     <div className="bg-background p-4 rounded-md border border-border">
                         <Label className="text-sm font-semibold text-foreground">Password</Label>
                         <Input
                            type="password"
@@ -207,7 +207,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
                      <Switch checked={useExpiration} onCheckedChange={setUseExpiration} />
                   </div>
                   {useExpiration && (
-                     <div className="bg-background p-4 rounded-lg border border-border">
+                     <div className="bg-background p-4 rounded-md border border-border">
                         <Label className="text-sm font-semibold text-foreground">Expiration Date</Label>
                         <Input
                            type="datetime-local"
@@ -221,7 +221,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
             </div>
 
             {error && (
-               <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600 font-medium font-sans">
+               <div className="p-4 bg-red-50 border border-red-200 rounded-md text-sm text-red-600 font-medium font-sans">
                   {error}
                </div>
             )}
@@ -235,7 +235,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
                   Link controls
                </div>
                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Short Link</h3>
-               <div className="p-4 bg-background border border-border rounded-lg mb-6">
+               <div className="p-4 bg-background border border-border rounded-md mb-6">
                   <div className="flex items-center gap-3 mb-2">
                      <Link2 className="h-5 w-5 text-primary" />
                      <span className="font-semibold text-foreground truncate">{shortUrl}</span>

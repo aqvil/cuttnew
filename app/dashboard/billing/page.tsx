@@ -34,11 +34,11 @@ export default async function BillingPage() {
       id: "free",
       price: "$0",
       period: "/month",
-      description: "Perfect for individuals getting started with link management.",
+      description: "For getting started with clean short links and one public page.",
       features: [
-        "1 Link-in-bio page",
-        "50 Bitly Links / month",
-        "Basic Click Analytics",
+        "1 bio page",
+        "50 short links / month",
+        "Basic click analytics",
         "Standard support"
       ],
       current: currentPlan === "free"
@@ -48,11 +48,11 @@ export default async function BillingPage() {
       id: "pro",
       price: "$8",
       period: "/month",
-      description: "For creators and small businesses growing their audience.",
+      description: "For creators and teams sharing links every week.",
       features: [
-        "Unlimited Link-in-bio pages",
-        "500 Bitly Links / month",
-        "Advanced Analytics & Trends",
+        "Unlimited bio pages",
+        "500 short links / month",
+        "Advanced analytics and trends",
         "Custom link back-halves",
         "Priority email support"
       ],
@@ -64,10 +64,10 @@ export default async function BillingPage() {
       id: "enterprise",
       price: "$29",
       period: "/month",
-      description: "For expanding businesses needing advanced features and scale.",
+      description: "For businesses that need domains, bulk creation, and scale.",
       features: [
         "Everything in Core",
-        "3,000 Bitly Links / month",
+        "3,000 short links / month",
         "White-label custom domains",
         "Bulk link creation",
         "24/7 dedicated support"
@@ -83,8 +83,8 @@ export default async function BillingPage() {
           <CreditCard className="size-3.5" />
           Billing
          </div>
-         <h1 className="dash-title">Upgrade your plan</h1>
-         <p className="dash-subtitle mx-auto">Choose the plan for your link volume, reporting needs, and public pages. Switch or cancel anytime.</p>
+         <h1 className="dash-title">Plans for more links</h1>
+         <p className="dash-subtitle mx-auto">Stay on Free while you explore. Upgrade when you need more monthly links, deeper analytics, or custom domains.</p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-4 max-w-6xl mx-auto">
@@ -144,7 +144,7 @@ export default async function BillingPage() {
             <div>
                <h2 className="text-2xl font-semibold text-foreground mb-2">Need a custom solution?</h2>
                <p className="text-muted-foreground max-w-xl">
-                 For high volume links, custom integrations, SLAs, and dedicated account management. Let's talk about an Enterprise plan.
+                 For high-volume link programs, custom integrations, SLAs, and dedicated account management. Let's talk about an Enterprise plan.
                </p>
             </div>
          </div>

@@ -12,8 +12,8 @@ export function DashboardHeader() {
   
   const getPageTitle = () => {
     const path = pathname.split('/').pop()
-    if (!path || path === 'dashboard') return 'Dashboard'
-    if (path === 'bio') return 'Link-in-bio'
+    if (!path || path === 'dashboard') return 'Home'
+    if (path === 'bio') return 'Bio Pages'
     if (path === 'links') return 'Links'
     if (path === 'analytics') return 'Analytics'
     if (path === 'settings') return 'Settings'
@@ -36,7 +36,7 @@ export function DashboardHeader() {
         <Button className="btn-primary h-10 px-4" asChild>
           <Link href={pathname.includes('bio') ? '/dashboard/bio/new' : '/dashboard/links/new'}>
             <Plus className="mr-2 h-4 w-4" />
-            Create new
+            {pathname.includes('bio') ? 'New bio page' : 'New link'}
           </Link>
         </Button>
       </div>

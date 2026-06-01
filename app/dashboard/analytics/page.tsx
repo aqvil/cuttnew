@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { bioPages, shortLinks, pageViews, linkAnalytics } from "@/lib/db/schema"
 import { eq, inArray, gte, and, desc, sql } from "drizzle-orm"
-import { Eye, MousePointer, Globe, Smartphone, Monitor, Tablet, TrendingUp } from "lucide-react"
+import { Eye, MousePointer, Globe, Smartphone, Monitor, Tablet, TrendingUp, LinkIcon, Share2, BarChart3 } from "lucide-react"
 import { AnalyticsChart } from "@/components/analytics/analytics-chart"
 import { TopLinksTable } from "@/components/analytics/top-links-table"
 import { GeoChart } from "@/components/analytics/geo-chart"
@@ -133,7 +133,7 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="dash-page font-sans">
-      <div className="dash-hero flex items-end justify-between">
+      <div className="dash-hero flex flex-col items-center">
         <div>
           <div className="dash-kicker mb-4">
             <TrendingUp className="size-3.5" />
@@ -141,9 +141,28 @@ export default async function AnalyticsPage() {
           </div>
           <h1 className="dash-title">Analytics</h1>
           <p className="dash-subtitle">
-            Read clicks, devices, countries, and top performers across the last 30 days.
+            Analytics become useful after links are shared. Start here to compare top links and traffic sources.
           </p>
         </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {[
+          { title: "Create", text: "Start in Links with one destination URL.", icon: LinkIcon },
+          { title: "Share", text: "Send the short URL anywhere people can click.", icon: Share2 },
+          { title: "Compare", text: "Return here to see top links, devices, and countries.", icon: BarChart3 },
+        ].map((step, index) => (
+          <div key={step.title} className="dash-panel p-4">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="dash-icon size-9">
+                <step.icon className="size-4" />
+              </div>
+              <span className="font-mono text-xs text-muted-foreground">0{index + 1}</span>
+            </div>
+            <h2 className="font-semibold text-foreground">{step.title}</h2>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">{step.text}</p>
+          </div>
+        ))}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

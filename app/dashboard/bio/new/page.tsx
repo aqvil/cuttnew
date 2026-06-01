@@ -42,12 +42,12 @@ export default function NewBioPage() {
     try {
       const finalSlug = slug || generateSlug(title) || `page-${Date.now()}`
       const page = await createBioPage({
-        title: title || "Untitled Link-in-bio",
+        title: title || "Untitled bio page",
         slug: finalSlug,
         description,
       })
 
-      toast.success("Link-in-bio created successfully")
+      toast.success("Bio page created successfully")
       router.push(`/dashboard/bio/${page.id}`)
     } catch (err: any) {
       if (err.message?.includes("duplicate")) {
@@ -62,8 +62,8 @@ export default function NewBioPage() {
 
   return (
     <div className="dash-narrow font-sans">
-      <div className="dash-hero flex items-center gap-4">
-         <Button variant="ghost" size="icon" className="text-muted-foreground hover:bg-muted" asChild>
+      <div className="dash-hero flex flex-col items-center gap-4">
+         <Button variant="ghost" size="icon" className="absolute left-4 top-4 text-muted-foreground hover:bg-muted" asChild>
           <Link href="/dashboard/bio">
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -73,15 +73,18 @@ export default function NewBioPage() {
             <LayoutTemplate className="size-3.5" />
             New profile page
           </div>
-          <h1 className="dash-title">Create new Link-in-bio</h1>
-          <p className="dash-subtitle">Set the identity and public URL first. You can tune the design on the next screen.</p>
+          <h1 className="dash-title">Create a bio page</h1>
+          <p className="dash-subtitle">Use this when one short link should open a page of many destinations.</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
          <div className="lg:col-span-2 space-y-6">
             <div className="dash-panel p-6 sm:p-8">
-               <h2 className="dash-panel-title mb-6">Page Details</h2>
+               <div className="mb-6">
+                  <h2 className="dash-panel-title">1. Page identity</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">Name the page and reserve the public URL. Links and design come next.</p>
+               </div>
                <div className="space-y-6">
                   <div className="space-y-2">
                      <Label htmlFor="title" className="text-sm font-semibold text-foreground">Profile Name</Label>
@@ -92,11 +95,11 @@ export default function NewBioPage() {
                         onChange={handleTitleChange}
                         className="dash-field"
                      />
-                     <p className="text-xs text-muted-foreground">This appears at the top of your Link-in-bio.</p>
+                     <p className="text-xs text-muted-foreground">This appears at the top of your bio page.</p>
                   </div>
 
                   <div className="space-y-2">
-                     <Label htmlFor="slug" className="text-sm font-semibold text-foreground">Link-in-bio URL</Label>
+                     <Label htmlFor="slug" className="text-sm font-semibold text-foreground">Public bio URL</Label>
                      <div className="flex items-center gap-2">
                         <div className="h-12 px-4 flex items-center bg-background border border-border rounded-md text-muted-foreground font-medium whitespace-nowrap">
                            linkforge.app/p/
@@ -126,7 +129,7 @@ export default function NewBioPage() {
             </div>
 
             {error && (
-               <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600 font-medium">
+               <div className="p-4 bg-red-50 border border-red-200 rounded-md text-sm text-red-600 font-medium">
                   {error}
                </div>
             )}
@@ -137,11 +140,11 @@ export default function NewBioPage() {
                <div className="dash-panel p-6">
                   <div className="mb-4 flex items-center gap-3 text-sm font-semibold text-muted-foreground">
                     <SlidersHorizontal className="size-4" />
-                    Page setup
+                     2. Create page
                   </div>
                   <Button type="submit" disabled={isLoading} className="btn-primary w-full h-12 text-base">
                      {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                     Create Link-in-bio
+                     Create bio page
                   </Button>
                   <Button type="button" variant="ghost" className="w-full mt-2 text-muted-foreground" asChild>
                      <Link href="/dashboard/bio">Cancel</Link>

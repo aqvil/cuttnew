@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { bioPages } from "@/lib/db/schema"
 import { eq, desc } from "drizzle-orm"
-import { FileText, ExternalLink, Eye, MoreHorizontal, Search, Settings, Calendar, LayoutTemplate, BarChart2, ArrowUpRight } from "lucide-react"
+import { FileText, ExternalLink, Eye, MoreHorizontal, Search, Settings, Calendar, LayoutTemplate, BarChart2, ArrowUpRight, Link2, Palette } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import {
@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input"
 import { redirect } from "next/navigation"
 
 export const metadata = {
-  title: "Link-in-bio - LinkForge",
+  title: "Bio Pages - LinkForge",
 }
 
 export default async function BioPagesPage() {
@@ -36,14 +36,14 @@ export default async function BioPagesPage() {
 
   return (
     <div className="dash-page">
-      <div className="dash-hero flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div className="dash-hero flex flex-col items-center gap-6">
         <div>
           <div className="dash-kicker mb-4">
             <LayoutTemplate className="size-3.5" />
             Profile pages
           </div>
-          <h1 className="dash-title">Link-in-bio</h1>
-          <p className="dash-subtitle">Build simple public pages that collect your links, launches, and contact points.</p>
+          <h1 className="dash-title">Bio Pages</h1>
+          <p className="dash-subtitle">Use this when one short link needs to open a page of many links. Short links are still the fastest place to start.</p>
         </div>
         <Button className="btn-primary h-11 px-5" asChild>
           <Link href="/dashboard/bio/new">
@@ -51,6 +51,25 @@ export default async function BioPagesPage() {
             <ArrowUpRight className="size-4" />
           </Link>
         </Button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {[
+          { title: "Profile", text: "Name the page and choose its public slug.", icon: LayoutTemplate },
+          { title: "Blocks", text: "Add links, text, dividers, social buttons, or email capture.", icon: Link2 },
+          { title: "Design", text: "Tune colors and publish when the page is ready.", icon: Palette },
+        ].map((step, index) => (
+          <div key={step.title} className="dash-panel p-4">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="dash-icon size-9">
+                <step.icon className="size-4" />
+              </div>
+              <span className="font-mono text-xs text-muted-foreground">0{index + 1}</span>
+            </div>
+            <h2 className="font-semibold text-foreground">{step.title}</h2>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">{step.text}</p>
+          </div>
+        ))}
       </div>
 
        <div className="dash-control flex items-center justify-between gap-4">
@@ -87,7 +106,7 @@ export default async function BioPagesPage() {
                     >
                       {page.title || "Untitled Page"}
                     </Link>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                    <span className={`px-2.5 py-0.5 rounded-sm text-[10px] font-bold uppercase tracking-wider ${
                       page.isPublished 
                         ? 'bg-foreground text-background border border-foreground'
                         : 'bg-muted text-muted-foreground border border-border'
@@ -146,7 +165,7 @@ export default async function BioPagesPage() {
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 rounded-lg border-border bg-card">
+                    <DropdownMenuContent align="end" className="w-48 rounded-md border-border bg-card">
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link href={`/dashboard/bio/${page.id}`}>
                           <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -184,10 +203,10 @@ export default async function BioPagesPage() {
              <div className="dash-icon size-16 mb-6">
                 <LayoutTemplate className="h-7 w-7" />
              </div>
-             <h3 className="text-xl font-semibold text-foreground mb-2">No pages created yet</h3>
-             <p className="text-muted-foreground max-w-sm mb-6">Create a clean Link-in-bio page to organize all your important links in one place.</p>
+             <h3 className="text-xl font-semibold text-foreground mb-2">Create a page when one link is not enough</h3>
+             <p className="text-muted-foreground max-w-sm mb-6">Bio pages are best for profiles, launches, menus, or campaigns with multiple destinations.</p>
              <Button className="btn-primary px-8" asChild>
-                <Link href="/dashboard/bio/new">Create a Link-in-bio</Link>
+                <Link href="/dashboard/bio/new">Create a bio page</Link>
              </Button>
           </div>
         )}

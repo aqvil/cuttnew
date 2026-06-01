@@ -129,7 +129,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
             </Link>
           </Button>
           <div>
-            <h1 className="text-xl font-semibold text-foreground leading-none">{title || "Untitled Link-in-bio"}</h1>
+            <h1 className="text-xl font-semibold text-foreground leading-none">{title || "Untitled bio page"}</h1>
             <a href={`${process.env.NEXT_PUBLIC_APP_URL}/p/${page.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1">
                linkforge.app/p/{page.slug}
             </a>
@@ -276,7 +276,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                     <button
                       key={style.id}
                       onClick={() => setTheme({ ...theme, style: style.id })}
-                      className={`h-14 px-4 text-sm font-bold transition-all rounded-lg border ${
+                      className={`h-14 px-4 text-sm font-bold transition-all rounded-sm border ${
                         theme.style === style.id
                           ? "bg-foreground text-background border-foreground"
                           : "bg-background text-muted-foreground border-border hover:text-foreground"
@@ -315,9 +315,9 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
            </div>
            
            {/* Phone Frame */}
-           <div className="relative w-[340px] h-[720px] rounded-[2.5rem] border-8 border-foreground shadow-2xl shadow-foreground/20 overflow-hidden bg-card shrink-0">
+           <div className="relative w-[340px] h-[720px] rounded-[1.5rem] border-8 border-foreground shadow-2xl shadow-foreground/20 overflow-hidden bg-card shrink-0">
              <div className="absolute top-0 inset-x-0 h-6 bg-foreground rounded-b-3xl w-40 mx-auto z-50 flex items-center justify-center">
-                 <div className="h-2 w-12 bg-background/30 rounded-full"></div>
+                 <div className="h-2 w-12 bg-background/30 rounded-sm"></div>
              </div>
              <BioPreview
                title={title}

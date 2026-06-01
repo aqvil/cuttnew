@@ -84,9 +84,9 @@ export function AddBlockDialog({ open, onOpenChange, onAddBlock }: AddBlockDialo
             <button
               key={block.type}
               onClick={() => onAddBlock(block.type)}
-              className="flex flex-col items-center gap-2 rounded-lg border p-4 hover:bg-muted/50 transition-colors text-center"
+              className="flex flex-col items-center gap-2 rounded-md border p-4 hover:bg-muted/50 transition-colors text-center"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+              <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-muted">
                 <block.icon className="h-5 w-5" />
               </div>
               <div>

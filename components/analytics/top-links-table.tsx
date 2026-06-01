@@ -33,7 +33,7 @@ export function TopLinksTable({ links }: TopLinksTableProps) {
           <Link
             key={link.id}
             href={`/dashboard/links/${link.id}`}
-            className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 transition-colors group"
+            className="flex items-center gap-3 rounded-md border p-3 hover:bg-muted/50 transition-colors group"
           >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-muted">
               <LinkIcon className="h-4 w-4" />
@@ -47,9 +47,9 @@ export function TopLinksTable({ links }: TopLinksTableProps) {
                   {link.click_count.toLocaleString()}
                 </span>
               </div>
-              <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">
+              <div className="mt-1.5 h-1.5 rounded-sm bg-muted overflow-hidden">
                 <div 
-                  className="h-full bg-foreground/50 rounded-full transition-all"
+                  className="h-full bg-foreground/50 rounded-sm transition-all"
                   style={{ width: `${percentage}%` }}
                 />
               </div>
