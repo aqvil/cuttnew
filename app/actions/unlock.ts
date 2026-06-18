@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { shortLinks, linkAnalytics } from "@/lib/db/schema"
 import { eq, sql } from "drizzle-orm"
+import { verifyPassword } from "@/lib/auth/password"
 
 export async function unlockShortLink(code: string, passwordAttempt: string) {
   const link = await db.query.shortLinks.findFirst({
@@ -13,8 +14,11 @@ export async function unlockShortLink(code: string, passwordAttempt: string) {
     throw new Error("Link not found")
   }
 
-  if (link.password !== passwordAttempt) {
-    throw new Error("Incorrect password")
+  if (link.password) {
+    const isValid = await verifyPassword(passwordAttempt, link.password)
+    if (!isValid) {
+      throw new Error("Incorrect password")
+    }
   }
 
   // Record click analytics

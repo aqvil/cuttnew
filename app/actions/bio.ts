@@ -3,7 +3,7 @@
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { bioPages, bioBlocks, linkAnalytics, emailSubscribers } from "@/lib/db/schema"
-import { eq } from "drizzle-orm"
+import { eq, and } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
 export async function updateBioPage(id: string, data: any) {
@@ -18,7 +18,7 @@ export async function updateBioPage(id: string, data: any) {
       theme: data.theme,
       updatedAt: new Date(),
     })
-    .where(eq(bioPages.id, id))
+    .where(and(eq(bioPages.id, id), eq(bioPages.userId, session.user.id)))
 
   revalidatePath(`/dashboard/bio/${id}`)
   revalidatePath(`/p/${data.slug}`)
@@ -28,8 +28,11 @@ export async function saveBioBlocks(pageId: string, blocks: any[]) {
   const session = await auth()
   if (!session?.user?.id) throw new Error("Unauthorized")
 
-  // Handle reordering by deleting and re-inserting (standard pattern for ordered collections in some cases, 
-  // though more efficient ways exist, we'll follow the existing logic for now)
+  // Verify ownership of the page
+  const [page] = await db.select().from(bioPages).where(and(eq(bioPages.id, pageId), eq(bioPages.userId, session.user.id))).limit(1)
+  if (!page) throw new Error("Unauthorized or page not found")
+
+  // Handle reordering by deleting and re-inserting
   await db.delete(bioBlocks).where(eq(bioBlocks.pageId, pageId))
 
   if (blocks.length > 0) {
