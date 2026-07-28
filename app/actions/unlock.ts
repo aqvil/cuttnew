@@ -14,8 +14,11 @@ export async function unlockShortLink(code: string, passwordAttempt: string) {
     throw new Error("Link not found")
   }
 
-  if (!(await verifyPassword(passwordAttempt, link.password))) {
-    throw new Error("Incorrect password")
+  if (link.password) {
+    const isValid = await verifyPassword(passwordAttempt, link.password)
+    if (!isValid) {
+      throw new Error("Incorrect password")
+    }
   }
 
   // Record click analytics
