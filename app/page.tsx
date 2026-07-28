@@ -82,7 +82,7 @@ export default function LandingPage() {
                 <MousePointerClick className="size-3.5" />
                 URL shortener
               </div>
-              <h1 className="max-w-4xl text-5xl font-semibold leading-[0.98] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+              <h1 className="max-w-4xl text-5xl font-bold leading-[0.95] tracking-tighter text-foreground sm:text-6xl lg:text-7xl">
                 Short links that look sharp everywhere.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
