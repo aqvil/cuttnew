@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch"
 import { ArrowLeft, Loader2, Link2, SlidersHorizontal } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { UtmBuilder, buildUtmUrl, emptyUtmValues, type UtmValues } from "@/components/links/utm-builder"
 
 function generateShortCode(length: number = 6): string {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -29,6 +30,8 @@ export default function NewLinkPage() {
   const [usePassword, setUsePassword] = useState(false)
   const [expiresAt, setExpiresAt] = useState("")
   const [useExpiration, setUseExpiration] = useState(false)
+  const [useUtm, setUseUtm] = useState(false)
+  const [utm, setUtm] = useState<UtmValues>(emptyUtmValues)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
@@ -61,8 +64,9 @@ export default function NewLinkPage() {
 
     try {
       const shortCode = useCustomSlug && customSlug ? customSlug : generateShortCode()
+      const finalUrl = useUtm ? buildUtmUrl(originalUrl, utm) : originalUrl
       const link = await createShortLink({
-        originalUrl,
+        originalUrl: finalUrl,
         shortCode,
         title: title || null,
         password: usePassword && password ? password : null,
@@ -151,7 +155,7 @@ export default function NewLinkPage() {
                  <Label className="text-sm font-semibold text-foreground">Domain / Custom back-half</Label>
                  <div className="flex items-center gap-2">
                    <div className="h-12 px-4 flex items-center bg-background border border-border rounded-md text-muted-foreground font-medium">
-                     cuttly.app/l/
+                     cuttly.io/l/
                    </div>
                    <Input
                      placeholder="custom-alias"
@@ -217,6 +221,17 @@ export default function NewLinkPage() {
                      </div>
                   )}
               </div>
+           </div>
+
+           <div className="dash-panel p-6 sm:p-8">
+              <div className="flex items-start justify-between gap-4 mb-6">
+                 <div>
+                   <h2 className="dash-panel-title">4. UTM campaign tracking</h2>
+                   <p className="mt-1 text-sm text-muted-foreground">Tag the destination URL for campaign analytics.</p>
+                 </div>
+                 <Switch checked={useUtm} onCheckedChange={setUseUtm} />
+              </div>
+              {useUtm && <UtmBuilder baseUrl={originalUrl} values={utm} onChange={setUtm} />}
            </div>
 
            {error && (

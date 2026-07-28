@@ -102,7 +102,7 @@ export default function NewBioPage() {
                      <Label htmlFor="slug" className="text-sm font-semibold text-foreground">Public bio URL</Label>
                      <div className="flex items-center gap-2">
                         <div className="h-12 px-4 flex items-center bg-background border border-border rounded-md text-muted-foreground font-medium whitespace-nowrap">
-                           cuttly.app/p/
+                           cuttly.io/p/
                         </div>
                         <Input
                            id="slug"

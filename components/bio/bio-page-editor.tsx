@@ -150,7 +150,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
           <div>
             <h1 className="text-xl font-semibold text-foreground leading-none">{title || "Untitled bio page"}</h1>
             <a href={`${process.env.NEXT_PUBLIC_APP_URL}/p/${page.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1">
-               cuttly.app/p/{page.slug}
+               cuttly.io/p/{page.slug}
             </a>
           </div>
         </div>

@@ -119,7 +119,7 @@ export default function LandingPage() {
               <div className="rounded-lg border border-border bg-card p-3 shadow-2xl shadow-foreground/10">
                 <div className="flex items-center justify-between border-b border-border px-3 py-3">
                   <div>
-                    <p className="text-sm font-semibold">cuttly.app/l/spring</p>
+                    <p className="text-sm font-semibold">cuttly.io/l/spring</p>
                     <p className="text-xs text-muted-foreground">Redirects to product launch page</p>
                   </div>
                   <Button variant="outline" size="icon" className="size-9">
