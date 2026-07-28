@@ -8,7 +8,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 export const metadata = {
-  title: "Billing & Plans - LinkForge",
+  title: "Billing & Plans - Cuttly",
 }
 
 export default async function BillingPage() {

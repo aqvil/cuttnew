@@ -46,7 +46,7 @@ export default function LandingPage() {
             <span className="flex size-9 items-center justify-center rounded-md border border-foreground bg-foreground text-background shadow-[3px_3px_0_0_rgba(0,0,0,0.16)] dark:border-border dark:bg-foreground dark:text-background dark:shadow-[3px_3px_0_0_rgba(255,255,255,0.16)]">
               <Link2 className="size-4 stroke-[3]" />
             </span>
-            <span className="text-xl">LinkForge</span>
+            <span className="text-xl">Cuttly</span>
           </Link>
 
           <nav className="hidden items-center gap-7 md:flex">
@@ -119,7 +119,7 @@ export default function LandingPage() {
               <div className="rounded-lg border border-border bg-card p-3 shadow-2xl shadow-foreground/10">
                 <div className="flex items-center justify-between border-b border-border px-3 py-3">
                   <div>
-                    <p className="text-sm font-semibold">linkforge.app/l/spring</p>
+                    <p className="text-sm font-semibold">cuttly.app/l/spring</p>
                     <p className="text-xs text-muted-foreground">Redirects to product launch page</p>
                   </div>
                   <Button variant="outline" size="icon" className="size-9">
@@ -191,14 +191,14 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex items-center gap-2 font-semibold text-foreground">
             <Link2 className="size-4" />
-            LinkForge
+            Cuttly
           </div>
           <div className="flex gap-5">
             <Link href="#" className="hover:text-foreground">Support</Link>
             <Link href="#" className="hover:text-foreground">Terms</Link>
             <Link href="#" className="hover:text-foreground">Privacy</Link>
           </div>
-          <p>© 2026 LinkForge. All rights reserved.</p>
+          <p>© 2026 Cuttly. All rights reserved.</p>
         </div>
       </footer>
     </div>

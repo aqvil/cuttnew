@@ -10,7 +10,7 @@ import { redirect } from "next/navigation"
 import { formatDistanceToNow } from "date-fns"
 
 export const metadata = {
-  title: "Links - LinkForge",
+  title: "Links - Cuttly",
 }
 
 export default async function LinksPage() {

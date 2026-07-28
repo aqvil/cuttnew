@@ -141,7 +141,7 @@ export default async function PublicBioPage({ params }: PageProps) {
           <div className="pt-12 text-center">
             <a href="/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:opacity-100 transition-opacity opacity-50">
               <span className="text-xs font-semibold" style={{ color: pageText }}>Powered by</span>
-              <span className="text-sm font-bold tracking-tight" style={{ color: pageText }}>LinkForge</span>
+              <span className="text-sm font-bold tracking-tight" style={{ color: pageText }}>Cuttly</span>
             </a>
           </div>
         </div>

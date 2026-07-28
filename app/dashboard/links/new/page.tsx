@@ -151,7 +151,7 @@ export default function NewLinkPage() {
                  <Label className="text-sm font-semibold text-foreground">Domain / Custom back-half</Label>
                  <div className="flex items-center gap-2">
                    <div className="h-12 px-4 flex items-center bg-background border border-border rounded-md text-muted-foreground font-medium">
-                     linkforge.app/l/
+                     cuttly.app/l/
                    </div>
                    <Input
                      placeholder="custom-alias"

@@ -1,4 +1,4 @@
--- Complete PostgreSQL schema for the Cutt/LinkForge app.
+-- Complete PostgreSQL schema for the Cuttly app.
 -- Import this into the `cutt` database.
 --
 -- Example:

@@ -108,7 +108,7 @@ export function BioPreview({ title, description, blocks, theme }: BioPreviewProp
               className="text-xs opacity-50"
               style={{ color: theme.text }}
             >
-              Powered by LinkForge
+              Powered by Cuttly
             </p>
           </div>
         </div>

@@ -68,7 +68,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
                 <div className="flex size-8 items-center justify-center rounded-md bg-sidebar-accent-foreground text-sidebar shadow-sm shrink-0">
                   <Link2 className="size-4 stroke-[3]" />
                 </div>
-                <span className="text-lg font-bold text-sidebar-accent-foreground tracking-tight group-data-[collapsible=icon]:hidden">LinkForge</span>
+                <span className="text-lg font-bold text-sidebar-accent-foreground tracking-tight group-data-[collapsible=icon]:hidden">Cuttly</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

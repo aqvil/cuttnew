@@ -55,12 +55,12 @@ export default function LoginPage() {
         <div className="flex flex-col gap-10 items-center">
           <Link href="/" className="flex items-center gap-2 text-primary font-bold text-3xl tracking-tight">
             <Link2 className="h-8 w-8 stroke-[3]" />
-            LinkForge
+            Cuttly
           </Link>
-          
+
           <div className="card w-full p-8 shadow-xl">
             <div className="mb-8 text-center space-y-2">
-              <h2 className="text-2xl font-bold text-foreground tracking-tight">Log in to LinkForge</h2>
+              <h2 className="text-2xl font-bold text-foreground tracking-tight">Log in to Cuttly</h2>
               <p className="text-sm font-medium text-muted-foreground">Welcome back to your short links.</p>
             </div>
             

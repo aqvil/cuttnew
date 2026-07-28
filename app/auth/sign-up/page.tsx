@@ -70,7 +70,7 @@ export default function SignUpPage() {
         <div className="flex flex-col gap-10 items-center">
           <Link href="/" className="flex items-center gap-2 text-primary font-bold text-3xl tracking-tight">
             <Link2 className="h-8 w-8 stroke-[3]" />
-            LinkForge
+            Cuttly
           </Link>
           
           <div className="card w-full p-8 shadow-xl">

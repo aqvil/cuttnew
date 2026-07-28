@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input"
 import { redirect } from "next/navigation"
 
 export const metadata = {
-  title: "Bio Pages - LinkForge",
+  title: "Bio Pages - Cuttly",
 }
 
 export default async function BioPagesPage() {

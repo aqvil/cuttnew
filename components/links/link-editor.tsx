@@ -21,6 +21,7 @@ import {
 import { ArrowLeft, ExternalLink, Copy, Check, Trash2, Link2, SlidersHorizontal } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { QrCodeCard } from "@/components/ui/qr-code-card"
 
 interface LinkEditorProps {
   link: any
@@ -42,7 +43,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://linkforge.app"
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   const shortUrl = `${baseUrl}/l/${link.shortCode}`
 
   const handleCopy = async () => {
@@ -60,7 +61,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
       await updateShortLink(link.id, {
         originalUrl,
         title: title || null,
-        password: usePassword ? (password || link.password) : null,
+        password: usePassword ? (password || undefined) : null,
         expiresAt: useExpiration && expiresAt ? expiresAt : null,
         isActive,
       })
@@ -255,6 +256,10 @@ export function LinkEditor({ link }: LinkEditorProps) {
                <Button className="btn-primary w-full h-12 text-base" onClick={handleSave} disabled={isSaving}>
                   {isSaving ? "Saving changes..." : "Save details"}
                </Button>
+            </div>
+
+            <div className="dash-panel p-6 shadow-xl shadow-foreground/5">
+               <QrCodeCard url={shortUrl} fileName={`cuttly-${link.shortCode}`} />
             </div>
          </div>
       </div>

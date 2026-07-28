@@ -27,6 +27,7 @@ import {
   Eye
 } from "lucide-react"
 import Link from "next/link"
+import { QrCodeCard } from "@/components/ui/qr-code-card"
 import { BioBlockItem } from "./bio-block-item"
 import { BioPreview } from "./bio-preview"
 import { AddBlockDialog } from "./add-block-dialog"
@@ -149,7 +150,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
           <div>
             <h1 className="text-xl font-semibold text-foreground leading-none">{title || "Untitled bio page"}</h1>
             <a href={`${process.env.NEXT_PUBLIC_APP_URL}/p/${page.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1">
-               linkforge.app/p/{page.slug}
+               cuttly.app/p/{page.slug}
             </a>
           </div>
         </div>
@@ -320,6 +321,14 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                     <Input placeholder="Enter description for search engines" className="dash-field" />
                   </div>
                 </div>
+              </div>
+
+              <div className="dash-panel p-6">
+                <h3 className="dash-panel-title mb-6 border-b border-border pb-4">QR Code</h3>
+                <QrCodeCard
+                  url={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/p/${page.slug}`}
+                  fileName={`cuttly-${page.slug}`}
+                />
               </div>
             </TabsContent>
           </Tabs>

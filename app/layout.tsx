@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'LinkForge - URL Shortener',
-    template: '%s | LinkForge',
+    default: 'Cuttly - URL Shortener',
+    template: '%s | Cuttly',
   },
   description: 'Create short links, QR codes, and link-in-bio pages with clean analytics.',
 }

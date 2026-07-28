@@ -36,7 +36,7 @@ export default function UnlockLinkPage() {
         <div className="flex flex-col items-center gap-10">
           <div className="flex items-center gap-3 text-primary font-bold text-2xl tracking-tight">
             <Link2 className="h-8 w-8 stroke-[3]" />
-            LinkForge
+            Cuttly
           </div>
 
           <div className="card w-full text-center p-8 shadow-lg">
@@ -83,7 +83,7 @@ export default function UnlockLinkPage() {
           </div>
           
           <p className="text-sm text-slate-400 font-medium tracking-tight">
-            Protected by LinkForge Secure Links
+            Protected by Cuttly Secure Links
           </p>
         </div>
       </div>

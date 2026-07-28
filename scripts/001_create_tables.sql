@@ -1,4 +1,4 @@
--- LinkForge Database Schema
+-- Cuttly Database Schema
 -- Run this migration to set up all required tables
 
 -- 1. User Profiles (extends auth.users)
