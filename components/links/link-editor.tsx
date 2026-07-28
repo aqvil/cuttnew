@@ -30,6 +30,7 @@ interface LinkEditorProps {
 export function LinkEditor({ link }: LinkEditorProps) {
   const [originalUrl, setOriginalUrl] = useState(link.originalUrl)
   const [title, setTitle] = useState(link.title || "")
+  const [tagsInput, setTagsInput] = useState<string>((link.tags || []).join(", "))
   const [password, setPassword] = useState("")
   const [usePassword, setUsePassword] = useState(!!link.password)
   const [expiresAt, setExpiresAt] = useState(
@@ -61,6 +62,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
       await updateShortLink(link.id, {
         originalUrl,
         title: title || null,
+        tags: tagsInput.split(",").map((t) => t.trim()).filter(Boolean),
         password: usePassword ? (password || undefined) : null,
         expiresAt: useExpiration && expiresAt ? expiresAt : null,
         isActive,
@@ -159,6 +161,17 @@ export function LinkEditor({ link }: LinkEditorProps) {
                         placeholder="My awesome link"
                      />
                      <p className="text-xs text-muted-foreground">Helps you identify this link in your dashboard.</p>
+                  </div>
+
+                  <div className="space-y-2">
+                     <Label className="text-sm font-semibold text-foreground">Tags</Label>
+                     <Input
+                        value={tagsInput}
+                        onChange={(e) => setTagsInput(e.target.value)}
+                        className="h-12 border-border bg-background"
+                        placeholder="marketing, social, launch"
+                     />
+                     <p className="text-xs text-muted-foreground">Comma-separated. Use tags to organize and filter your links.</p>
                   </div>
                </div>
             </div>

@@ -2,11 +2,12 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { bioPages, shortLinks, pageViews, linkAnalytics } from "@/lib/db/schema"
 import { eq, desc, count, inArray } from "drizzle-orm"
-import { FileText, LinkIcon, Eye, MousePointer, Copy, Activity, ArrowUpRight, BarChart3 } from "lucide-react"
+import { FileText, LinkIcon, Eye, MousePointer, Activity, ArrowUpRight, BarChart3 } from "lucide-react"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { QuickLinkForm } from "@/components/dashboard/quick-link-form"
+import { CopyLinkButton } from "@/components/links/copy-link-button"
 import { formatDistanceToNow } from "date-fns"
 
 export const metadata = {
@@ -204,9 +205,7 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-muted">
-                      <Copy className="h-4 w-4" />
-                    </Button>
+                    <CopyLinkButton url={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/l/${link.shortCode}`} />
                     <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-muted" asChild>
                       <Link href={`/dashboard/analytics?link=${link.id}`}>
                         <Eye className="h-4 w-4" />

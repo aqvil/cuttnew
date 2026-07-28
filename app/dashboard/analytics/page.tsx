@@ -124,6 +124,24 @@ export default async function AnalyticsPage() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
 
+  // Get browser breakdown
+  let browserStats: Array<{ browser: string | null }> = []
+  if (shortLinkIds.length > 0) {
+    browserStats = await db.query.linkAnalytics.findMany({
+      where: and(inArray(linkAnalytics.linkId, shortLinkIds), sql`${linkAnalytics.browser} is not null`),
+      columns: { browser: true },
+    })
+  }
+
+  const browserCounts: Record<string, number> = {}
+  browserStats.forEach((stat) => {
+    if (stat.browser) {
+      browserCounts[stat.browser] = (browserCounts[stat.browser] || 0) + 1
+    }
+  })
+  const totalBrowsers = Object.values(browserCounts).reduce((a, b) => a + b, 0)
+  const topBrowsers = Object.entries(browserCounts).sort((a, b) => b[1] - a[1]).slice(0, 6)
+
   // Get top links
   const topLinksData = await db.query.shortLinks.findMany({
     where: eq(shortLinks.userId, userId),
@@ -269,6 +287,35 @@ export default async function AnalyticsPage() {
           </div>
           <div className="p-8">
             <GeoChart countries={topCountries} />
+          </div>
+        </div>
+
+        {/* Browser breakdown */}
+        <div className="dash-panel overflow-hidden lg:col-span-2">
+          <div className="dash-panel-header">
+            <h2 className="dash-panel-title">Browser Breakdown</h2>
+          </div>
+          <div className="p-8">
+            {topBrowsers.length > 0 ? (
+              <div className="space-y-4">
+                {topBrowsers.map(([browser, value]) => (
+                  <div key={browser} className="grid grid-cols-[6rem_1fr_3rem] items-center gap-4 text-sm">
+                    <span className="font-mono capitalize text-muted-foreground">{browser}</span>
+                    <span className="h-2 rounded-full bg-muted">
+                      <span
+                        className="block h-2 rounded-full bg-foreground"
+                        style={{ width: `${totalBrowsers > 0 ? Math.round((value / totalBrowsers) * 100) : 0}%` }}
+                      />
+                    </span>
+                    <span className="text-right font-semibold tabular-nums text-foreground">
+                      {totalBrowsers > 0 ? Math.round((value / totalBrowsers) * 100) : 0}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No browser data yet.</p>
+            )}
           </div>
         </div>
       </div>

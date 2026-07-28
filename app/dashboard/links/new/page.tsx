@@ -24,6 +24,7 @@ function generateShortCode(length: number = 6): string {
 export default function NewLinkPage() {
   const [originalUrl, setOriginalUrl] = useState("")
   const [title, setTitle] = useState("")
+  const [tagsInput, setTagsInput] = useState("")
   const [customSlug, setCustomSlug] = useState("")
   const [useCustomSlug, setUseCustomSlug] = useState(false)
   const [password, setPassword] = useState("")
@@ -65,12 +66,14 @@ export default function NewLinkPage() {
     try {
       const shortCode = useCustomSlug && customSlug ? customSlug : generateShortCode()
       const finalUrl = useUtm ? buildUtmUrl(originalUrl, utm) : originalUrl
+      const tags = tagsInput.split(",").map((t) => t.trim()).filter(Boolean)
       const link = await createShortLink({
         originalUrl: finalUrl,
         shortCode,
         title: title || null,
         password: usePassword && password ? password : null,
         expiresAt: useExpiration && expiresAt ? expiresAt : null,
+        tags,
       })
 
       toast.success("Link created successfully")
@@ -135,6 +138,18 @@ export default function NewLinkPage() {
                     onChange={(e) => setTitle(e.target.value)}
                     className="dash-field"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="tags" className="text-sm font-semibold text-foreground">Tags (optional)</Label>
+                  <Input
+                    id="tags"
+                    placeholder="marketing, social, launch"
+                    value={tagsInput}
+                    onChange={(e) => setTagsInput(e.target.value)}
+                    className="dash-field"
+                  />
+                  <p className="text-xs text-muted-foreground">Comma-separated. Use tags to organize and filter your links.</p>
                 </div>
              </div>
            </div>

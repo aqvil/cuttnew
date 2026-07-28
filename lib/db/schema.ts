@@ -157,6 +157,8 @@ export const shortLinks = pgTable("short_links", {
   title: text("title"),
   customSlug: text("custom_slug"),
   password: text("password"),
+  tags: text("tags").array().default([]),
+  archivedAt: timestamp("archived_at"),
   expiresAt: timestamp("expires_at"),
   isActive: boolean("is_active").default(true),
   clickCount: integer("click_count").default(0),

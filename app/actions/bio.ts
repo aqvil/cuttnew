@@ -64,6 +64,15 @@ export async function subscribeToEmail(pageId: string, email: string) {
   })
 }
 
+export async function deleteBioPage(id: string) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Unauthorized")
+
+  await db.delete(bioPages).where(and(eq(bioPages.id, id), eq(bioPages.userId, session.user.id)))
+
+  revalidatePath("/dashboard/bio")
+}
+
 export async function createBioPage(data: any) {
   const session = await auth()
   if (!session?.user?.id) throw new Error("Unauthorized")
