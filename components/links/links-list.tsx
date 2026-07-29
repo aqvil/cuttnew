@@ -4,20 +4,20 @@ import { useMemo, useState } from "react"
 import Link from "next/link"
 import { toast } from "sonner"
 import {
-  LinkIcon,
   ExternalLink,
   BarChart2,
   MoreHorizontal,
   Lock,
   Search,
   Copy,
-  ArrowUpRight,
-  PencilLine,
   Archive,
   ArchiveRestore,
   Trash2,
   Download,
   Tag as TagIcon,
+  Clock,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { Button } from "@/components/ui/button"
@@ -44,6 +44,8 @@ interface LinkRow {
   password: string | null
   tags: string[] | null
   archivedAt: Date | string | null
+  expiresAt: Date | string | null
+  isActive: boolean | null
   clickCount: number | null
   createdAt: Date | string | null
 }
@@ -78,12 +80,41 @@ function downloadCsv(csv: string, filename: string) {
   URL.revokeObjectURL(url)
 }
 
+function getFaviconUrl(url: string) {
+  try {
+    const domain = new URL(url).hostname
+    return `https://www.google.com/s2/favicons?domain=${domain}&sz=32`
+  } catch {
+    return null
+  }
+}
+
+function LinkStatusBadge({ link }: { link: LinkRow }) {
+  const isExpired = link.expiresAt && new Date(link.expiresAt) < new Date()
+  if (isExpired) {
+    return (
+      <span className="badge-expired flex items-center gap-1">
+        <Clock className="size-3" /> Expired
+      </span>
+    )
+  }
+  if (!link.isActive) {
+    return (
+      <span className="badge-archived flex items-center gap-1">
+        <XCircle className="size-3" /> Inactive
+      </span>
+    )
+  }
+  return null
+}
+
 export function LinksList({ links, appUrl }: LinksListProps) {
   const [search, setSearch] = useState("")
   const [tagFilter, setTagFilter] = useState<string>("all")
   const [showArchived, setShowArchived] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [isBusy, setIsBusy] = useState(false)
+  const [faviconErrors, setFaviconErrors] = useState<Set<string>>(new Set())
 
   const allTags = useMemo(() => {
     const set = new Set<string>()
@@ -124,7 +155,7 @@ export function LinksList({ links, appUrl }: LinksListProps) {
 
   const handleCopy = async (shortCode: string) => {
     await navigator.clipboard.writeText(`${appUrl}/l/${shortCode}`)
-    toast.success("Link copied to clipboard")
+    toast.success("Copied to clipboard")
   }
 
   const handleBulkArchive = async (archived: boolean) => {
@@ -164,82 +195,86 @@ export function LinksList({ links, appUrl }: LinksListProps) {
 
   return (
     <div className="space-y-4">
+      {/* Control bar */}
       <div className="dash-control flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="relative w-full md:w-[360px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+        <div className="relative w-full md:w-[320px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
             placeholder="Search links..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 h-10 bg-background border-border focus-visible:ring-primary rounded-md text-sm"
+            className="pl-9 h-10 bg-background text-sm"
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <select
-            value={tagFilter}
-            onChange={(e) => setTagFilter(e.target.value)}
-            className="h-10 rounded-md border border-border bg-background px-3 text-sm font-medium text-foreground"
-          >
-            <option value="all">All tags</option>
-            {allTags.map((tag) => (
-              <option key={tag} value={tag}>{tag}</option>
-            ))}
-          </select>
+          {allTags.length > 0 && (
+            <select
+              value={tagFilter}
+              onChange={(e) => setTagFilter(e.target.value)}
+              className="h-10 rounded-md border border-border bg-background px-3 text-sm font-medium text-foreground"
+            >
+              <option value="all">All tags</option>
+              {allTags.map((tag) => (
+                <option key={tag} value={tag}>{tag}</option>
+              ))}
+            </select>
+          )}
 
           <div className="flex items-center rounded-md border border-border bg-background p-1">
             <button
               type="button"
               onClick={() => { setShowArchived(false); setSelected(new Set()) }}
-              className={`rounded-sm px-3 py-1.5 text-sm font-semibold transition-colors ${!showArchived ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`rounded-sm px-3 py-1.5 text-sm font-semibold transition-colors ${!showArchived ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
             >
               Active
             </button>
             <button
               type="button"
               onClick={() => { setShowArchived(true); setSelected(new Set()) }}
-              className={`rounded-sm px-3 py-1.5 text-sm font-semibold transition-colors ${showArchived ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`rounded-sm px-3 py-1.5 text-sm font-semibold transition-colors ${showArchived ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
             >
               Archived
             </button>
           </div>
 
-          <Button variant="secondary" className="h-10 bg-card" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
+          <Button variant="secondary" className="h-10 gap-2 bg-card text-sm" onClick={handleExport}>
+            <Download className="size-3.5" />
+            Export
           </Button>
         </div>
       </div>
 
+      {/* Bulk action bar */}
       {selected.size > 0 && (
-        <div className="flex flex-wrap items-center gap-3 rounded-md border border-border bg-card p-3 shadow-[var(--shadow-card)]">
-          <span className="text-sm font-semibold text-foreground">{selected.size} selected</span>
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-3 shadow-[var(--shadow-card)] animate-fade-in-up">
+          <span className="text-sm font-semibold">{selected.size} selected</span>
           <div className="flex-1" />
           {showArchived ? (
             <Button variant="secondary" size="sm" className="bg-background" disabled={isBusy} onClick={() => handleBulkArchive(false)}>
-              <ArchiveRestore className="h-4 w-4 mr-2" />
+              <ArchiveRestore className="size-3.5 mr-1.5" />
               Restore
             </Button>
           ) : (
             <Button variant="secondary" size="sm" className="bg-background" disabled={isBusy} onClick={() => handleBulkArchive(true)}>
-              <Archive className="h-4 w-4 mr-2" />
+              <Archive className="size-3.5 mr-1.5" />
               Archive
             </Button>
           )}
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive" disabled={isBusy}>
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className="size-3.5 mr-1.5" />
                 Delete
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent className="rounded-md">
+            <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete {selected.size} link{selected.size === 1 ? "" : "s"}?</AlertDialogTitle>
                 <AlertDialogDescription>This cannot be undone and will break any shared URLs.</AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel className="btn-secondary">Cancel</AlertDialogCancel>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                   Yes, delete
                 </AlertDialogAction>
@@ -249,127 +284,159 @@ export function LinksList({ links, appUrl }: LinksListProps) {
         </div>
       )}
 
+      {/* Select all row */}
       {filtered.length > 0 && (
         <div className="flex items-center gap-3 px-1">
           <Checkbox
-            checked={selected.size === filtered.length}
+            checked={selected.size === filtered.length && filtered.length > 0}
             onCheckedChange={toggleSelectAll}
           />
           <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Select all ({filtered.length})
+            {selected.size > 0 ? `${selected.size} of ${filtered.length} selected` : `${filtered.length} link${filtered.length !== 1 ? "s" : ""}`}
           </span>
         </div>
       )}
 
-      <div className="space-y-4">
+      {/* Link rows */}
+      <div className="space-y-2">
         {filtered.length > 0 ? (
-          filtered.map((link) => (
-            <div
-              key={link.id}
-              className="dash-panel flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 gap-6 transition-colors hover:bg-muted/30"
-            >
-              <div className="flex items-start gap-4 flex-1 min-w-0">
-                <Checkbox
-                  className="mt-1"
-                  checked={selected.has(link.id)}
-                  onCheckedChange={() => toggleSelected(link.id)}
-                />
-                <div className="dash-icon">
-                  <LinkIcon className="h-5 w-5 text-primary" />
-                </div>
-                <div className="space-y-1 min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Link
-                      href={`/dashboard/links/${link.id}`}
-                      className="text-lg font-bold text-foreground hover:text-primary hover:underline truncate"
-                    >
-                      {link.title || 'Untitled Link'}
-                    </Link>
-                    {link.password && (
-                      <span title="Password Protected">
-                        <Lock className="h-4 w-4 text-muted-foreground" />
-                      </span>
+          filtered.map((link) => {
+            const faviconUrl = getFaviconUrl(link.originalUrl)
+            const showFavicon = faviconUrl && !faviconErrors.has(link.id)
+            const isExpired = link.expiresAt && new Date(link.expiresAt) < new Date()
+
+            return (
+              <div
+                key={link.id}
+                className={`dash-panel flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 gap-4 transition-all duration-150 hover:bg-muted/20 ${selected.has(link.id) ? "ring-1 ring-foreground/20 bg-muted/10" : ""}`}
+              >
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <Checkbox
+                    className="mt-1 shrink-0"
+                    checked={selected.has(link.id)}
+                    onCheckedChange={() => toggleSelected(link.id)}
+                  />
+
+                  {/* Favicon or fallback icon */}
+                  <div className="size-9 shrink-0 flex items-center justify-center rounded-md border border-border bg-background overflow-hidden">
+                    {showFavicon ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={faviconUrl!}
+                        alt=""
+                        className="size-4 object-contain"
+                        onError={() => setFaviconErrors((prev) => new Set([...prev, link.id]))}
+                      />
+                    ) : (
+                      <ExternalLink className="size-3.5 text-muted-foreground" />
                     )}
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm">
-                    <a
-                      href={`${appUrl}/l/${link.shortCode}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary font-semibold hover:underline flex items-center gap-1"
-                    >
-                      {appUrl.replace(/^https?:\/\//, '')}/l/{link.shortCode}
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                    <span className="text-border hidden sm:inline">|</span>
-                    <a href={link.originalUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground truncate max-w-xs sm:max-w-md">
-                      {link.originalUrl}
-                    </a>
-                  </div>
-                  {(link.tags && link.tags.length > 0) && (
-                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                      {link.tags.map((tag) => (
-                        <span key={tag} className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                          <TagIcon className="size-3" />
-                          {tag}
+
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Link
+                        href={`/dashboard/links/${link.id}`}
+                        className="text-sm font-bold text-foreground hover:text-primary hover:underline truncate max-w-[280px]"
+                      >
+                        {link.title || "Untitled Link"}
+                      </Link>
+                      <LinkStatusBadge link={link} />
+                      {link.password && (
+                        <span className="badge-password flex items-center gap-1">
+                          <Lock className="size-2.5" />
                         </span>
-                      ))}
+                      )}
                     </div>
-                  )}
-                  <div className="text-xs text-muted-foreground font-medium pt-1 font-mono">
-                    {formatDistanceToNow(new Date(link.createdAt || Date.now()), { addSuffix: true })}
+
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs">
+                      <a
+                        href={`${appUrl}/l/${link.shortCode}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-foreground hover:underline flex items-center gap-1"
+                      >
+                        {appUrl.replace(/^https?:\/\//, "")}/l/{link.shortCode}
+                        <ExternalLink className="size-2.5 text-muted-foreground" />
+                      </a>
+                      <span className="hidden sm:inline text-border">·</span>
+                      <span className="text-muted-foreground truncate max-w-[220px] sm:max-w-xs">
+                        {link.originalUrl.replace(/^https?:\/\//, "")}
+                      </span>
+                    </div>
+
+                    {(link.tags && link.tags.length > 0) && (
+                      <div className="flex flex-wrap items-center gap-1 pt-0.5">
+                        {link.tags.map((tag) => (
+                          <span key={tag} className="tag-pill">
+                            <TagIcon className="size-2.5" />
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="text-xs text-muted-foreground font-mono pt-0.5">
+                      {formatDistanceToNow(new Date(link.createdAt || Date.now()), { addSuffix: true })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right side */}
+                <div className="flex items-center gap-4 pl-12 sm:pl-0 border-t sm:border-t-0 border-border pt-3 sm:pt-0 w-full sm:w-auto justify-between sm:justify-end">
+                  <div className="text-right">
+                    <div className="flex items-center gap-1.5 justify-end">
+                      <BarChart2 className="size-3.5 text-muted-foreground" />
+                      <span className="text-base font-bold tabular-nums">{(link.clickCount || 0).toLocaleString()}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">clicks</div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 text-muted-foreground hover:text-foreground hover:bg-muted"
+                      onClick={() => handleCopy(link.shortCode)}
+                      title="Copy link"
+                    >
+                      <Copy className="size-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 text-muted-foreground hover:text-foreground hover:bg-muted"
+                      asChild
+                      title="Manage link"
+                    >
+                      <Link href={`/dashboard/links/${link.id}`}>
+                        <MoreHorizontal className="size-3.5" />
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               </div>
-
-              <div className="flex items-center justify-between w-full sm:w-auto mt-4 sm:mt-0 gap-8 pl-14 sm:pl-0 border-t sm:border-t-0 border-border pt-4 sm:pt-0">
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col sm:items-end">
-                    <div className="text-lg font-bold text-foreground flex items-center gap-1.5">
-                      <BarChart2 className="h-4 w-4 text-muted-foreground" />
-                      {(link.clickCount || 0).toLocaleString()}
-                    </div>
-                    <div className="text-xs font-semibold text-muted-foreground cursor-help" title="Total Engagements">
-                      Engagements
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button variant="secondary" className="h-9 px-3 gap-2 bg-card" title="Copy Link" onClick={() => handleCopy(link.shortCode)}>
-                    <Copy className="h-4 w-4" />
-                    <span className="hidden lg:inline">Copy</span>
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground border border-transparent hover:border-border" asChild>
-                    <Link href={`/dashboard/links/${link.id}`}>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))
+            )
+          })
         ) : (
-          <div className="dash-empty flex flex-col items-center">
-             <div className="dash-icon size-16 mb-6">
-                <LinkIcon className="h-7 w-7 text-primary" />
-             </div>
-             <h3 className="text-xl font-semibold text-foreground mb-2">
-               {showArchived ? "No archived links" : links.length > 0 ? "No links match your filters" : "Start with one destination URL"}
-             </h3>
-             <p className="text-muted-foreground max-w-sm mb-6">
-               {showArchived
-                 ? "Links you archive will show up here."
-                 : "Create a short link first. You can edit the destination and settings after it exists."}
-             </p>
-             {!showArchived && links.length === 0 && (
-               <Button className="btn-primary px-8" asChild>
-                  <Link href="/dashboard/links/new">
-                    <PencilLine className="size-4" />
-                    Create your first link
-                  </Link>
-               </Button>
-             )}
+          <div className="dash-empty">
+            <div className="dash-icon size-14 mb-5">
+              <ExternalLink className="size-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">
+              {showArchived ? "No archived links" : links.length > 0 ? "No links match" : "No links yet"}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-6 max-w-xs">
+              {showArchived
+                ? "Links you archive will appear here."
+                : links.length > 0
+                ? "Try adjusting your search or tag filter."
+                : "Create your first short link to start tracking clicks."}
+            </p>
+            {!showArchived && links.length === 0 && (
+              <Button className="btn-primary" asChild>
+                <Link href="/dashboard/links/new">Create a link</Link>
+              </Button>
+            )}
           </div>
         )}
       </div>

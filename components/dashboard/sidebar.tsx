@@ -32,6 +32,8 @@ import {
   ChevronsUpDown,
   LogOut,
   User as UserIcon,
+  QrCode,
+  Settings,
 } from "lucide-react"
 import { signOut } from "next-auth/react"
 
@@ -41,10 +43,15 @@ interface DashboardSidebarProps {
 }
 
 const navItems = [
-  { title: "Home", url: "/dashboard", icon: LayoutGrid },
-  { title: "Links", url: "/dashboard/links", icon: LinkIcon },
-  { title: "Bio Pages", url: "/dashboard/bio", icon: FileText },
-  { title: "Analytics", url: "/dashboard/analytics", icon: BarChart2 },
+  { title: "Home",      url: "/dashboard",            icon: LayoutGrid },
+  { title: "Links",     url: "/dashboard/links",      icon: LinkIcon },
+  { title: "Bio Pages", url: "/dashboard/bio",        icon: FileText },
+  { title: "Analytics", url: "/dashboard/analytics",  icon: BarChart2 },
+]
+
+const bottomNavItems = [
+  { title: "Settings",  url: "/dashboard/settings",   icon: Settings },
+  { title: "Billing",   url: "/dashboard/billing",    icon: CreditCard },
 ]
 
 export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
@@ -74,45 +81,79 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      
-      <SidebarContent className="space-y-6 px-3 py-6 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-2">
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Create short link" className="h-10 rounded-md bg-sidebar-accent-foreground px-3 font-semibold text-sidebar hover:bg-sidebar-accent-foreground/90 hover:text-sidebar group-data-[collapsible=icon]:justify-center">
-                  <Link href="/dashboard/links/new" className="flex w-full items-center group-data-[collapsible=icon]:justify-center">
-                    <LinkIcon className="mr-3 size-4 group-data-[collapsible=icon]:mr-0" />
-                    <span className="text-sm group-data-[collapsible=icon]:hidden">New short link</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
 
-        <SidebarGroup>
-           <div className="mb-2 px-3 group-data-[collapsible=icon]:hidden">
-            <span className="text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider">Manage</span>
+      <SidebarContent className="flex flex-col justify-between px-3 py-4 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
+        <div className="space-y-4">
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-2">
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Create short link" className="h-10 rounded-md bg-sidebar-accent-foreground px-3 font-semibold text-sidebar hover:bg-sidebar-accent-foreground/90 hover:text-sidebar group-data-[collapsible=icon]:justify-center">
+                    <Link href="/dashboard/links/new" className="flex w-full items-center group-data-[collapsible=icon]:justify-center">
+                      <LinkIcon className="mr-2.5 size-3.5 group-data-[collapsible=icon]:mr-0" />
+                      <span className="text-sm group-data-[collapsible=icon]:hidden">New short link</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarGroup>
+            <div className="mb-1.5 px-2 group-data-[collapsible=icon]:hidden">
+              <span className="text-[10px] font-bold text-sidebar-foreground/50 uppercase tracking-[0.12em]">Workspace</span>
+            </div>
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0.5">
+                {navItems.map((item) => {
+                  const isActive = pathname === item.url || (item.url !== "/dashboard" && pathname.startsWith(item.url))
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive}
+                        tooltip={item.title}
+                        className={`h-9 rounded-md px-2.5 transition-colors duration-150
+                          hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
+                          data-[active=true]:bg-sidebar-accent-foreground data-[active=true]:text-sidebar font-medium
+                          ${isActive ? 'text-sidebar-accent-foreground' : 'text-sidebar-foreground/70'}
+                        `}
+                      >
+                        <Link href={item.url} className="flex items-center w-full">
+                          <item.icon className={`mr-2.5 size-3.5 group-data-[collapsible=icon]:mr-0 ${isActive ? 'text-current' : 'text-sidebar-foreground/50'}`} />
+                          <span className="text-sm group-data-[collapsible=icon]:hidden">{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </div>
+
+        <SidebarGroup className="mt-4">
+          <div className="mb-1.5 px-2 group-data-[collapsible=icon]:hidden">
+            <span className="text-[10px] font-bold text-sidebar-foreground/50 uppercase tracking-[0.12em]">Account</span>
           </div>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-1.5">
-              {navItems.map((item) => {
-                const isActive = pathname === item.url || (item.url !== "/dashboard" && pathname.startsWith(item.url))
+            <SidebarMenu className="gap-0.5">
+              {bottomNavItems.map((item) => {
+                const isActive = pathname.startsWith(item.url)
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       asChild
                       isActive={isActive}
                       tooltip={item.title}
-                      className={`h-10 rounded-md px-3 transition-colors duration-200
+                      className={`h-9 rounded-md px-2.5 transition-colors duration-150
                         hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
                         data-[active=true]:bg-sidebar-accent-foreground data-[active=true]:text-sidebar font-medium
-                        ${isActive ? 'text-sidebar-accent-foreground' : 'text-sidebar-foreground'}
+                        ${isActive ? 'text-sidebar-accent-foreground' : 'text-sidebar-foreground/70'}
                       `}
                     >
                       <Link href={item.url} className="flex items-center w-full">
-                        <item.icon className={`mr-3 size-4 group-data-[collapsible=icon]:mr-0 ${isActive ? 'text-current' : 'text-sidebar-foreground/60'}`} />
+                        <item.icon className={`mr-2.5 size-3.5 group-data-[collapsible=icon]:mr-0 ${isActive ? 'text-current' : 'text-sidebar-foreground/50'}`} />
                         <span className="text-sm group-data-[collapsible=icon]:hidden">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -122,8 +163,8 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
       </SidebarContent>
+
 
       <SidebarFooter className="border-t border-sidebar-border p-4 group-data-[collapsible=icon]:p-2">
         <SidebarMenu>

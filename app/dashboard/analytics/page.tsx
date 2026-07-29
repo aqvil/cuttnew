@@ -142,6 +142,23 @@ export default async function AnalyticsPage() {
   const totalBrowsers = Object.values(browserCounts).reduce((a, b) => a + b, 0)
   const topBrowsers = Object.entries(browserCounts).sort((a, b) => b[1] - a[1]).slice(0, 6)
 
+  // Get referrer breakdown
+  let referrerStats: Array<{ referrer: string | null }> = []
+  if (shortLinkIds.length > 0) {
+    referrerStats = await db.query.linkAnalytics.findMany({
+      where: inArray(linkAnalytics.linkId, shortLinkIds),
+      columns: { referrer: true },
+      limit: 2000,
+    })
+  }
+
+  const referrerCounts: Record<string, number> = {}
+  referrerStats.forEach((stat) => {
+    const ref = stat.referrer ? new URL(stat.referrer).hostname.replace('www.', '') : 'Direct / None'
+    referrerCounts[ref] = (referrerCounts[ref] || 0) + 1
+  })
+  const topReferrers = Object.entries(referrerCounts).sort((a, b) => b[1] - a[1]).slice(0, 8)
+
   // Get top links
   const topLinksData = await db.query.shortLinks.findMany({
     where: eq(shortLinks.userId, userId),
@@ -263,7 +280,7 @@ export default async function AnalyticsPage() {
       </div>
 
       {/* Bottom Grid */}
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Top Links */}
         <div className="dash-panel overflow-hidden">
           <div className="dash-panel-header">
@@ -285,36 +302,63 @@ export default async function AnalyticsPage() {
           <div className="dash-panel-header">
             <h2 className="dash-panel-title">Geographic Distribution</h2>
           </div>
-          <div className="p-8">
+          <div className="p-6">
             <GeoChart countries={topCountries} />
           </div>
         </div>
 
+        {/* Referrer Sources */}
+        <div className="dash-panel overflow-hidden">
+          <div className="dash-panel-header">
+            <h2 className="dash-panel-title">Referrer Sources</h2>
+          </div>
+          <div className="divide-y divide-border">
+            {topReferrers.length > 0 ? (
+              topReferrers.map(([ref, count]) => {
+                const total = topReferrers.reduce((s, [, c]) => s + c, 0)
+                return (
+                  <div key={ref} className="flex items-center justify-between px-5 py-3.5">
+                    <span className="text-sm font-medium truncate max-w-[180px]">{ref}</span>
+                    <div className="flex items-center gap-4 shrink-0">
+                      <span className="h-1.5 w-20 rounded-full bg-muted">
+                        <span className="block h-1.5 rounded-full bg-foreground" style={{ width: `${total > 0 ? Math.round((count / total) * 100) : 0}%` }} />
+                      </span>
+                      <span className="w-8 text-right text-xs font-bold tabular-nums">{count}</span>
+                    </div>
+                  </div>
+                )
+              })
+            ) : (
+              <p className="px-5 py-8 text-sm text-muted-foreground text-center">No referrer data yet.</p>
+            )}
+          </div>
+        </div>
+
         {/* Browser breakdown */}
-        <div className="dash-panel overflow-hidden lg:col-span-2">
+        <div className="dash-panel overflow-hidden">
           <div className="dash-panel-header">
             <h2 className="dash-panel-title">Browser Breakdown</h2>
           </div>
-          <div className="p-8">
+          <div className="divide-y divide-border">
             {topBrowsers.length > 0 ? (
-              <div className="space-y-4">
-                {topBrowsers.map(([browser, value]) => (
-                  <div key={browser} className="grid grid-cols-[6rem_1fr_3rem] items-center gap-4 text-sm">
-                    <span className="font-mono capitalize text-muted-foreground">{browser}</span>
-                    <span className="h-2 rounded-full bg-muted">
+              topBrowsers.map(([browser, value]) => (
+                <div key={browser} className="flex items-center justify-between px-5 py-3.5">
+                  <span className="text-sm font-medium capitalize">{browser}</span>
+                  <div className="flex items-center gap-4 shrink-0">
+                    <span className="h-1.5 w-20 rounded-full bg-muted">
                       <span
-                        className="block h-2 rounded-full bg-foreground"
+                        className="block h-1.5 rounded-full bg-foreground"
                         style={{ width: `${totalBrowsers > 0 ? Math.round((value / totalBrowsers) * 100) : 0}%` }}
                       />
                     </span>
-                    <span className="text-right font-semibold tabular-nums text-foreground">
+                    <span className="w-8 text-right text-xs font-bold tabular-nums">
                       {totalBrowsers > 0 ? Math.round((value / totalBrowsers) * 100) : 0}%
                     </span>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))
             ) : (
-              <p className="text-sm text-muted-foreground">No browser data yet.</p>
+              <p className="px-5 py-8 text-sm text-muted-foreground text-center">No browser data yet.</p>
             )}
           </div>
         </div>

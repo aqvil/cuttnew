@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { 
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -18,16 +18,34 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { ArrowLeft, ExternalLink, Copy, Check, Trash2, Link2, SlidersHorizontal } from "lucide-react"
+import {
+  ArrowLeft,
+  ExternalLink,
+  Copy,
+  Check,
+  Trash2,
+  Link2,
+  BarChart2,
+  QrCode,
+  SlidersHorizontal,
+  Clock,
+  Tag as TagIcon,
+  Lock,
+} from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 import { QrCodeCard } from "@/components/ui/qr-code-card"
+import { LinkAnalyticsPanel } from "@/components/links/link-analytics-panel"
+import { formatDistanceToNow } from "date-fns"
+
+type Tab = "details" | "analytics" | "qr"
 
 interface LinkEditorProps {
   link: any
 }
 
 export function LinkEditor({ link }: LinkEditorProps) {
+  const [tab, setTab] = useState<Tab>("details")
   const [originalUrl, setOriginalUrl] = useState(link.originalUrl)
   const [title, setTitle] = useState(link.title || "")
   const [tagsInput, setTagsInput] = useState<string>((link.tags || []).join(", "))
@@ -47,17 +65,18 @@ export function LinkEditor({ link }: LinkEditorProps) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   const shortUrl = `${baseUrl}/l/${link.shortCode}`
 
+  const isExpired = link.expiresAt && new Date(link.expiresAt) < new Date()
+
   const handleCopy = async () => {
     await navigator.clipboard.writeText(shortUrl)
     setCopied(true)
-    toast.success("Link copied to clipboard")
+    toast.success("Copied to clipboard")
     setTimeout(() => setCopied(false), 2000)
   }
 
   const handleSave = async () => {
     setIsSaving(true)
     setError(null)
-
     try {
       await updateShortLink(link.id, {
         originalUrl,
@@ -67,10 +86,10 @@ export function LinkEditor({ link }: LinkEditorProps) {
         expiresAt: useExpiration && expiresAt ? expiresAt : null,
         isActive,
       })
-      toast.success("Link details saved")
+      toast.success("Link updated")
       router.refresh()
     } catch (err: any) {
-      setError(`Error saving link: ${err.message}`)
+      setError(`Error saving: ${err.message}`)
     } finally {
       setIsSaving(false)
     }
@@ -80,202 +99,299 @@ export function LinkEditor({ link }: LinkEditorProps) {
     setIsDeleting(true)
     try {
       await deleteShortLink(link.id)
-      toast.success("Link deleted successfully")
+      toast.success("Link deleted")
       router.push("/dashboard/links")
-    } catch (err) {
+    } catch {
       toast.error("Failed to delete link")
       setIsDeleting(false)
     }
   }
 
+  const tabs: { id: Tab; label: string; icon: typeof BarChart2 }[] = [
+    { id: "details",   label: "Details",   icon: SlidersHorizontal },
+    { id: "analytics", label: "Analytics", icon: BarChart2 },
+    { id: "qr",        label: "QR Code",   icon: QrCode },
+  ]
+
   return (
     <div className="dash-narrow">
-      <div className="dash-hero flex flex-col items-center gap-4">
-         <div className="flex flex-col items-center gap-4">
-            <Button variant="ghost" size="icon" className="absolute left-4 top-4 h-10 w-10 text-muted-foreground hover:bg-muted hover:text-foreground" asChild>
-              <Link href="/dashboard/links">
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-            </Button>
-            <div>
-               <div className="dash-kicker mb-3">
-                  <Link2 className="size-3.5" />
-                  Short link
-               </div>
-               <h1 className="dash-title">Edit Link</h1>
-               <p className="text-sm text-muted-foreground mt-1">Manage destination, access, and redirects</p>
-            </div>
-         </div>
+      {/* Hero header */}
+      <div className="dash-hero">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute left-4 top-4 size-9 text-muted-foreground hover:bg-muted"
+          asChild
+        >
+          <Link href="/dashboard/links">
+            <ArrowLeft className="size-4" />
+          </Link>
+        </Button>
 
-         <div className="absolute right-4 top-4 flex items-center gap-3">
-             <Button variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive" asChild>
-               <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive font-medium">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="rounded-md">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="text-xl font-bold text-foreground">Delete Link?</AlertDialogTitle>
-                    <AlertDialogDescription className="text-base text-muted-foreground">
-                      Are you sure you want to delete this link? This action cannot be undone and will break any existing URLs shared.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter className="mt-6">
-                    <AlertDialogCancel className="btn-secondary">Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                      {isDeleting ? "Deleting..." : "Yes, delete link"}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-             </Button>
-         </div>
+        {/* Delete button */}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute right-4 top-4 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            >
+              <Trash2 className="size-4 mr-1.5" />
+              Delete
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete link?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This cannot be undone. Any shared URLs using this short code will stop working.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? "Deleting…" : "Yes, delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <div className="flex flex-col items-center gap-3">
+          <div className="dash-kicker">
+            <Link2 className="size-3.5" />
+            Short link
+          </div>
+          <h1 className="dash-title">{link.title || "Untitled Link"}</h1>
+
+          {/* Status badges */}
+          <div className="flex items-center gap-2 flex-wrap justify-center">
+            {isExpired ? (
+              <span className="badge-expired flex items-center gap-1.5">
+                <Clock className="size-3" /> Expired
+              </span>
+            ) : isActive ? (
+              <span className="badge-active flex items-center gap-1.5">
+                <span className="size-1.5 rounded-full bg-foreground" /> Active
+              </span>
+            ) : (
+              <span className="badge-archived">Inactive</span>
+            )}
+            {link.password && (
+              <span className="badge-password flex items-center gap-1.5">
+                <Lock className="size-3" /> Protected
+              </span>
+            )}
+            {(link.tags || []).slice(0, 3).map((t: string) => (
+              <span key={t} className="tag-pill"><TagIcon className="size-3" />{t}</span>
+            ))}
+          </div>
+
+          {/* Short URL row */}
+          <div className="flex items-center gap-2 mt-2">
+            <a
+              href={shortUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-semibold text-foreground hover:underline flex items-center gap-1.5"
+            >
+              {shortUrl.replace(/^https?:\/\//, "")}
+              <ExternalLink className="size-3.5 text-muted-foreground" />
+            </a>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 text-muted-foreground hover:text-foreground"
+              onClick={handleCopy}
+            >
+              {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+            </Button>
+          </div>
+
+          <p className="text-xs text-muted-foreground font-mono">
+            Created {formatDistanceToNow(new Date(link.createdAt || Date.now()), { addSuffix: true })}
+            {" · "}
+            {(link.clickCount || 0).toLocaleString()} clicks
+          </p>
+        </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-         {/* Main Editor */}
-         <div className="lg:col-span-2 space-y-6">
-            <div className="dash-panel p-6 sm:p-8">
-               <h2 className="dash-panel-title mb-6">Link Destination</h2>
-               
-               <div className="space-y-6">
-                  <div className="space-y-2">
-                     <Label className="text-sm font-semibold text-foreground">Destination URL <span className="text-destructive">*</span></Label>
-                     <Input
-                        value={originalUrl}
-                        onChange={(e) => setOriginalUrl(e.target.value)}
-                        className="h-12 border-border bg-background"
-                        placeholder="https://example.com/very-long-url"
-                     />
-                  </div>
+      {/* Tab bar */}
+      <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1 w-fit shadow-[var(--shadow-card)]">
+        {tabs.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-150 ${
+              tab === id
+                ? "bg-foreground text-background shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+            }`}
+          >
+            <Icon className="size-3.5" />
+            {label}
+          </button>
+        ))}
+      </div>
 
-                  <div className="space-y-2">
-                     <Label className="text-sm font-semibold text-foreground">Title (Optional)</Label>
-                     <Input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="h-12 border-border bg-background"
-                        placeholder="My awesome link"
-                     />
-                     <p className="text-xs text-muted-foreground">Helps you identify this link in your dashboard.</p>
-                  </div>
-
-                  <div className="space-y-2">
-                     <Label className="text-sm font-semibold text-foreground">Tags</Label>
-                     <Input
-                        value={tagsInput}
-                        onChange={(e) => setTagsInput(e.target.value)}
-                        className="h-12 border-border bg-background"
-                        placeholder="marketing, social, launch"
-                     />
-                     <p className="text-xs text-muted-foreground">Comma-separated. Use tags to organize and filter your links.</p>
-                  </div>
-               </div>
+      {/* Tab content */}
+      {tab === "details" && (
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-5">
+            {/* Destination */}
+            <div className="dash-panel p-6">
+              <h2 className="dash-panel-title mb-5">Destination</h2>
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Destination URL <span className="text-destructive">*</span></Label>
+                  <Input
+                    value={originalUrl}
+                    onChange={(e) => setOriginalUrl(e.target.value)}
+                    className="dash-field"
+                    placeholder="https://example.com/very-long-url"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Title</Label>
+                  <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="dash-field"
+                    placeholder="e.g. Fall Campaign"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Tags</Label>
+                  <Input
+                    value={tagsInput}
+                    onChange={(e) => setTagsInput(e.target.value)}
+                    className="dash-field"
+                    placeholder="marketing, social, launch"
+                  />
+                  <p className="text-xs text-muted-foreground">Comma-separated</p>
+                </div>
+              </div>
             </div>
 
-            <div className="dash-panel p-6 sm:p-8">
-               <h2 className="dash-panel-title mb-6">Access & Routing</h2>
-
-               <div className="space-y-8">
-                  {/* Status */}
-                  <div className="flex items-center justify-between border-b border-border pb-8">
-                     <div>
-                        <Label className="text-base font-semibold text-foreground">Active Status</Label>
-                        <p className="text-sm text-muted-foreground mt-1">If turned off, the link will redirect to an error page.</p>
-                     </div>
-                     <Switch checked={isActive} onCheckedChange={setIsActive} />
+            {/* Access & Routing */}
+            <div className="dash-panel p-6">
+              <h2 className="dash-panel-title mb-5">Access & Routing</h2>
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm font-semibold">Active</Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Disabled links show an error page.</p>
                   </div>
+                  <Switch checked={isActive} onCheckedChange={setIsActive} />
+                </div>
 
-                  {/* Password */}
+                <div className="border-t border-border pt-5">
                   <div className="flex items-center justify-between">
-                     <div>
-                        <Label className="text-base font-semibold text-foreground">Password Protection</Label>
-                        <p className="text-sm text-muted-foreground mt-1">Require a password to access the destination URL.</p>
-                     </div>
-                     <Switch checked={usePassword} onCheckedChange={setUsePassword} />
+                    <div>
+                      <Label className="text-sm font-semibold">Password Protection</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">Require a password to redirect.</p>
+                    </div>
+                    <Switch checked={usePassword} onCheckedChange={setUsePassword} />
                   </div>
                   {usePassword && (
-                     <div className="bg-background p-4 rounded-md border border-border">
-                        <Label className="text-sm font-semibold text-foreground">Password</Label>
-                        <Input
-                           type="password"
-                           placeholder={link.password ? "Leave blank to keep existing password" : "Enter a secure password"}
-                           value={password}
-                           onChange={(e) => setPassword(e.target.value)}
-                           className="h-12 mt-2"
-                        />
-                     </div>
+                    <div className="mt-4 bg-background border border-border rounded-md p-4">
+                      <Label className="text-sm font-semibold">Password</Label>
+                      <Input
+                        type="password"
+                        placeholder={link.password ? "Leave blank to keep current password" : "Enter password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="dash-field mt-2"
+                      />
+                    </div>
                   )}
+                </div>
 
-                  <div className="w-full h-px bg-border" />
-
-                  {/* Expiration */}
+                <div className="border-t border-border pt-5">
                   <div className="flex items-center justify-between">
-                     <div>
-                        <Label className="text-base font-semibold text-foreground">Link Expiration</Label>
-                        <p className="text-sm text-muted-foreground mt-1">Automatically disable this link after a specific date.</p>
-                     </div>
-                     <Switch checked={useExpiration} onCheckedChange={setUseExpiration} />
+                    <div>
+                      <Label className="text-sm font-semibold">Link Expiration</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">Auto-disable after a specific date.</p>
+                    </div>
+                    <Switch checked={useExpiration} onCheckedChange={setUseExpiration} />
                   </div>
                   {useExpiration && (
-                     <div className="bg-background p-4 rounded-md border border-border">
-                        <Label className="text-sm font-semibold text-foreground">Expiration Date</Label>
-                        <Input
-                           type="datetime-local"
-                           value={expiresAt}
-                           onChange={(e) => setExpiresAt(e.target.value)}
-                           className="h-12 mt-2"
-                        />
-                     </div>
+                    <div className="mt-4 bg-background border border-border rounded-md p-4">
+                      <Label className="text-sm font-semibold">Expiration Date</Label>
+                      <Input
+                        type="datetime-local"
+                        value={expiresAt}
+                        onChange={(e) => setExpiresAt(e.target.value)}
+                        className="dash-field mt-2"
+                      />
+                    </div>
                   )}
-               </div>
+                </div>
+              </div>
             </div>
 
             {error && (
-               <div className="p-4 bg-destructive/10 border border-destructive/25 rounded-md text-sm text-destructive font-medium font-sans">
-                  {error}
-               </div>
+              <div className="rounded-md border border-destructive/25 bg-destructive/10 p-4 text-sm text-destructive">
+                {error}
+              </div>
             )}
-         </div>
+          </div>
 
-         {/* Sidebar Preview */}
-         <div className="lg:col-span-1 space-y-6">
-            <div className="dash-panel p-6 shadow-xl shadow-foreground/5">
-               <div className="mb-4 flex items-center gap-3 text-sm font-semibold text-muted-foreground">
-                  <SlidersHorizontal className="size-4" />
-                  Link controls
-               </div>
-               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Short Link</h3>
-               <div className="p-4 bg-background border border-border rounded-md mb-6">
-                  <div className="flex items-center gap-3 mb-2">
-                     <Link2 className="h-5 w-5 text-primary" />
-                     <span className="font-semibold text-foreground truncate">{shortUrl}</span>
+          {/* Sidebar */}
+          <div className="space-y-5">
+            <div className="dash-panel p-5 sticky top-24">
+              <Button className="btn-primary w-full h-11" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? "Saving…" : "Save changes"}
+              </Button>
+              <div className="mt-4 rounded-md bg-background border border-border p-4 space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Short URL</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium truncate flex-1">{shortUrl.replace(/^https?:\/\//, "")}</span>
+                  <Button variant="ghost" size="icon" className="size-7 shrink-0" onClick={handleCopy}>
+                    {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
+                  <div className="text-center">
+                    <p className="text-lg font-bold tabular-nums">{(link.clickCount || 0).toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">Clicks</p>
                   </div>
-                  <div className="flex gap-2">
-                     <Button variant="secondary" className="w-full bg-card h-9" onClick={handleCopy}>
-                        {copied ? "Copied!" : "Copy"}
-                     </Button>
-                     <Button variant="secondary" size="icon" className="w-9 shrink-0 bg-card" asChild>
-                        <a href={shortUrl} target="_blank" rel="noopener noreferrer">
-                           <ExternalLink className="h-4 w-4" />
-                        </a>
-                     </Button>
+                  <div className="text-center">
+                    <p className="text-sm font-bold capitalize">{isExpired ? "Expired" : isActive ? "Active" : "Off"}</p>
+                    <p className="text-xs text-muted-foreground">Status</p>
                   </div>
-               </div>
-
-               <Button className="btn-primary w-full h-12 text-base" onClick={handleSave} disabled={isSaving}>
-                  {isSaving ? "Saving changes..." : "Save details"}
-               </Button>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
+      )}
 
-            <div className="dash-panel p-6 shadow-xl shadow-foreground/5">
-               <QrCodeCard url={shortUrl} fileName={`cuttly-${link.shortCode}`} />
+      {tab === "analytics" && (
+        <LinkAnalyticsPanel linkId={link.id} />
+      )}
+
+      {tab === "qr" && (
+        <div className="max-w-md">
+          <div className="dash-panel p-6">
+            <div className="mb-4">
+              <h2 className="dash-panel-title">QR Code</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Download and print, embed in presentations, or share digitally.
+              </p>
             </div>
-         </div>
-      </div>
+            <QrCodeCard url={shortUrl} fileName={`cuttly-${link.shortCode}`} />
+            <div className="mt-4 rounded-md bg-background border border-border p-3">
+              <p className="text-xs text-muted-foreground">
+                Encodes: <span className="font-mono font-medium text-foreground">{shortUrl}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
