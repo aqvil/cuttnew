@@ -37,7 +37,6 @@ import Link from "next/link"
 import { toast } from "sonner"
 import { QrCodeCard } from "@/components/ui/qr-code-card"
 import { LinkAnalyticsPanel } from "@/components/links/link-analytics-panel"
-import { SocialShareModal } from "@/components/ui/social-share-modal"
 
 interface LinkEditorProps {
   link: any
@@ -114,24 +113,24 @@ export function LinkEditor({ link }: LinkEditorProps) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 p-6 font-mono">
+    <div className="w-full max-w-[1240px] mx-auto space-y-6 p-6 font-mono">
       {/* Bitly Header Row (Image 1) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60 pb-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <Link href="/dashboard/links">
             <button className="p-1 text-muted-foreground hover:text-foreground">
               <ArrowLeft className="w-4 h-4" />
             </button>
           </Link>
-          <div className="flex items-center gap-2">
-            <ChevronRightCircle className="w-5 h-5 text-muted-foreground" />
-            <h1 className="text-xl font-bold tracking-tight text-foreground truncate max-w-xl">
+          <div className="flex items-center gap-2 min-w-0">
+            <ChevronRightCircle className="w-5 h-5 text-muted-foreground shrink-0" />
+            <h1 className="text-xl font-bold tracking-tight text-foreground truncate">
               {title || "Reminderly - Your Ultimate Reminder Service"}
             </h1>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button onClick={() => setIsEditingForm(!isEditingForm)} className="p-1.5 text-muted-foreground hover:text-foreground rounded-md">
             <MoreHorizontal className="w-4 h-4" />
           </button>
@@ -168,12 +167,12 @@ export function LinkEditor({ link }: LinkEditorProps) {
         </div>
       </div>
 
-      {/* Main 2-Column Layout matching Image 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        {/* Left 2 Columns */}
-        <div className="lg:col-span-2 space-y-6">
+      {/* Main Layout: Flex Row with 100% matching card widths (Image 1) */}
+      <div className="flex flex-col lg:flex-row items-start gap-6 w-full">
+        {/* Left Column (Details, Dynamic Routing, Analytics) - All cards 100% same width */}
+        <div className="flex-1 w-full space-y-6 min-w-0">
           {/* Details Card */}
-          <div className="p-6 rounded-2xl border border-border bg-card space-y-5 shadow-sm">
+          <div className="w-full p-6 rounded-2xl border border-border bg-card space-y-5 shadow-sm">
             <h2 className="text-base font-bold text-foreground">Details</h2>
 
             <div className="space-y-1">
@@ -222,7 +221,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
           </div>
 
           {/* Dynamic Routing Card */}
-          <div className="p-6 rounded-2xl border border-border bg-card flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="w-full p-6 rounded-2xl border border-border bg-card flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-foreground">Dynamic routing</h2>
@@ -244,9 +243,9 @@ export function LinkEditor({ link }: LinkEditorProps) {
             </Button>
           </div>
 
-          {/* Edit Form Toggle */}
+          {/* Edit Form Drawer */}
           {isEditingForm && (
-            <div className="p-6 rounded-2xl border border-primary/30 bg-primary/5 space-y-4">
+            <div className="w-full p-6 rounded-2xl border border-primary/30 bg-primary/5 space-y-4">
               <h3 className="font-bold text-sm text-foreground">Edit Link Target</h3>
               <div className="space-y-3">
                 <div className="space-y-1">
@@ -277,8 +276,8 @@ export function LinkEditor({ link }: LinkEditorProps) {
             </div>
           )}
 
-          {/* Analytics Section (Image 1) */}
-          <div className="p-6 rounded-2xl border border-border bg-card space-y-6 shadow-sm">
+          {/* Analytics Card */}
+          <div className="w-full p-6 rounded-2xl border border-border bg-card space-y-6 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h2 className="text-base font-bold text-foreground">Analytics</h2>
 
@@ -313,10 +312,10 @@ export function LinkEditor({ link }: LinkEditorProps) {
           </div>
         </div>
 
-        {/* Right 1 Column (Image 1) */}
-        <div className="lg:col-span-1 space-y-6">
+        {/* Right Column Sidebar Cards (Fixed 340px width matching Image 1) */}
+        <div className="w-full lg:w-[340px] shrink-0 space-y-6">
           {/* QR Code Box */}
-          <div className="p-6 rounded-2xl border border-border bg-card space-y-4 shadow-sm">
+          <div className="w-full p-6 rounded-2xl border border-border bg-card space-y-4 shadow-sm">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-foreground">QR Code</h2>
               <div className="flex items-center gap-1 text-muted-foreground">
@@ -328,7 +327,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
           </div>
 
           {/* Cuttly Pages Box */}
-          <div className="p-6 rounded-2xl border border-border bg-card space-y-4 shadow-sm">
+          <div className="w-full p-6 rounded-2xl border border-border bg-card space-y-4 shadow-sm">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-foreground">Cuttly Pages</h2>
               <Link href="/dashboard/bio" className="text-xs text-primary font-bold hover:underline">
