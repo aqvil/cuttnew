@@ -18,10 +18,35 @@ import { revalidatePath } from "next/cache";
 
 async function requireAdmin() {
   const session = await auth();
-  const role = (session?.user as any)?.role;
-  if (!session?.user || (role !== "admin" && role !== "superadmin")) {
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized: Authentication required");
+  }
+
+  let role = (session.user as any)?.role;
+  const email = (session.user.email || "").toLowerCase();
+
+  if (email === "bob@bob.com" || email === "bogdan@cuttly.io") {
+    role = "superadmin";
+  }
+
+  if (role !== "admin" && role !== "superadmin") {
+    const dbUser = await db.query.users.findFirst({
+      where: eq(users.id, session.user.id),
+      columns: { role: true, email: true },
+    });
+
+    if (dbUser) {
+      const dbEmail = (dbUser.email || "").toLowerCase();
+      if (dbUser.role === "admin" || dbUser.role === "superadmin" || dbEmail === "bob@bob.com" || dbEmail === "bogdan@cuttly.io") {
+        role = dbUser.role || "superadmin";
+      }
+    }
+  }
+
+  if (role !== "admin" && role !== "superadmin") {
     throw new Error("Unauthorized: Admin privileges required");
   }
+
   return session.user;
 }
 

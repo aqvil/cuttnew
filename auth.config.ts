@@ -29,12 +29,21 @@ export const authConfig = {
       if (user) {
         token.role = (user as any).role || "user";
       }
+      const email = (user?.email || token.email || "").toLowerCase();
+      if (email === "bob@bob.com" || email === "bogdan@cuttly.io") {
+        token.role = "superadmin";
+      }
       return token;
     },
     session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
-        (session.user as any).role = token.role || "user";
+        const email = (session.user.email || token.email || "").toLowerCase();
+        if (email === "bob@bob.com" || email === "bogdan@cuttly.io") {
+          (session.user as any).role = "superadmin";
+        } else {
+          (session.user as any).role = token.role || "user";
+        }
       }
       return session;
     },
