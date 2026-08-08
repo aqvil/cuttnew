@@ -36,9 +36,9 @@ import {
   Settings,
   Users,
   Globe,
-  ClipboardList,
-  Layers,
+  Plus,
   Shield,
+  Grid,
 } from "lucide-react"
 import { signOut } from "next-auth/react"
 
@@ -48,21 +48,18 @@ interface DashboardSidebarProps {
 }
 
 const navItems = [
-  { title: "Home",           url: "/dashboard",              icon: LayoutGrid },
-  { title: "Links",          url: "/dashboard/links",        icon: LinkIcon },
-  { title: "Bio Pages",      url: "/dashboard/bio",          icon: FileText },
-  { title: "Surveys",        url: "/dashboard/surveys",      icon: ClipboardList },
-  { title: "Action Pages",   url: "/dashboard/action-pages", icon: Layers },
-  { title: "QR Codes",       url: "/dashboard/qr-codes",     icon: QrCode },
-  { title: "Custom Domains", url: "/dashboard/domains",      icon: Globe },
-  { title: "Teams",          url: "/dashboard/teams",        icon: Users },
-  { title: "Analytics",      url: "/dashboard/analytics",    icon: BarChart2 },
+  { title: "Home",           url: "/dashboard",           icon: LayoutGrid },
+  { title: "Links",          url: "/dashboard/links",     icon: LinkIcon },
+  { title: "QR Codes",       url: "/dashboard/qr-codes",  icon: QrCode },
+  { title: "Bio Pages",      url: "/dashboard/bio",       icon: FileText },
+  { title: "Analytics",      url: "/dashboard/analytics", icon: BarChart2 },
+  { title: "Custom Domains", url: "/dashboard/domains",   icon: Globe },
+  { title: "Integrations",   url: "/dashboard/teams",     icon: Grid },
 ]
 
 const bottomNavItems = [
   { title: "Admin Console", url: "/dashboard/admin", icon: Shield },
   { title: "Settings",  url: "/dashboard/settings",   icon: Settings },
-  { title: "Billing",   url: "/dashboard/billing",    icon: CreditCard },
 ]
 
 export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
@@ -74,35 +71,36 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
 
   const displayName = profile?.displayName || user?.name || user?.email?.split("@")[0] || "User"
   const initials = displayName.slice(0, 2).toUpperCase()
-  const planLabel = profile?.plan ? `${profile.plan.charAt(0).toUpperCase()}${profile.plan.slice(1)} Plan` : "Free Plan"
 
   return (
-    <Sidebar collapsible="icon" className="border-r-0 bg-sidebar text-sidebar-foreground">
-      <SidebarHeader className="h-16 flex items-center border-b border-sidebar-border px-4 pb-0 pt-0 group-data-[collapsible=icon]:px-2">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild className="cursor-pointer transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:justify-center">
-              <Link href="/dashboard" className="flex w-full items-center gap-3 group-data-[collapsible=icon]:justify-center">
-                <div className="flex size-8 items-center justify-center rounded-md bg-sidebar-accent-foreground text-sidebar shadow-sm shrink-0">
-                  <Link2 className="size-4 stroke-[3]" />
-                </div>
-                <span className="text-lg font-bold text-sidebar-accent-foreground tracking-tight group-data-[collapsible=icon]:hidden">Cuttly</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+    <Sidebar collapsible="icon" className="border-r border-border bg-card text-foreground font-mono">
+      {/* Top Header Logo (Bitly Style) */}
+      <SidebarHeader className="h-16 flex items-center justify-center border-b border-border/60 px-3">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="size-8 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white font-black text-sm shadow-sm shrink-0">
+            c
+          </div>
+          <span className="text-lg font-extrabold text-foreground tracking-tight group-data-[collapsible=icon]:hidden">
+            cuttly
+          </span>
+        </Link>
       </SidebarHeader>
 
-      <SidebarContent className="flex flex-col justify-between px-3 py-4 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
+      <SidebarContent className="flex flex-col justify-between px-2 py-4">
         <div className="space-y-4">
+          {/* Bitly Style Primary Plus Button */}
           <SidebarGroup>
             <SidebarGroupContent>
-              <SidebarMenu className="gap-2">
+              <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Create short link" className="h-10 rounded-md bg-sidebar-accent-foreground px-3 font-semibold text-sidebar hover:bg-sidebar-accent-foreground/90 hover:text-sidebar group-data-[collapsible=icon]:justify-center">
-                    <Link href="/dashboard/links/new" className="flex w-full items-center group-data-[collapsible=icon]:justify-center">
-                      <LinkIcon className="mr-2.5 size-3.5 group-data-[collapsible=icon]:mr-0" />
-                      <span className="text-sm group-data-[collapsible=icon]:hidden">New short link</span>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip="Create new link or QR"
+                    className="h-11 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-all shadow-sm group-data-[collapsible=icon]:justify-center"
+                  >
+                    <Link href="/dashboard/links/new" className="flex items-center justify-center w-full">
+                      <Plus className="size-5 stroke-[2.5]" />
+                      <span className="text-xs group-data-[collapsible=icon]:hidden ml-2">Create new</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -110,12 +108,10 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
             </SidebarGroupContent>
           </SidebarGroup>
 
+          {/* Navigation Items List */}
           <SidebarGroup>
-            <div className="mb-1.5 px-2 group-data-[collapsible=icon]:hidden">
-              <span className="text-[10px] font-bold text-sidebar-foreground/50 uppercase tracking-[0.12em]">Workspace</span>
-            </div>
             <SidebarGroupContent>
-              <SidebarMenu className="gap-0.5">
+              <SidebarMenu className="gap-1">
                 {navItems.map((item) => {
                   const isActive = pathname === item.url || (item.url !== "/dashboard" && pathname.startsWith(item.url))
                   return (
@@ -124,15 +120,16 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
                         asChild
                         isActive={isActive}
                         tooltip={item.title}
-                        className={`h-9 rounded-md px-2.5 transition-colors duration-150
-                          hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
-                          data-[active=true]:bg-sidebar-accent-foreground data-[active=true]:text-sidebar font-medium
-                          ${isActive ? 'text-sidebar-accent-foreground' : 'text-sidebar-foreground/70'}
+                        className={`h-10 rounded-lg px-3 font-semibold transition-all duration-150 relative
+                          ${isActive
+                            ? 'bg-primary/10 text-primary font-bold border-l-2 border-primary'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                          }
                         `}
                       >
                         <Link href={item.url} className="flex items-center w-full">
-                          <item.icon className={`mr-2.5 size-3.5 group-data-[collapsible=icon]:mr-0 ${isActive ? 'text-current' : 'text-sidebar-foreground/50'}`} />
-                          <span className="text-sm group-data-[collapsible=icon]:hidden">{item.title}</span>
+                          <item.icon className={`size-4 shrink-0 mr-3 group-data-[collapsible=icon]:mr-0 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                          <span className="text-xs group-data-[collapsible=icon]:hidden">{item.title}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -143,12 +140,10 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
           </SidebarGroup>
         </div>
 
-        <SidebarGroup className="mt-4">
-          <div className="mb-1.5 px-2 group-data-[collapsible=icon]:hidden">
-            <span className="text-[10px] font-bold text-sidebar-foreground/50 uppercase tracking-[0.12em]">Account</span>
-          </div>
+        {/* Bottom Menu Items */}
+        <SidebarGroup className="mt-4 border-t border-border/60 pt-3">
           <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
+            <SidebarMenu className="gap-1">
               {bottomNavItems.map((item) => {
                 const isActive = pathname.startsWith(item.url)
                 return (
@@ -157,15 +152,16 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
                       asChild
                       isActive={isActive}
                       tooltip={item.title}
-                      className={`h-9 rounded-md px-2.5 transition-colors duration-150
-                        hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
-                        data-[active=true]:bg-sidebar-accent-foreground data-[active=true]:text-sidebar font-medium
-                        ${isActive ? 'text-sidebar-accent-foreground' : 'text-sidebar-foreground/70'}
+                      className={`h-10 rounded-lg px-3 font-semibold transition-all duration-150
+                        ${isActive
+                          ? 'bg-primary/10 text-primary font-bold border-l-2 border-primary'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                        }
                       `}
                     >
                       <Link href={item.url} className="flex items-center w-full">
-                        <item.icon className={`mr-2.5 size-3.5 group-data-[collapsible=icon]:mr-0 ${isActive ? 'text-current' : 'text-sidebar-foreground/50'}`} />
-                        <span className="text-sm group-data-[collapsible=icon]:hidden">{item.title}</span>
+                        <item.icon className={`size-4 shrink-0 mr-3 group-data-[collapsible=icon]:mr-0 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span className="text-xs group-data-[collapsible=icon]:hidden">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -176,55 +172,39 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
         </SidebarGroup>
       </SidebarContent>
 
-
-      <SidebarFooter className="border-t border-sidebar-border p-4 group-data-[collapsible=icon]:p-2">
+      {/* User Footer Profile */}
+      <SidebarFooter className="border-t border-border/60 p-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  size="lg"
-                  className="h-12 w-full rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors duration-200"
-                >
-                  <Avatar className="size-8 rounded-md bg-sidebar-accent text-sidebar-accent-foreground">
+                <SidebarMenuButton size="lg" className="h-10 w-full rounded-lg hover:bg-muted transition-colors">
+                  <Avatar className="size-7 rounded-full bg-primary/10 text-primary">
                     <AvatarImage src={profile?.avatarUrl || user?.image || undefined} alt={displayName} />
-                    <AvatarFallback className="rounded-md bg-sidebar-accent-foreground text-sidebar text-xs font-bold">
+                    <AvatarFallback className="rounded-full bg-primary text-primary-foreground text-xs font-bold">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="ml-3 grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
-                    <span className="truncate text-sm font-semibold text-sidebar-accent-foreground">{displayName}</span>
-                    <span className="truncate text-xs text-sidebar-foreground/60">{planLabel}</span>
+                  <div className="ml-2 grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
+                    <span className="truncate text-xs font-bold text-foreground">{displayName}</span>
                   </div>
-                  <ChevronsUpDown className="ml-auto size-4 text-sidebar-foreground/60 group-data-[collapsible=icon]:hidden" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-56 rounded-md border border-border bg-card shadow-lg"
-                side="top"
-                align="start"
-                sideOffset={8}
-              >
-                <div className="px-4 py-3 border-b border-border">
-                  <p className="text-sm font-semibold text-foreground">{displayName}</p>
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">{user?.email}</p>
+              <DropdownMenuContent className="w-52 rounded-xl border border-border bg-card shadow-lg font-mono text-xs" side="top" align="start">
+                <div className="p-3 border-b border-border/60">
+                  <p className="font-bold text-foreground">{displayName}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
                 </div>
                 <div className="p-1">
-                  <DropdownMenuItem asChild className="rounded-md px-3 py-2 text-sm font-medium text-foreground focus:bg-muted cursor-pointer">
+                  <DropdownMenuItem asChild className="rounded-lg px-2.5 py-1.5 focus:bg-muted cursor-pointer">
                     <Link href="/dashboard/settings">
-                      <UserIcon className="mr-2 size-4 text-muted-foreground" />
-                      Profile Settings
+                      <UserIcon className="mr-2 size-3.5 text-muted-foreground" />
+                      Settings
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="rounded-md px-3 py-2 text-sm font-medium text-foreground focus:bg-muted cursor-pointer">
-                    <Link href="/dashboard/billing">
-                      <CreditCard className="mr-2 size-4 text-muted-foreground" />
-                      Billing
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-border my-1" />
-                  <DropdownMenuItem onClick={handleSignOut} className="rounded-md px-3 py-2 text-sm font-medium text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
-                    <LogOut className="mr-2 size-4" />
+                  <DropdownMenuSeparator className="bg-border/60 my-1" />
+                  <DropdownMenuItem onClick={handleSignOut} className="rounded-lg px-2.5 py-1.5 text-destructive focus:bg-destructive/10 cursor-pointer">
+                    <LogOut className="mr-2 size-3.5" />
                     Sign out
                   </DropdownMenuItem>
                 </div>
