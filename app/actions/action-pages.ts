@@ -10,9 +10,14 @@ export async function getActionPages() {
   const session = await auth()
   if (!session?.user?.id) return []
 
-  return db.query.actionPages.findMany({
-    where: eq(actionPages.userId, session.user.id),
-  })
+  try {
+    return await db.query.actionPages.findMany({
+      where: eq(actionPages.userId, session.user.id),
+    })
+  } catch (err) {
+    console.error("Action pages query error:", err)
+    return []
+  }
 }
 
 export async function createActionPage(

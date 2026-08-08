@@ -10,9 +10,14 @@ export async function getCustomDomains() {
   const session = await auth()
   if (!session?.user?.id) return []
 
-  return db.query.customDomains.findMany({
-    where: eq(customDomains.userId, session.user.id),
-  })
+  try {
+    return await db.query.customDomains.findMany({
+      where: eq(customDomains.userId, session.user.id),
+    })
+  } catch (err) {
+    console.error("Custom domains query error:", err)
+    return []
+  }
 }
 
 export async function addCustomDomain(domainName: string, teamId?: string) {

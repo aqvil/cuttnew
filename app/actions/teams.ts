@@ -10,17 +10,22 @@ export async function getUserTeams() {
   const session = await auth()
   if (!session?.user?.id) return []
 
-  const userTeams = await db.query.teamMembers.findMany({
-    where: eq(teamMembers.userId, session.user.id),
-    with: {
-      team: true,
-    },
-  })
+  try {
+    const userTeams = await db.query.teamMembers.findMany({
+      where: eq(teamMembers.userId, session.user.id),
+      with: {
+        team: true,
+      },
+    })
 
-  return userTeams.map((tm: any) => ({
-    ...(tm.team || {}),
-    role: tm.role,
-  }))
+    return userTeams.map((tm: any) => ({
+      ...(tm.team || {}),
+      role: tm.role,
+    }))
+  } catch (err) {
+    console.error("User teams query error:", err)
+    return []
+  }
 }
 
 export async function createTeam(name: string, slug: string) {

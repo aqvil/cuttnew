@@ -10,9 +10,14 @@ export async function getSurveys() {
   const session = await auth()
   if (!session?.user?.id) return []
 
-  return db.query.surveys.findMany({
-    where: eq(surveys.userId, session.user.id),
-  })
+  try {
+    return await db.query.surveys.findMany({
+      where: eq(surveys.userId, session.user.id),
+    })
+  } catch (err) {
+    console.error("Surveys query error:", err)
+    return []
+  }
 }
 
 export async function createSurvey(
