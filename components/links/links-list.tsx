@@ -151,7 +151,7 @@ export function LinksList({ links, appUrl }: LinksListProps) {
   }
 
   return (
-    <div className="w-full max-w-[1140px] mx-auto space-y-5 p-4 sm:p-6 font-mono text-foreground">
+    <div className="w-full max-w-7xl mx-auto space-y-5 p-4 sm:p-8 font-mono text-foreground">
       {/* Bitly Header Row */}
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">

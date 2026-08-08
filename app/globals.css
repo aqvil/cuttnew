@@ -209,7 +209,7 @@
   }
 
   .dash-narrow {
-    @apply mx-auto w-full max-w-[1120px] space-y-6 px-4 py-6 pb-20 sm:px-6 lg:px-10;
+    @apply mx-auto w-full max-w-7xl space-y-6 px-4 py-6 pb-20 sm:px-6 lg:px-10;
     animation: fadeIn 0.2s ease-out;
   }
 
