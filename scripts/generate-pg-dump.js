@@ -103,6 +103,15 @@ async function generatePgSql() {
 -- Enable UUID extension if needed
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+-- Ensure user table columns exist
+ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "role" text DEFAULT 'user';
+ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "banned_at" timestamp;
+ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "username" text;
+ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "first_name" text;
+ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "last_name" text;
+ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "avatar" text;
+ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "stripe_id" text;
+
 `);
 
   const rl = readline.createInterface({
