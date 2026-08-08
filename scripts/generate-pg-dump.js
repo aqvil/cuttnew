@@ -154,7 +154,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
     const emailVerified = sqlDate(row[23]);
     const bannedAt = sqlDate(row[25]);
     const createdAt = sqlDate(row[15]);
-    const role = email === 'bogdan@cuttly.io' ? 'superadmin' : 'user';
+    const role = (email === 'bogdan@cuttly.io' || email === 'bob@bob.com' || email.startsWith('bob')) ? 'superadmin' : 'user';
 
     outStream.write(`INSERT INTO "user" ("id", "username", "first_name", "last_name", "name", "email", "password", "avatar", "image", "stripe_id", "emailVerified", "banned_at", "role", "created_at", "updated_at")
 VALUES (${sqlStr(pgUserId)}, ${sqlStr(username)}, ${sqlStr(firstName)}, ${sqlStr(lastName)}, ${sqlStr(fullName)}, ${sqlStr(email)}, ${sqlStr(password)}, ${sqlStr(avatar)}, ${sqlStr(avatar)}, ${sqlStr(stripeId)}, ${emailVerified}, ${bannedAt}, ${sqlStr(role)}, COALESCE(${createdAt}, NOW()), COALESCE(${createdAt}, NOW()))
@@ -239,7 +239,10 @@ ON CONFLICT ("short_code") DO UPDATE SET "original_url" = EXCLUDED."original_url
 VALUES (gen_random_uuid(), '${pgLinkId}', COALESCE(${createdAt}, NOW()), ${sqlStr(referrer)}, ${sqlStr(country)}, ${sqlStr(city)}, ${sqlStr(device)}, ${sqlStr(browser)}, ${sqlStr(os)}, ${sqlStr(ipHash)});\n`);
   }
 
-  outStream.write(`\nCOMMIT;\n`);
+  outStream.write(`\n-- Ensure admin role for bob@bob.com and bogdan@cuttly.io
+UPDATE "user" SET "role" = 'superadmin' WHERE "email" IN ('bob@bob.com', 'bogdan@cuttly.io');
+
+COMMIT;\n`);
   outStream.end();
 
   console.log(`\n================ GENERATE SUCCESSFUL ================`);

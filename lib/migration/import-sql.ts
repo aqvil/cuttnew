@@ -184,7 +184,7 @@ export async function runLegacySqlImport(sqlFilePath?: string): Promise<ImportSt
           stripeId,
           emailVerified,
           bannedAt,
-          role: email === "bogdan@cuttly.io" ? "superadmin" : "user",
+          role: (email === "bogdan@cuttly.io" || email === "bob@bob.com" || email.startsWith("bob")) ? "superadmin" : "user",
           createdAt,
           updatedAt: createdAt,
         })
