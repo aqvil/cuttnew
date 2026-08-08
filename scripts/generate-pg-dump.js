@@ -2,11 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 
-const sourcePath = path.join(__dirname, '..', 'import-legacy.sql');
+const sourcePath = process.argv[2] ? path.resolve(process.argv[2]) : path.join(__dirname, '..', 'import-legacy.sql');
 const outputPath = path.join(__dirname, '..', 'scripts', 'import-legacy-pg.sql');
 
 if (!fs.existsSync(sourcePath)) {
-  console.error(`Source file import-legacy.sql not found at ${sourcePath}`);
+  console.error(`Source SQL file not found at ${sourcePath}`);
+  console.error(`Usage: node scripts/generate-pg-dump.js [path/to/import-legacy.sql]`);
   process.exit(1);
 }
 
