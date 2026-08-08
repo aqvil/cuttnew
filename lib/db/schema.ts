@@ -41,10 +41,18 @@ export const users = pgTable("user", {
   stripeId: text("stripe_id"),
   availableSpace: bigint("available_space", { mode: "number" }),
   cardExpires: text("card_expires"),
+  role: text("role", { enum: ["user", "admin", "superadmin"] }).default("user"),
   bannedAt: timestamp("banned_at", { mode: "date" }),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
   image: text("image"),
+});
+
+export const systemSettings = pgTable("system_settings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  key: text("key").unique().notNull(),
+  value: jsonb("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const accounts = pgTable(

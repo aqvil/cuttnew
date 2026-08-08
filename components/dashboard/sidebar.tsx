@@ -38,6 +38,7 @@ import {
   Globe,
   ClipboardList,
   Layers,
+  Shield,
 } from "lucide-react"
 import { signOut } from "next-auth/react"
 
@@ -59,6 +60,7 @@ const navItems = [
 ]
 
 const bottomNavItems = [
+  { title: "Admin Console", url: "/dashboard/admin", icon: Shield },
   { title: "Settings",  url: "/dashboard/settings",   icon: Settings },
   { title: "Billing",   url: "/dashboard/billing",    icon: CreditCard },
 ]

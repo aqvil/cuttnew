@@ -25,9 +25,16 @@ export const authConfig = {
       }
       return true;
     },
+    jwt({ token, user }) {
+      if (user) {
+        token.role = (user as any).role || "user";
+      }
+      return token;
+    },
     session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
+        (session.user as any).role = token.role || "user";
       }
       return session;
     },

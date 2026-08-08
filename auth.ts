@@ -52,6 +52,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: user.name || user.username || user.email?.split("@")[0],
           email: user.email,
           image: user.image || user.avatarUrl || user.avatar,
+          role: user.role || "user",
         };
       },
     }),
