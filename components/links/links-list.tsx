@@ -8,10 +8,8 @@ import {
   MoreHorizontal,
   Search,
   Copy,
-  Download,
   Tag as TagIcon,
   Calendar,
-  Filter,
   Check,
   Edit2,
   Share2,
@@ -153,13 +151,13 @@ export function LinksList({ links, appUrl }: LinksListProps) {
   }
 
   return (
-    <div className="w-full max-w-[1140px] mx-auto space-y-5 p-4 sm:p-6 font-mono text-slate-800">
+    <div className="w-full max-w-[1140px] mx-auto space-y-5 p-4 sm:p-6 font-mono text-foreground">
       {/* Bitly Header Row */}
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
           Cuttly Links
         </h1>
-        <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white font-mono font-bold text-xs px-5 h-10 rounded-[4px] shadow-xs">
+        <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground font-mono font-bold text-xs px-5 h-10 rounded-[3px] shadow-xs">
           <Link href="/dashboard/links/new">Create link</Link>
         </Button>
       </div>
@@ -167,27 +165,27 @@ export function LinksList({ links, appUrl }: LinksListProps) {
       {/* Search & Filters Input Bar */}
       <div className="flex flex-col sm:flex-row items-center gap-2.5">
         <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search links"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-10 font-mono text-xs bg-white border-slate-300 rounded-[4px] focus-visible:ring-1 focus-visible:ring-blue-600"
+            className="pl-9 h-10 font-mono text-xs bg-card border-border rounded-[3px] focus-visible:ring-1 focus-visible:ring-primary"
           />
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Button variant="outline" size="sm" className="h-10 text-xs font-mono font-semibold gap-1.5 bg-white border-slate-300 rounded-[4px]">
-            <Calendar className="w-3.5 h-3.5 text-slate-500" /> Filter by created date
+          <Button variant="outline" size="sm" className="h-10 text-xs font-mono font-semibold gap-1.5 bg-card border-border rounded-[3px]">
+            <Calendar className="w-3.5 h-3.5 text-muted-foreground" /> Filter by created date
           </Button>
-          <Button variant="outline" size="sm" className="h-10 text-xs font-mono font-semibold gap-1.5 bg-white border-slate-300 rounded-[4px]">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" /> Add filters
+          <Button variant="outline" size="sm" className="h-10 text-xs font-mono font-semibold gap-1.5 bg-card border-border rounded-[3px]">
+            <SlidersHorizontal className="w-3.5 h-3.5 text-muted-foreground" /> Add filters
           </Button>
         </div>
       </div>
 
       {/* Bitly Sub-toolbar Row */}
-      <div className="flex items-center justify-between text-xs font-mono text-slate-500 bg-slate-50 border border-slate-200 px-4 py-2 rounded-[4px]">
+      <div className="flex items-center justify-between text-xs font-mono text-muted-foreground bg-muted/40 border border-border px-4 py-2 rounded-[3px]">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Checkbox
@@ -195,42 +193,42 @@ export function LinksList({ links, appUrl }: LinksListProps) {
               onCheckedChange={toggleSelectAll}
               className="rounded-[2px]"
             />
-            <span className="font-semibold text-slate-700">{selected.size} selected</span>
+            <span className="font-semibold text-foreground">{selected.size} selected</span>
           </div>
 
           <button
             onClick={handleExport}
             disabled={selected.size === 0}
-            className={`hover:text-slate-900 transition-colors ${selected.size === 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            className={`hover:text-foreground transition-colors ${selected.size === 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
           >
             Export
           </button>
           <button
             onClick={() => handleBulkArchive(!showArchived)}
             disabled={selected.size === 0}
-            className={`hover:text-slate-900 transition-colors ${selected.size === 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            className={`hover:text-foreground transition-colors ${selected.size === 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
           >
             {showArchived ? "Restore" : "Hide"}
           </button>
           <button
             onClick={handleBulkDelete}
             disabled={selected.size === 0}
-            className={`text-red-600 hover:underline transition-colors ${selected.size === 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            className={`text-destructive hover:underline transition-colors ${selected.size === 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
           >
             Tag
           </button>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 text-slate-400">
-            <LayoutList className="w-3.5 h-3.5 text-slate-800 cursor-pointer" />
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <LayoutList className="w-3.5 h-3.5 text-foreground cursor-pointer" />
             <Grid className="w-3.5 h-3.5 cursor-pointer" />
           </div>
 
           <select
             value={showArchived ? "archived" : "active"}
             onChange={(e) => setShowArchived(e.target.value === "archived")}
-            className="bg-transparent font-mono text-xs font-bold text-slate-800 focus:outline-none cursor-pointer"
+            className="bg-transparent font-mono text-xs font-bold text-foreground focus:outline-none cursor-pointer"
           >
             <option value="active">Show: Active</option>
             <option value="archived">Show: Archived</option>
@@ -238,7 +236,7 @@ export function LinksList({ links, appUrl }: LinksListProps) {
         </div>
       </div>
 
-      {/* Link Card Items (Exact Bitly Match with 3px Rounding) */}
+      {/* Link Card Items (Exact Bitly Match with 3px Rounding & Dynamic Theme Support) */}
       <div className="space-y-3">
         {filtered.length > 0 ? (
           filtered.map((link) => {
@@ -250,7 +248,7 @@ export function LinksList({ links, appUrl }: LinksListProps) {
             return (
               <div
                 key={link.id}
-                className="p-5 rounded-[4px] border border-slate-200 bg-white space-y-2.5 shadow-xs hover:border-slate-300 transition-colors"
+                className="p-5 rounded-[3px] border border-border bg-card space-y-2.5 shadow-xs hover:border-primary/40 transition-colors"
               >
                 {/* Card Top Row: Checkbox, Circle Icon, Title & Action Buttons */}
                 <div className="flex items-center justify-between gap-3">
@@ -260,35 +258,35 @@ export function LinksList({ links, appUrl }: LinksListProps) {
                       onCheckedChange={() => toggleSelected(link.id)}
                       className="rounded-[2px]"
                     />
-                    <ChevronRightCircle className="w-4 h-4 text-slate-400 shrink-0" />
+                    <ChevronRightCircle className="w-4 h-4 text-muted-foreground shrink-0" />
                     <Link
                       href={`/dashboard/links/${link.id}`}
-                      className="font-bold text-sm text-slate-900 hover:text-blue-600 truncate"
+                      className="font-bold text-sm text-foreground hover:text-primary truncate"
                     >
                       {link.title || "Reminderly - Your Ultimate Reminder Service"}
                     </Link>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-slate-500 shrink-0">
+                  <div className="flex items-center gap-1.5 text-muted-foreground shrink-0">
                     <Link href={`/dashboard/links/${link.id}`}>
-                      <button className="p-1 hover:text-slate-900 rounded-[2px]" title="Edit">
+                      <button className="p-1 hover:text-foreground rounded-[2px]" title="Edit">
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                     </Link>
                     <button
                       onClick={() => setShareLink({ url: `${appUrl}/l/${link.shortCode}`, title: link.title || "Short Link" })}
-                      className="p-1 hover:text-slate-900 rounded-[2px]"
+                      className="p-1 hover:text-foreground rounded-[2px]"
                       title="Share"
                     >
                       <Share2 className="w-3.5 h-3.5" />
                     </button>
                     <Link href={`/dashboard/links/${link.id}`}>
-                      <button className="p-1 hover:text-slate-900 rounded-[2px]" title="Analytics">
+                      <button className="p-1 hover:text-foreground rounded-[2px]" title="Analytics">
                         <BarChart2 className="w-3.5 h-3.5" />
                       </button>
                     </Link>
                     <Link href={`/dashboard/links/${link.id}`}>
-                      <button className="p-1 hover:text-slate-900 rounded-[2px]" title="More">
+                      <button className="p-1 hover:text-foreground rounded-[2px]" title="More">
                         <MoreHorizontal className="w-3.5 h-3.5" />
                       </button>
                     </Link>
@@ -301,38 +299,38 @@ export function LinksList({ links, appUrl }: LinksListProps) {
                     href={`${appUrl}/l/${link.shortCode}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-bold text-xs text-blue-600 hover:underline"
+                    className="font-bold text-xs text-primary hover:underline"
                   >
                     {shortUrlDisplay}
                   </a>
                   <button
                     onClick={() => handleCopy(link.id, link.shortCode)}
-                    className="text-slate-400 hover:text-slate-700"
+                    className="text-muted-foreground hover:text-foreground"
                   >
                     {copiedId === link.id ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
                   </button>
                 </div>
 
                 {/* Destination URL */}
-                <div className="pl-6 text-xs text-slate-600 flex items-center gap-1 truncate">
-                  <span className="text-slate-400 font-bold">↳</span>
+                <div className="pl-6 text-xs text-muted-foreground flex items-center gap-1 truncate">
+                  <span className="text-muted-foreground font-bold">↳</span>
                   <a href={link.originalUrl} target="_blank" rel="noopener noreferrer" className="hover:underline truncate">
                     {link.originalUrl}
                   </a>
                 </div>
 
                 {/* Footer Metadata */}
-                <div className="pl-6 pt-1 flex items-center gap-3 text-[11px] text-slate-500">
-                  <span className="flex items-center gap-1 font-semibold text-slate-700">
-                    <BarChart2 className="w-3 h-3 text-slate-400" /> {link.clickCount || 0} engagements
+                <div className="pl-6 pt-1 flex items-center gap-3 text-[11px] text-muted-foreground">
+                  <span className="flex items-center gap-1 font-semibold text-foreground">
+                    <BarChart2 className="w-3 h-3 text-muted-foreground" /> {link.clickCount || 0} engagements
                   </span>
                   <span>·</span>
                   <span className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3 text-slate-400" /> {createdDateFormatted}
+                    <Calendar className="w-3 h-3 text-muted-foreground" /> {createdDateFormatted}
                   </span>
                   <span>·</span>
                   <span className="flex items-center gap-1">
-                    <TagIcon className="w-3 h-3 text-slate-400" />
+                    <TagIcon className="w-3 h-3 text-muted-foreground" />
                     {link.tags && link.tags.length > 0 ? link.tags.join(", ") : "No tags"}
                   </span>
                 </div>
@@ -340,11 +338,11 @@ export function LinksList({ links, appUrl }: LinksListProps) {
             )
           })
         ) : (
-          <div className="p-12 text-center border border-dashed border-slate-300 rounded-[4px] bg-white">
-            <ExternalLink className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-            <h3 className="text-sm font-semibold text-slate-800 font-mono">No links match your search</h3>
-            <p className="text-xs text-slate-500 mt-1 font-mono">Create your first short link to start tracking clicks.</p>
-            <Button asChild className="mt-4 h-9 px-4 font-mono text-xs font-bold rounded-[4px]">
+          <div className="p-12 text-center border border-dashed border-border rounded-[3px] bg-card">
+            <ExternalLink className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+            <h3 className="text-sm font-semibold text-foreground font-mono">No links match your search</h3>
+            <p className="text-xs text-muted-foreground mt-1 font-mono">Create your first short link to start tracking clicks.</p>
+            <Button asChild className="mt-4 h-9 px-4 font-mono text-xs font-bold rounded-[3px]">
               <Link href="/dashboard/links/new">Create link</Link>
             </Button>
           </div>
@@ -352,21 +350,21 @@ export function LinksList({ links, appUrl }: LinksListProps) {
       </div>
 
       {/* Bitly Bottom Callout Banner */}
-      <div className="p-3.5 rounded-[4px] bg-cyan-50 border border-cyan-200 text-xs font-mono text-cyan-900 flex items-center justify-between gap-4">
+      <div className="p-3.5 rounded-[3px] bg-cyan-500/10 border border-cyan-500/20 text-xs font-mono text-foreground flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-cyan-600 shrink-0" />
+          <Sparkles className="w-4 h-4 text-teal-500 shrink-0" />
           <span>Change a link's destination, even after you've shared it. Get redirects with every plan.</span>
         </div>
-        <a href="/dashboard/billing" className="text-xs font-bold text-cyan-700 hover:underline shrink-0">
+        <a href="/dashboard/billing" className="text-xs font-bold text-teal-500 hover:underline shrink-0">
           View plans &rarr;
         </a>
       </div>
 
       {/* Bitly End Divider */}
-      <div className="pt-4 text-center font-mono text-xs text-slate-400 flex items-center justify-center gap-4">
-        <span className="h-px bg-slate-200 flex-1 max-w-[120px]" />
+      <div className="pt-4 text-center font-mono text-xs text-muted-foreground flex items-center justify-center gap-4">
+        <span className="h-px bg-border flex-1 max-w-[120px]" />
         <span>You've reached the end of your links</span>
-        <span className="h-px bg-slate-200 flex-1 max-w-[120px]" />
+        <span className="h-px bg-border flex-1 max-w-[120px]" />
       </div>
 
       {/* Social Share Modal */}
