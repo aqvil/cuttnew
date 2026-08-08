@@ -107,6 +107,57 @@ export const profiles = pgTable("profiles", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const teams = pgTable("teams", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  ownerId: text("owner_id").references(() => profiles.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  slug: text("slug").unique().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const teamMembers = pgTable("team_members", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  teamId: uuid("team_id").references(() => teams.id, { onDelete: "cascade" }),
+  userId: text("user_id").references(() => profiles.id, { onDelete: "cascade" }),
+  role: text("role", { enum: ["owner", "admin", "member"] }).default("member"),
+  invitedEmail: text("invited_email"),
+  status: text("status", { enum: ["active", "pending"] }).default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const customDomains = pgTable("custom_domains", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id").references(() => profiles.id, { onDelete: "cascade" }),
+  teamId: uuid("team_id").references(() => teams.id, { onDelete: "set null" }),
+  domain: text("domain").unique().notNull(),
+  trackingHeaders: jsonb("tracking_headers").default([]),
+  status: text("status").default("active"),
+  verifiedAt: timestamp("verified_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const globalTrackingHeaders = pgTable("global_tracking_headers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id").references(() => profiles.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  script: text("script").notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const retargetingPixels = pgTable("retargeting_pixels", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id").references(() => profiles.id, { onDelete: "cascade" }),
+  teamId: uuid("team_id").references(() => teams.id, { onDelete: "set null" }),
+  name: text("name").notNull(),
+  provider: text("provider", {
+    enum: ["facebook", "gtm", "tiktok", "twitter", "linkedin"],
+  }).notNull(),
+  pixelId: text("pixel_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const bioPages = pgTable("bio_pages", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id").references(() => profiles.id, { onDelete: "cascade" }),
@@ -152,6 +203,8 @@ export const bioBlocks = pgTable("bio_blocks", {
 export const shortLinks = pgTable("short_links", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id").references(() => profiles.id, { onDelete: "cascade" }),
+  teamId: uuid("team_id").references(() => teams.id, { onDelete: "set null" }),
+  domainId: uuid("domain_id").references(() => customDomains.id, { onDelete: "set null" }),
   originalUrl: text("original_url").notNull(),
   shortCode: text("short_code").unique().notNull(),
   title: text("title"),
@@ -160,6 +213,13 @@ export const shortLinks = pgTable("short_links", {
   tags: text("tags").array().default([]),
   archivedAt: timestamp("archived_at"),
   expiresAt: timestamp("expires_at"),
+  expirationUrl: text("expiration_url"),
+  maxClicks: integer("max_clicks"),
+  iosUrl: text("ios_url"),
+  androidUrl: text("android_url"),
+  deepLinkScheme: text("deep_link_scheme"),
+  rotationUrls: jsonb("rotation_urls").default([]),
+  retargetingPixelIds: text("retargeting_pixel_ids").array().default([]),
   isActive: boolean("is_active").default(true),
   clickCount: integer("click_count").default(0),
   createdAt: timestamp("created_at").defaultNow(),
@@ -192,6 +252,55 @@ export const pageViews = pgTable("page_views", {
   device: text("device"),
   browser: text("browser"),
   os: text("os"),
+  ipHash: text("ip_hash"),
+});
+
+export const surveys = pgTable("surveys", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id").references(() => profiles.id, { onDelete: "cascade" }),
+  teamId: uuid("team_id").references(() => teams.id, { onDelete: "set null" }),
+  title: text("title").notNull(),
+  description: text("description"),
+  questions: jsonb("questions").default([]),
+  maxAnswers: integer("max_answers").default(5000),
+  answerCount: integer("answer_count").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const surveyResponses = pgTable("survey_responses", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  surveyId: uuid("survey_id").references(() => surveys.id, { onDelete: "cascade" }),
+  answers: jsonb("answers").notNull(),
+  ipHash: text("ip_hash"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const actionPages = pgTable("action_pages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id").references(() => profiles.id, { onDelete: "cascade" }),
+  teamId: uuid("team_id").references(() => teams.id, { onDelete: "set null" }),
+  slug: text("slug").unique().notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  content: jsonb("content").default({}),
+  customDomain: text("custom_domain"),
+  isActive: boolean("is_active").default(true),
+  viewsCount: integer("views_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const actionPageViews = pgTable("action_page_views", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  actionPageId: uuid("action_page_id").references(() => actionPages.id, {
+    onDelete: "cascade",
+  }),
+  viewedAt: timestamp("viewed_at").defaultNow(),
+  referrer: text("referrer"),
+  device: text("device"),
+  browser: text("browser"),
   ipHash: text("ip_hash"),
 });
 

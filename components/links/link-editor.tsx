@@ -36,6 +36,7 @@ import Link from "next/link"
 import { toast } from "sonner"
 import { QrCodeCard } from "@/components/ui/qr-code-card"
 import { LinkAnalyticsPanel } from "@/components/links/link-analytics-panel"
+import { SocialShareModal } from "@/components/ui/social-share-modal"
 import { formatDistanceToNow } from "date-fns"
 
 type Tab = "details" | "analytics" | "qr"
@@ -74,6 +75,15 @@ export function LinkEditor({ link }: LinkEditorProps) {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const [iosUrl, setIosUrl] = useState(link.iosUrl || "")
+  const [androidUrl, setAndroidUrl] = useState(link.androidUrl || "")
+  const [deepLinkScheme, setDeepLinkScheme] = useState(link.deepLinkScheme || "")
+  const [maxClicks, setMaxClicks] = useState(link.maxClicks ? String(link.maxClicks) : "")
+  const [expirationUrl, setExpirationUrl] = useState(link.expirationUrl || "")
+  const [rotationUrl, setRotationUrl] = useState(
+    Array.isArray(link.rotationUrls) && link.rotationUrls.length > 0 ? link.rotationUrls[0]?.url || "" : ""
+  )
+
   const handleSave = async () => {
     setIsSaving(true)
     setError(null)
@@ -84,6 +94,12 @@ export function LinkEditor({ link }: LinkEditorProps) {
         tags: tagsInput.split(",").map((t) => t.trim()).filter(Boolean),
         password: usePassword ? (password || undefined) : null,
         expiresAt: useExpiration && expiresAt ? expiresAt : null,
+        expirationUrl: expirationUrl || null,
+        maxClicks: maxClicks ? parseInt(maxClicks, 10) : null,
+        iosUrl: iosUrl || null,
+        androidUrl: androidUrl || null,
+        deepLinkScheme: deepLinkScheme || null,
+        rotationUrls: rotationUrl ? [{ url: rotationUrl, weight: 50 }] : [],
         isActive,
       })
       toast.success("Link updated")
@@ -209,6 +225,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
             >
               {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
             </Button>
+            <SocialShareModal url={shortUrl} title={link.title || "Check out this link"} />
           </div>
 
           <p className="text-xs text-muted-foreground font-mono">
@@ -314,21 +331,101 @@ export function LinkEditor({ link }: LinkEditorProps) {
                   <div className="flex items-center justify-between">
                     <div>
                       <Label className="text-sm font-semibold">Link Expiration</Label>
-                      <p className="text-xs text-muted-foreground mt-0.5">Auto-disable after a specific date.</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Auto-disable or redirect after date or max clicks.</p>
                     </div>
                     <Switch checked={useExpiration} onCheckedChange={setUseExpiration} />
                   </div>
                   {useExpiration && (
-                    <div className="mt-4 bg-background border border-border rounded-md p-4">
-                      <Label className="text-sm font-semibold">Expiration Date</Label>
-                      <Input
-                        type="datetime-local"
-                        value={expiresAt}
-                        onChange={(e) => setExpiresAt(e.target.value)}
-                        className="dash-field mt-2"
-                      />
+                    <div className="mt-4 bg-background border border-border rounded-md p-4 space-y-4">
+                      <div>
+                        <Label className="text-sm font-semibold">Expiration Date</Label>
+                        <Input
+                          type="datetime-local"
+                          value={expiresAt}
+                          onChange={(e) => setExpiresAt(e.target.value)}
+                          className="dash-field mt-2"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold">Max Click Limit</Label>
+                        <Input
+                          type="number"
+                          placeholder="e.g. 1000"
+                          value={maxClicks}
+                          onChange={(e) => setMaxClicks(e.target.value)}
+                          className="dash-field mt-2"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold">Expiration Redirect URL</Label>
+                        <Input
+                          type="url"
+                          placeholder="https://example.com/expired-landing"
+                          value={expirationUrl}
+                          onChange={(e) => setExpirationUrl(e.target.value)}
+                          className="dash-field mt-2"
+                        />
+                      </div>
                     </div>
                   )}
+                </div>
+
+                {/* Mobile & Deep Links */}
+                <div className="border-t border-border pt-5 space-y-4">
+                  <div>
+                    <Label className="text-sm font-semibold">Mobile & Deep Links</Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Target iOS, Android, or custom App Schemes dynamically.</p>
+                  </div>
+                  <div className="grid gap-3 bg-background border border-border rounded-md p-4">
+                    <div>
+                      <Label className="text-xs font-semibold text-muted-foreground">iOS Target URL</Label>
+                      <Input
+                        type="url"
+                        placeholder="https://apps.apple.com/app/id123"
+                        value={iosUrl}
+                        onChange={(e) => setIosUrl(e.target.value)}
+                        className="dash-field mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs font-semibold text-muted-foreground">Android Target URL</Label>
+                      <Input
+                        type="url"
+                        placeholder="https://play.google.com/store/apps/details?id=com.app"
+                        value={androidUrl}
+                        onChange={(e) => setAndroidUrl(e.target.value)}
+                        className="dash-field mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs font-semibold text-muted-foreground">Deep Link Scheme URI</Label>
+                      <Input
+                        type="text"
+                        placeholder="myapp://path/to/content"
+                        value={deepLinkScheme}
+                        onChange={(e) => setDeepLinkScheme(e.target.value)}
+                        className="dash-field mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Link Rotation (A/B Testing) */}
+                <div className="border-t border-border pt-5 space-y-3">
+                  <div>
+                    <Label className="text-sm font-semibold">Link Rotation (%) — A/B Test</Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Rotate traffic between target URLs.</p>
+                  </div>
+                  <div className="bg-background border border-border rounded-md p-4">
+                    <Label className="text-xs font-semibold text-muted-foreground">Alternative Target URL B (50% Split)</Label>
+                    <Input
+                      type="url"
+                      placeholder="https://example.com/variant-b"
+                      value={rotationUrl}
+                      onChange={(e) => setRotationUrl(e.target.value)}
+                      className="dash-field mt-1"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

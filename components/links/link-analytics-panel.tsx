@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react"
 import { AnalyticsChart } from "@/components/analytics/analytics-chart"
-import { Globe, Monitor, Smartphone, Tablet, MousePointer, ExternalLink } from "lucide-react"
+import { Globe, Monitor, Smartphone, Tablet, MousePointer, ExternalLink, Download, Users, Calendar } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface LinkAnalyticsData {
   chartData: Array<{ date: string; clicks: number }>
   totalClicks: number
+  uniqueRedirects?: number
   deviceCounts: { desktop: number; mobile: number; tablet: number }
   topCountries: Array<[string, number]>
   topReferrers: Array<[string, number]>
@@ -20,16 +22,22 @@ interface LinkAnalyticsPanelProps {
 export function LinkAnalyticsPanel({ linkId }: LinkAnalyticsPanelProps) {
   const [data, setData] = useState<LinkAnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [range, setRange] = useState("30d")
 
   useEffect(() => {
-    fetch(`/api/links/${linkId}/analytics`)
+    setLoading(true)
+    fetch(`/api/links/${linkId}/analytics?range=${range}`)
       .then((r) => r.json())
       .then((d) => {
         setData(d)
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [linkId])
+  }, [linkId, range])
+
+  const handleExportPdf = () => {
+    window.print()
+  }
 
   if (loading) {
     return (
@@ -54,17 +62,57 @@ export function LinkAnalyticsPanel({ linkId }: LinkAnalyticsPanelProps) {
   const totalDevices = data.deviceCounts.desktop + data.deviceCounts.mobile + data.deviceCounts.tablet
   const pct = (n: number) => totalDevices > 0 ? Math.round((n / totalDevices) * 100) : 0
 
+  const ranges = [
+    { label: "24h", value: "24h" },
+    { label: "7 Days", value: "7d" },
+    { label: "30 Days", value: "30d" },
+    { label: "90 Days", value: "90d" },
+    { label: "1 Year", value: "1y" },
+    { label: "2 Years", value: "2y" },
+  ]
+
   return (
     <div className="space-y-6">
+      {/* Control bar: Range & PDF Export */}
+      <div className="flex items-center justify-between flex-wrap gap-3 bg-card border border-border p-3 rounded-lg shadow-sm">
+        <div className="flex items-center gap-1.5 overflow-x-auto">
+          <Calendar className="size-4 text-muted-foreground ml-1 mr-1" />
+          {ranges.map((r) => (
+            <button
+              key={r.value}
+              onClick={() => setRange(r.value)}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                range === r.value
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+
+        <Button variant="outline" size="sm" onClick={handleExportPdf} className="gap-2">
+          <Download className="size-3.5" />
+          Export PDF Report
+        </Button>
+      </div>
+
       {/* Summary stats */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         <div className="dash-panel p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total Clicks</p>
-          <p className="mt-2 text-3xl font-bold tabular-nums">{data.totalClicks.toLocaleString()}</p>
+          <p className="mt-2 text-2xl font-bold tabular-nums">{data.totalClicks.toLocaleString()}</p>
+        </div>
+        <div className="dash-panel p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+            <Users className="size-3 text-primary" /> Unique Redirects
+          </p>
+          <p className="mt-2 text-2xl font-bold tabular-nums">{(data.uniqueRedirects || 0).toLocaleString()}</p>
         </div>
         <div className="dash-panel p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Top Country</p>
-          <p className="mt-2 text-3xl font-bold">{data.topCountries[0]?.[0] || "—"}</p>
+          <p className="mt-2 text-2xl font-bold truncate">{data.topCountries[0]?.[0] || "—"}</p>
         </div>
         <div className="dash-panel p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Top Referrer</p>
@@ -72,14 +120,14 @@ export function LinkAnalyticsPanel({ linkId }: LinkAnalyticsPanelProps) {
         </div>
         <div className="dash-panel p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Mobile %</p>
-          <p className="mt-2 text-3xl font-bold tabular-nums">{pct(data.deviceCounts.mobile)}%</p>
+          <p className="mt-2 text-2xl font-bold tabular-nums">{pct(data.deviceCounts.mobile)}%</p>
         </div>
       </div>
 
       {/* Click chart */}
       <div className="dash-panel overflow-hidden">
         <div className="dash-panel-header">
-          <h3 className="dash-panel-title">Clicks — last 30 days</h3>
+          <h3 className="dash-panel-title">Link Clicks Timeline ({range})</h3>
         </div>
         <div className="p-5">
           <AnalyticsChart data={data.chartData} />
@@ -183,3 +231,4 @@ export function LinkAnalyticsPanel({ linkId }: LinkAnalyticsPanelProps) {
     </div>
   )
 }
+

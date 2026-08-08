@@ -22,13 +22,23 @@ export async function createShortLink(data: any) {
 
   const [link] = await db.insert(shortLinks).values({
     userId: session.user.id,
+    teamId: data.teamId || null,
+    domainId: data.domainId || null,
     originalUrl: data.originalUrl,
     shortCode: data.shortCode,
+    customSlug: data.customSlug || null,
     title: data.title || null,
     password: hashedPassword,
     tags: Array.isArray(data.tags) ? data.tags : [],
     expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-    isActive: true,
+    expirationUrl: data.expirationUrl || null,
+    maxClicks: data.maxClicks ? parseInt(data.maxClicks, 10) : null,
+    iosUrl: data.iosUrl || null,
+    androidUrl: data.androidUrl || null,
+    deepLinkScheme: data.deepLinkScheme || null,
+    rotationUrls: Array.isArray(data.rotationUrls) ? data.rotationUrls : [],
+    retargetingPixelIds: Array.isArray(data.retargetingPixelIds) ? data.retargetingPixelIds : [],
+    isActive: data.isActive !== undefined ? data.isActive : true,
     clickCount: 0,
   }).returning()
 
@@ -40,7 +50,6 @@ export async function updateShortLink(id: string, data: any) {
   const session = await auth()
   if (!session?.user?.id) throw new Error("Unauthorized")
 
-  // Basic URL validation if provided
   if (data.originalUrl) {
     try {
       new URL(data.originalUrl)
@@ -53,6 +62,16 @@ export async function updateShortLink(id: string, data: any) {
     originalUrl: data.originalUrl,
     title: data.title,
     expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+    expirationUrl: data.expirationUrl !== undefined ? data.expirationUrl : undefined,
+    maxClicks: data.maxClicks !== undefined ? (data.maxClicks ? parseInt(data.maxClicks, 10) : null) : undefined,
+    iosUrl: data.iosUrl !== undefined ? data.iosUrl : undefined,
+    androidUrl: data.androidUrl !== undefined ? data.androidUrl : undefined,
+    deepLinkScheme: data.deepLinkScheme !== undefined ? data.deepLinkScheme : undefined,
+    rotationUrls: data.rotationUrls !== undefined ? data.rotationUrls : undefined,
+    retargetingPixelIds: data.retargetingPixelIds !== undefined ? data.retargetingPixelIds : undefined,
+    teamId: data.teamId !== undefined ? data.teamId : undefined,
+    domainId: data.domainId !== undefined ? data.domainId : undefined,
+    isActive: data.isActive !== undefined ? data.isActive : undefined,
     updatedAt: new Date(),
   }
 
@@ -64,7 +83,6 @@ export async function updateShortLink(id: string, data: any) {
     updateData.archivedAt = data.archived ? new Date() : null
   }
 
-  // data.password: string = set new password, null = clear password, undefined = leave unchanged
   if (data.password !== undefined) {
     updateData.password = data.password ? await hashPassword(data.password) : null
   }
@@ -107,3 +125,4 @@ export async function bulkSetArchived(ids: string[], archived: boolean) {
 
   revalidatePath("/dashboard/links")
 }
+

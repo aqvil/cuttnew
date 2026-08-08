@@ -14,8 +14,9 @@ export async function GET(
   }
 
   const { id } = await params
+  const { searchParams } = new URL(request.url)
+  const range = searchParams.get("range") || "30d"
 
-  // Verify link belongs to user
   const link = await db.query.shortLinks.findFirst({
     where: and(eq(shortLinks.id, id), eq(shortLinks.userId, session.user.id)),
     columns: { id: true, clickCount: true },
@@ -25,14 +26,41 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
 
-  const thirtyDaysAgo = new Date()
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  const startDate = new Date()
+  let daysCount = 30
+
+  if (range === "24h") {
+    startDate.setHours(startDate.getHours() - 24)
+    daysCount = 1
+  } else if (range === "7d") {
+    startDate.setDate(startDate.getDate() - 7)
+    daysCount = 7
+  } else if (range === "90d") {
+    startDate.setDate(startDate.getDate() - 90)
+    daysCount = 90
+  } else if (range === "1y") {
+    startDate.setFullYear(startDate.getFullYear() - 1)
+    daysCount = 365
+  } else if (range === "2y") {
+    startDate.setFullYear(startDate.getFullYear() - 2)
+    daysCount = 730
+  } else {
+    // default 30d
+    startDate.setDate(startDate.getDate() - 30)
+    daysCount = 30
+  }
 
   const analytics = await db.query.linkAnalytics.findMany({
     where: and(
       eq(linkAnalytics.linkId, id),
-      gte(linkAnalytics.clickedAt, thirtyDaysAgo)
+      gte(linkAnalytics.clickedAt, startDate)
     ),
+  })
+
+  // Compute unique redirects (distinct non-null ipHash)
+  const uniqueIpSet = new Set<string>()
+  analytics.forEach((a) => {
+    if (a.ipHash) uniqueIpSet.add(a.ipHash)
   })
 
   // Build chart data
@@ -43,7 +71,8 @@ export async function GET(
   })
 
   const chartData: Array<{ date: string; clicks: number }> = []
-  for (let i = 29; i >= 0; i--) {
+  const step = Math.max(1, Math.floor(daysCount / 30))
+  for (let i = daysCount - 1; i >= 0; i -= step) {
     const d = new Date()
     d.setDate(d.getDate() - i)
     const dateStr = d.toISOString().split("T")[0]
@@ -87,7 +116,8 @@ export async function GET(
     .slice(0, 6)
 
   return NextResponse.json({
-    totalClicks: link.clickCount || 0,
+    totalClicks: link.clickCount || analytics.length,
+    uniqueRedirects: uniqueIpSet.size,
     chartData,
     deviceCounts,
     topCountries,
@@ -95,3 +125,4 @@ export async function GET(
     topBrowsers,
   })
 }
+

@@ -34,6 +34,10 @@ import {
   User as UserIcon,
   QrCode,
   Settings,
+  Users,
+  Globe,
+  ClipboardList,
+  Layers,
 } from "lucide-react"
 import { signOut } from "next-auth/react"
 
@@ -43,10 +47,15 @@ interface DashboardSidebarProps {
 }
 
 const navItems = [
-  { title: "Home",      url: "/dashboard",            icon: LayoutGrid },
-  { title: "Links",     url: "/dashboard/links",      icon: LinkIcon },
-  { title: "Bio Pages", url: "/dashboard/bio",        icon: FileText },
-  { title: "Analytics", url: "/dashboard/analytics",  icon: BarChart2 },
+  { title: "Home",           url: "/dashboard",              icon: LayoutGrid },
+  { title: "Links",          url: "/dashboard/links",        icon: LinkIcon },
+  { title: "Bio Pages",      url: "/dashboard/bio",          icon: FileText },
+  { title: "Surveys",        url: "/dashboard/surveys",      icon: ClipboardList },
+  { title: "Action Pages",   url: "/dashboard/action-pages", icon: Layers },
+  { title: "QR Codes",       url: "/dashboard/qr-codes",     icon: QrCode },
+  { title: "Custom Domains", url: "/dashboard/domains",      icon: Globe },
+  { title: "Teams",          url: "/dashboard/teams",        icon: Users },
+  { title: "Analytics",      url: "/dashboard/analytics",    icon: BarChart2 },
 ]
 
 const bottomNavItems = [
