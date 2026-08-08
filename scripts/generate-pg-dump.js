@@ -100,8 +100,6 @@ async function generatePgSql() {
 -- Generated from import-legacy.sql
 -- Run with: psql $DATABASE_URL -f scripts/import-legacy-pg.sql
 
-BEGIN;
-
 -- Enable UUID extension if needed
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -113,7 +111,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
   });
 
   const legacyUserIdMap = new Map(); // legacy_user_id -> pg_user_id
-  const legacyLinkIdMap = new Map(); // legacy_link_id -> pg_link_uuid
+  const legacyLinkCodeMap = new Map(); // legacy_link_id -> short_code
   const legacyDomainIdMap = new Map(); // legacy_domain_id -> pg_domain_uuid
 
   const parsedTables = {
@@ -197,6 +195,8 @@ ON CONFLICT ("domain") DO NOTHING;\n`);
     const originalUrl = String(row[4] || '').trim();
     if (!originalUrl || !hash) continue;
 
+    legacyLinkCodeMap.set(legacyLinkId, hash);
+
     const legacyUserId = row[5] ? String(row[5]) : null;
     const legacyDomainId = row[6] ? String(row[6]) : null;
     const pgUserId = legacyUserId ? legacyUserIdMap.get(legacyUserId) || null : null;
@@ -210,21 +210,19 @@ ON CONFLICT ("domain") DO NOTHING;\n`);
     const customSlug = (alias && alias !== hash) ? alias : null;
 
     const linkUuid = `00000000-0000-4000-9000-${String(linkCounter++).padStart(12, '0')}`;
-    legacyLinkIdMap.set(legacyLinkId, linkUuid);
 
     outStream.write(`INSERT INTO "short_links" ("id", "user_id", "domain_id", "original_url", "short_code", "custom_slug", "title", "password", "is_active", "expires_at", "click_count", "created_at", "updated_at")
 VALUES ('${linkUuid}', ${sqlStr(pgUserId)}, ${pgDomainId ? `'${pgDomainId}'` : 'NULL'}, ${sqlStr(originalUrl)}, ${sqlStr(hash)}, ${sqlStr(customSlug)}, ${sqlStr(title)}, ${sqlStr(password)}, ${isActive}, ${expiresAt}, ${clicksCount}, COALESCE(${createdAt}, NOW()), COALESCE(${createdAt}, NOW()))
 ON CONFLICT ("short_code") DO UPDATE SET "original_url" = EXCLUDED."original_url", "click_count" = EXCLUDED."click_count";\n`);
   }
 
-  // 4. Link Clicks
+  // 4. Link Clicks (Safe Subquery Insert)
   console.log(`Writing ${parsedTables.link_clicks.length} Link Analytics records to SQL...`);
   outStream.write(`\n-- 4. Insert Link Analytics\n`);
-  let clickCounter = 100000;
   for (const row of parsedTables.link_clicks) {
     const legacyLinkId = String(row[1]);
-    const pgLinkId = legacyLinkIdMap.get(legacyLinkId);
-    if (!pgLinkId) continue;
+    const shortCode = legacyLinkCodeMap.get(legacyLinkId);
+    if (!shortCode) continue;
 
     const os = row[2] ? String(row[2]) : null;
     const device = row[3] ? String(row[3]) : null;
@@ -236,20 +234,19 @@ ON CONFLICT ("short_code") DO UPDATE SET "original_url" = EXCLUDED."original_url
     const city = row[10] ? String(row[10]) : null;
 
     outStream.write(`INSERT INTO "link_analytics" ("id", "link_id", "clicked_at", "referrer", "country", "city", "device", "browser", "os", "ip_hash")
-VALUES (gen_random_uuid(), '${pgLinkId}', COALESCE(${createdAt}, NOW()), ${sqlStr(referrer)}, ${sqlStr(country)}, ${sqlStr(city)}, ${sqlStr(device)}, ${sqlStr(browser)}, ${sqlStr(os)}, ${sqlStr(ipHash)});\n`);
+SELECT gen_random_uuid(), "id", COALESCE(${createdAt}, NOW()), ${sqlStr(referrer)}, ${sqlStr(country)}, ${sqlStr(city)}, ${sqlStr(device)}, ${sqlStr(browser)}, ${sqlStr(os)}, ${sqlStr(ipHash)}
+FROM "short_links" WHERE "short_code" = ${sqlStr(shortCode)};\n`);
   }
 
   outStream.write(`\n-- Ensure admin role for bob@bob.com and bogdan@cuttly.io
-UPDATE "user" SET "role" = 'superadmin' WHERE "email" IN ('bob@bob.com', 'bogdan@cuttly.io');
+UPDATE "user" SET "role" = 'superadmin' WHERE "email" IN ('bob@bob.com', 'bogdan@cuttly.io');\n`);
 
-COMMIT;\n`);
   outStream.end();
 
   console.log(`\n================ GENERATE SUCCESSFUL ================`);
   console.log(`PostgreSQL SQL Script created at: ${outputPath}`);
   console.log(`Run it directly using psql:`);
-  console.log(`  psql -U postgres -d cuttnew -f scripts/import-legacy-pg.sql`);
-  console.log(`  or: psql $DATABASE_URL -f scripts/import-legacy-pg.sql\n`);
+  console.log(`  psql -U postgres -d cuttnew -f scripts/import-legacy-pg.sql\n`);
 }
 
 generatePgSql().catch(console.error);
