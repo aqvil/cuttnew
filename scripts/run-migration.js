@@ -1,6 +1,24 @@
-// Load env vars
-require('dotenv').config({ path: '.env.local' });
+// Load env vars safely
+const fs = require('fs');
 const path = require('path');
+
+try {
+  require('dotenv').config({ path: '.env.local' });
+} catch (e) {
+  const envPath = path.join(__dirname, '..', '.env.local');
+  if (fs.existsSync(envPath)) {
+    const lines = fs.readFileSync(envPath, 'utf8').split('\n');
+    for (const line of lines) {
+      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+      if (match) {
+        const key = match[1];
+        let value = match[2] || '';
+        if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
+        if (!process.env[key]) process.env[key] = value;
+      }
+    }
+  }
+}
 
 // We can register tsx/ts-node on the fly or load compiled output
 try {
