@@ -9,6 +9,7 @@ import {
   primaryKey,
   bigint,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import type { AdapterAccountType } from "next-auth/adapters";
 
 // --- Auth.js Tables ---
@@ -319,3 +320,72 @@ export const aiGenerations = pgTable("ai_generations", {
   output: text("output"),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// --- Relations Definitions ---
+
+export const teamsRelations = relations(teams, ({ many }) => ({
+  members: many(teamMembers),
+  domains: many(customDomains),
+  shortLinks: many(shortLinks),
+}));
+
+export const teamMembersRelations = relations(teamMembers, ({ one }) => ({
+  team: one(teams, {
+    fields: [teamMembers.teamId],
+    references: [teams.id],
+  }),
+  user: one(profiles, {
+    fields: [teamMembers.userId],
+    references: [profiles.id],
+  }),
+}));
+
+export const customDomainsRelations = relations(customDomains, ({ one, many }) => ({
+  team: one(teams, {
+    fields: [customDomains.teamId],
+    references: [teams.id],
+  }),
+  links: many(shortLinks),
+}));
+
+export const shortLinksRelations = relations(shortLinks, ({ one, many }) => ({
+  team: one(teams, {
+    fields: [shortLinks.teamId],
+    references: [teams.id],
+  }),
+  domain: one(customDomains, {
+    fields: [shortLinks.domainId],
+    references: [customDomains.id],
+  }),
+  analytics: many(linkAnalytics),
+}));
+
+export const linkAnalyticsRelations = relations(linkAnalytics, ({ one }) => ({
+  link: one(shortLinks, {
+    fields: [linkAnalytics.linkId],
+    references: [shortLinks.id],
+  }),
+}));
+
+export const surveysRelations = relations(surveys, ({ many }) => ({
+  responses: many(surveyResponses),
+}));
+
+export const surveyResponsesRelations = relations(surveyResponses, ({ one }) => ({
+  survey: one(surveys, {
+    fields: [surveyResponses.surveyId],
+    references: [surveys.id],
+  }),
+}));
+
+export const actionPagesRelations = relations(actionPages, ({ many }) => ({
+  views: many(actionPageViews),
+}));
+
+export const actionPageViewsRelations = relations(actionPageViews, ({ one }) => ({
+  actionPage: one(actionPages, {
+    fields: [actionPageViews.actionPageId],
+    references: [actionPages.id],
+  }),
+}));
+

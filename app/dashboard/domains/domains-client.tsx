@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { addCustomDomain, addDomainTrackingHeader, addGlobalTrackingHeader, deleteCustomDomain } from "@/app/actions/domains"
+import { addCustomDomain, addGlobalTrackingHeader, deleteCustomDomain } from "@/app/actions/domains"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,16 +18,9 @@ import {
 import {
   Globe,
   Plus,
-  CheckCircle2,
   Code,
-  ShieldCheck,
-  Server,
   Trash2,
-  Copy,
-  Check,
-  Sparkles,
   Terminal,
-  FileCode,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -62,12 +55,12 @@ export function DomainsClient({ initialDomains, initialGlobalHeaders }: DomainsC
     try {
       const newDomain = await addCustomDomain(domainName)
       setDomains([newDomain, ...domains])
-      toast.success("Branded domain added! Configure CNAME DNS records.")
+      toast.success("Domain added! Configure CNAME DNS record.")
       setIsDomainOpen(false)
       setDomainName("")
       router.refresh()
     } catch (err: any) {
-      toast.error(err.message || "Failed to add custom domain")
+      toast.error(err.message || "Failed to add domain")
     } finally {
       setIsAddingDomain(false)
     }
@@ -76,7 +69,7 @@ export function DomainsClient({ initialDomains, initialGlobalHeaders }: DomainsC
   const handleAddGlobalHeader = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!headerName || !headerScript) {
-      toast.error("Header name and script content are required")
+      toast.error("Name and script content required")
       return
     }
 
@@ -90,7 +83,7 @@ export function DomainsClient({ initialDomains, initialGlobalHeaders }: DomainsC
       setHeaderScript("")
       router.refresh()
     } catch (err: any) {
-      toast.error(err.message || "Failed to add tracking header")
+      toast.error(err.message || "Failed to add header")
     } finally {
       setIsAddingHeader(false)
     }
@@ -108,204 +101,186 @@ export function DomainsClient({ initialDomains, initialGlobalHeaders }: DomainsC
   }
 
   return (
-    <div className="dash-narrow space-y-10">
-      {/* Hero Banner */}
-      <div className="dash-hero relative overflow-hidden bg-gradient-to-br from-card via-card to-blue-500/5 border border-border p-8 rounded-2xl shadow-xl">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-2 text-left">
-            <div className="dash-kicker text-blue-500 bg-blue-500/10 border-blue-500/20">
-              <Sparkles className="size-3.5" /> Branded Domains & Scripts
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
-              Branded Domains Studio
-            </h1>
-            <p className="text-sm text-muted-foreground max-w-lg">
-              Connect up to 99 branded custom domains and manage up to 15 tracking script headers per domain (99 for 2s.ms domain).
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 flex-wrap">
-            <Dialog open={isHeaderOpen} onOpenChange={setIsHeaderOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="gap-2 font-semibold">
-                  <Code className="size-4" /> Global Script (2s.ms)
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <FileCode className="size-5 text-blue-500" /> Add Global Tracking HEADER
-                  </DialogTitle>
-                  <DialogDescription>
-                    Inject custom tracking scripts into short links on 2s.ms (Max 99).
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleAddGlobalHeader} className="space-y-4 pt-2">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">Script Name</Label>
-                    <Input
-                      placeholder="e.g. Google Analytics 4 Header"
-                      value={headerName}
-                      onChange={(e) => setHeaderName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">JS / HTML Script Code</Label>
-                    <Textarea
-                      placeholder="<script>...</script>"
-                      value={headerScript}
-                      onChange={(e) => setHeaderScript(e.target.value)}
-                      rows={5}
-                      className="font-mono text-xs"
-                      required
-                    />
-                  </div>
-                  <div className="flex justify-end gap-2 pt-2">
-                    <Button type="button" variant="outline" onClick={() => setIsHeaderOpen(false)}>Cancel</Button>
-                    <Button type="submit" disabled={isAddingHeader} className="btn-primary">Add Header Script</Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog open={isDomainOpen} onOpenChange={setIsDomainOpen}>
-              <DialogTrigger asChild>
-                <Button size="lg" className="btn-primary gap-2 shadow-lg hover:shadow-xl font-semibold">
-                  <Plus className="size-5" /> Add Branded Domain
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <Globe className="size-5 text-primary" /> Connect Custom Domain
-                  </DialogTitle>
-                  <DialogDescription>
-                    Add custom subdomains or apex domains for short links (Max 99).
-                  </DialogDescription>
-                </DialogHeader>
-
-                <form onSubmit={handleAddDomain} className="space-y-4 pt-2">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">Domain Name</Label>
-                    <Input
-                      placeholder="e.g. links.yourbrand.com"
-                      value={domainName}
-                      onChange={(e) => setDomainName(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="p-3 bg-muted/60 border border-border rounded-xl text-xs space-y-1.5">
-                    <p className="font-bold text-foreground flex items-center gap-1.5">
-                      <Terminal className="size-3.5 text-primary" /> DNS Setup Instructions:
-                    </p>
-                    <p className="text-muted-foreground font-mono">Type: CNAME | Host: links | Value: cname.2s.ms</p>
-                  </div>
-
-                  <div className="flex justify-end gap-2 pt-2">
-                    <Button type="button" variant="outline" onClick={() => setIsDomainOpen(false)}>Cancel</Button>
-                    <Button type="submit" disabled={isAddingDomain} className="btn-primary">Add Domain</Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
-      </div>
-
-      {/* Metrics Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="dash-panel p-5 bg-card rounded-xl border border-border">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Globe className="size-3.5 text-blue-500" /> Custom Domains
+    <div className="dash-narrow space-y-8">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-6">
+        <div>
+          <div className="dash-kicker mb-2">Branded Custom Domains</div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Custom Domains & Tracking Headers
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1 max-w-xl font-mono">
+            Connect up to 99 branded custom domains and manage up to 15 tracking script headers per domain.
           </p>
-          <p className="text-3xl font-extrabold text-foreground mt-2">{domains.length} <span className="text-xs text-muted-foreground font-normal">/ 99</span></p>
         </div>
-        <div className="dash-panel p-5 bg-card rounded-xl border border-border">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Code className="size-3.5 text-emerald-500" /> Global Headers
-          </p>
-          <p className="text-3xl font-extrabold text-foreground mt-2">{globalHeaders.length} <span className="text-xs text-muted-foreground font-normal">/ 99</span></p>
-        </div>
-        <div className="dash-panel p-5 bg-card rounded-xl border border-border">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <ShieldCheck className="size-3.5 text-amber-500" /> SSL Status
-          </p>
-          <p className="text-3xl font-extrabold text-foreground mt-2">Active</p>
-        </div>
-        <div className="dash-panel p-5 bg-card rounded-xl border border-border">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Server className="size-3.5 text-purple-500" /> Header Limit / Domain
-          </p>
-          <p className="text-3xl font-extrabold text-foreground mt-2">15 / Domain</p>
-        </div>
-      </div>
 
-      {/* Branded Custom Domains Grid */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-foreground">Branded Custom Domains</h2>
+        <div className="flex items-center gap-2">
+          <Dialog open={isHeaderOpen} onOpenChange={setIsHeaderOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="h-10 px-3 text-xs font-mono gap-1.5">
+                <Code className="size-3.5" /> 2s.ms Global Header
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md border border-border bg-card">
+              <DialogHeader>
+                <DialogTitle className="text-base font-bold text-foreground">Global Tracking HEADER</DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  Inject scripts into short links on default 2s.ms domain (Max 99).
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleAddGlobalHeader} className="space-y-4 pt-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-foreground">Script Name</Label>
+                  <Input
+                    placeholder="e.g. GA4 Header"
+                    value={headerName}
+                    onChange={(e) => setHeaderName(e.target.value)}
+                    className="dash-field h-10 text-xs font-mono"
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-foreground">Script Code</Label>
+                  <Textarea
+                    placeholder="<script>...</script>"
+                    value={headerScript}
+                    onChange={(e) => setHeaderScript(e.target.value)}
+                    rows={4}
+                    className="font-mono text-xs border-border bg-background"
+                    required
+                  />
+                </div>
+                <div className="pt-3 flex justify-end gap-2 border-t border-border">
+                  <Button type="button" variant="outline" size="sm" onClick={() => setIsHeaderOpen(false)} className="h-9 text-xs">Cancel</Button>
+                  <Button type="submit" disabled={isAddingHeader} size="sm" className="h-9 text-xs bg-foreground text-background font-semibold">Add Script</Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {domains.map((d: any) => (
-            <div key={d.id} className="group bg-card border border-border hover:border-blue-500/40 rounded-2xl p-6 transition-all shadow-md hover:shadow-xl space-y-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
-                    <Globe className="size-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-foreground text-sm">{d.domain}</h3>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 mt-0.5">
-                      <CheckCircle2 className="size-3" /> SSL Verified
-                    </span>
-                  </div>
+          <Dialog open={isDomainOpen} onOpenChange={setIsDomainOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="h-10 px-4 bg-foreground text-background font-semibold text-xs rounded-md hover:opacity-90 transition-opacity gap-2">
+                <Plus className="size-3.5" />
+                Add Domain
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md border border-border bg-card">
+              <DialogHeader>
+                <DialogTitle className="text-base font-bold text-foreground">Connect Custom Domain</DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  Add subdomains or apex domains (Max 99).
+                </DialogDescription>
+              </DialogHeader>
+
+              <form onSubmit={handleAddDomain} className="space-y-4 pt-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-foreground">Domain</Label>
+                  <Input
+                    placeholder="links.yourbrand.com"
+                    value={domainName}
+                    onChange={(e) => setDomainName(e.target.value)}
+                    className="dash-field h-10 text-xs font-mono"
+                    required
+                  />
                 </div>
 
-                <button
-                  onClick={() => handleDeleteDomain(d.id)}
-                  className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-1"
-                >
-                  <Trash2 className="size-4" />
-                </button>
+                <div className="p-3 bg-muted/50 border border-border rounded-md text-xs font-mono space-y-1">
+                  <p className="font-semibold text-foreground flex items-center gap-1">
+                    <Terminal className="size-3 text-muted-foreground" /> CNAME Setup:
+                  </p>
+                  <p className="text-muted-foreground">Type: CNAME | Value: cname.2s.ms</p>
+                </div>
+
+                <div className="pt-3 flex justify-end gap-2 border-t border-border">
+                  <Button type="button" variant="outline" size="sm" onClick={() => setIsDomainOpen(false)} className="h-9 text-xs">Cancel</Button>
+                  <Button type="submit" disabled={isAddingDomain} size="sm" className="h-9 text-xs bg-foreground text-background font-semibold">Add Domain</Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      {/* Monochrome Stats Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="border border-border bg-card p-4 rounded-md space-y-1">
+          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">Custom Domains</p>
+          <p className="text-2xl font-bold font-mono text-foreground">{domains.length} <span className="text-xs text-muted-foreground font-normal">/ 99</span></p>
+        </div>
+        <div className="border border-border bg-card p-4 rounded-md space-y-1">
+          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">Global Headers</p>
+          <p className="text-2xl font-bold font-mono text-foreground">{globalHeaders.length} <span className="text-xs text-muted-foreground font-normal">/ 99</span></p>
+        </div>
+        <div className="border border-border bg-card p-4 rounded-md space-y-1">
+          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">Header Limit</p>
+          <p className="text-2xl font-bold font-mono text-foreground">15 / Domain</p>
+        </div>
+        <div className="border border-border bg-card p-4 rounded-md space-y-1">
+          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">SSL Security</p>
+          <p className="text-xs font-mono font-semibold text-foreground mt-2 flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-foreground" /> Auto SSL Active
+          </p>
+        </div>
+      </div>
+
+      {/* Domains List */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between text-xs font-mono text-muted-foreground uppercase px-1">
+          <span>Connected Domains ({domains.length})</span>
+          <span>Headers</span>
+        </div>
+
+        <div className="space-y-2">
+          {domains.map((d: any) => (
+            <div
+              key={d.id}
+              className="group border border-border bg-card rounded-md p-4 transition-all duration-150 hover:border-foreground/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
+              <div className="space-y-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-foreground text-sm truncate">{d.domain}</h3>
+                  <span className="text-[10px] font-mono uppercase bg-muted text-foreground px-2 py-0.5 rounded border border-border font-bold">CNAME</span>
+                </div>
               </div>
 
-              <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-                <span className="font-semibold text-foreground flex items-center gap-1">
-                  <Code className="size-3.5 text-primary" /> {(d.trackingHeaders?.length || 0)} / 15 tracking headers
-                </span>
-                <span className="font-mono text-[10px] uppercase bg-muted px-2 py-0.5 rounded">CNAME</span>
+              <div className="flex items-center gap-4 shrink-0 justify-between sm:justify-end">
+                <span className="text-xs font-mono text-muted-foreground">{(d.trackingHeaders?.length || 0)} / 15 Headers</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 text-muted-foreground hover:text-destructive"
+                  onClick={() => handleDeleteDomain(d.id)}
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
               </div>
             </div>
           ))}
 
           {domains.length === 0 && (
-            <div className="col-span-full py-16 text-center border-2 border-dashed border-border rounded-2xl bg-card/50">
-              <Globe className="size-12 text-muted-foreground/40 mx-auto mb-3 animate-float" />
-              <h3 className="text-lg font-bold text-foreground">No Custom Domains Connected</h3>
-              <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-                Build brand authority by shortening links on your custom domain name.
-              </p>
-              <Button onClick={() => setIsDomainOpen(true)} className="btn-primary mt-6 gap-2">
-                <Plus className="size-4" /> Add Branded Domain
+            <div className="py-16 text-center border border-dashed border-border rounded-md bg-card">
+              <Globe className="size-8 text-muted-foreground/40 mx-auto mb-2" />
+              <h3 className="text-sm font-semibold text-foreground font-mono">No custom domains connected</h3>
+              <p className="text-xs text-muted-foreground mt-1 font-mono">Connect your custom domain name for branded short links.</p>
+              <Button onClick={() => setIsDomainOpen(true)} size="sm" className="mt-4 h-9 px-4 text-xs font-semibold bg-foreground text-background">
+                <Plus className="mr-1.5 size-3.5" /> Add Custom Domain
               </Button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Global 2s.ms Domain Scripts */}
-      <div className="space-y-4 pt-6 border-t border-border">
-        <h2 className="text-lg font-bold text-foreground">Global 2s.ms Domain Tracking Headers ({globalHeaders.length}/99)</h2>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Global Headers List */}
+      <div className="space-y-3 pt-6 border-t border-border">
+        <h2 className="text-sm font-bold font-mono uppercase text-muted-foreground">2s.ms Global Tracking Headers ({globalHeaders.length}/99)</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {globalHeaders.map((gh: any) => (
-            <div key={gh.id} className="bg-card border border-border rounded-xl p-4 space-y-2">
-              <h4 className="font-bold text-foreground text-sm flex items-center gap-2">
-                <Code className="size-4 text-blue-500" />
-                {gh.name}
+            <div key={gh.id} className="border border-border bg-card p-3 rounded-md space-y-1.5">
+              <h4 className="font-semibold text-foreground text-xs font-mono flex items-center gap-1.5">
+                <Code className="size-3 text-muted-foreground" /> {gh.name}
               </h4>
-              <p className="text-xs font-mono text-muted-foreground line-clamp-2 bg-muted p-2 rounded-lg">
+              <p className="text-[11px] font-mono text-muted-foreground truncate bg-muted p-2 rounded border border-border">
                 {gh.script}
               </p>
             </div>

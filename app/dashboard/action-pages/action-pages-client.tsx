@@ -23,13 +23,9 @@ import {
   Trash2,
   Copy,
   Check,
-  Zap,
-  Sparkles,
-  TrendingUp,
-  Globe,
-  Share2,
-  Video,
+  ArrowUpRight,
   MousePointerClick,
+  SlidersHorizontal,
 } from "lucide-react"
 import { toast } from "sonner"
 import { SocialShareModal } from "@/components/ui/social-share-modal"
@@ -72,7 +68,7 @@ export function ActionPagesClient({ initialPages }: ActionPagesClientProps) {
         ctaUrl,
       })
       setPages([newPage, ...pages])
-      toast.success("Action Page created successfully!")
+      toast.success("Action Page created")
       setIsOpen(false)
       setTitle("")
       setSlug("")
@@ -103,210 +99,183 @@ export function ActionPagesClient({ initialPages }: ActionPagesClientProps) {
     const url = `${baseUrl}/a/${pageSlug}`
     navigator.clipboard.writeText(url)
     setCopiedId(id)
-    toast.success("Action Page URL copied to clipboard")
+    toast.success("Copied to clipboard")
     setTimeout(() => setCopiedId(null), 2000)
   }
 
   return (
     <div className="dash-narrow space-y-8">
-      {/* Hero Header */}
-      <div className="dash-hero relative overflow-hidden bg-gradient-to-br from-card via-card to-primary/5 border border-border p-8 rounded-2xl shadow-xl">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-2 text-left">
-            <div className="dash-kicker text-primary bg-primary/10 border-primary/20">
-              <Sparkles className="size-3.5" /> High-Converting Landing Hub
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
-              Action Pages
-            </h1>
-            <p className="text-sm text-muted-foreground max-w-lg">
-              Create up to 20 customizable high-converting landing pages with video embeds, lead forms, and instant call-to-action buttons.
-            </p>
-          </div>
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-6">
+        <div>
+          <div className="dash-kicker mb-2">Action Pages</div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Landing Pages & Action Router
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1 max-w-xl font-mono">
+            High-converting customized action pages with video embeds, lead forms, and instant call-to-actions.
+          </p>
+        </div>
 
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-              <Button size="lg" className="btn-primary gap-2 shadow-lg hover:shadow-xl transition-all font-semibold">
-                <Plus className="size-5" />
-                New Action Page
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-xl">
-                  <Zap className="size-5 text-primary" /> Create Action Page
-                </DialogTitle>
-                <DialogDescription>
-                  Design a dynamic landing page tailored for maximum conversion.
-                </DialogDescription>
-              </DialogHeader>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" className="h-10 px-4 bg-foreground text-background font-semibold text-xs rounded-md hover:opacity-90 transition-opacity gap-2">
+              <Plus className="size-3.5" />
+              New Action Page
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-lg border border-border bg-card">
+            <DialogHeader>
+              <DialogTitle className="text-base font-bold text-foreground">Create Action Page</DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                Configure content and publish your landing router.
+              </DialogDescription>
+            </DialogHeader>
 
-              <form onSubmit={handleCreate} className="space-y-4 pt-3">
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold">Page Title <span className="text-destructive">*</span></Label>
+            <form onSubmit={handleCreate} className="space-y-4 pt-2">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-foreground">Title <span className="text-destructive">*</span></Label>
+                <Input
+                  placeholder="e.g. Product Launch 2026"
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value)
+                    if (!slug) setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))
+                  }}
+                  className="dash-field h-10 text-xs font-mono"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-foreground">Slug <span className="text-destructive">*</span></Label>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-mono text-muted-foreground bg-muted px-2.5 py-2.5 rounded-md border border-border">/a/</span>
                   <Input
-                    placeholder="e.g. Exclusive Product Launch 2026"
-                    value={title}
-                    onChange={(e) => {
-                      setTitle(e.target.value)
-                      if (!slug) setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))
-                    }}
+                    placeholder="launch-2026"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
+                    className="dash-field h-10 text-xs font-mono"
                     required
                   />
                 </div>
+              </div>
 
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold">URL Slug <span className="text-destructive">*</span></Label>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs font-mono text-muted-foreground bg-muted px-3 py-2 rounded-md border border-border">/a/</span>
-                    <Input
-                      placeholder="product-launch"
-                      value={slug}
-                      onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
-                      required
-                    />
-                  </div>
-                </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-foreground">Description</Label>
+                <Textarea
+                  placeholder="Summary description..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={2}
+                  className="text-xs font-mono border-border bg-background"
+                />
+              </div>
 
+              <div className="grid sm:grid-cols-2 gap-3 border-t border-border pt-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold">Subtitle / Description</Label>
-                  <Textarea
-                    placeholder="Briefly describe what users will get on this page..."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={2}
+                  <Label className="text-xs font-semibold text-foreground">Hero Image URL</Label>
+                  <Input
+                    placeholder="https://..."
+                    value={heroImage}
+                    onChange={(e) => setHeroImage(e.target.value)}
+                    className="dash-field h-9 text-xs font-mono"
                   />
                 </div>
-
-                <div className="grid sm:grid-cols-2 gap-4 border-t border-border pt-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">Hero Banner Image URL</Label>
-                    <Input
-                      placeholder="https://images.unsplash.com/..."
-                      value={heroImage}
-                      onChange={(e) => setHeroImage(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">Video Embed URL (YouTube/Vimeo)</Label>
-                    <Input
-                      placeholder="https://www.youtube.com/embed/..."
-                      value={videoUrl}
-                      onChange={(e) => setVideoUrl(e.target.value)}
-                    />
-                  </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-foreground">Video Embed URL</Label>
+                  <Input
+                    placeholder="https://youtube.com/embed/..."
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                    className="dash-field h-9 text-xs font-mono"
+                  />
                 </div>
+              </div>
 
-                <div className="grid sm:grid-cols-2 gap-4 border-t border-border pt-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">CTA Button Label</Label>
-                    <Input
-                      placeholder="Get Started Now"
-                      value={ctaText}
-                      onChange={(e) => setCtaText(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">CTA Target URL</Label>
-                    <Input
-                      placeholder="https://example.com/checkout"
-                      value={ctaUrl}
-                      onChange={(e) => setCtaUrl(e.target.value)}
-                    />
-                  </div>
+              <div className="grid sm:grid-cols-2 gap-3 border-t border-border pt-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-foreground">CTA Label</Label>
+                  <Input
+                    placeholder="Get Started Now"
+                    value={ctaText}
+                    onChange={(e) => setCtaText(e.target.value)}
+                    className="dash-field h-9 text-xs font-mono"
+                  />
                 </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-foreground">CTA Link</Label>
+                  <Input
+                    placeholder="https://..."
+                    value={ctaUrl}
+                    onChange={(e) => setCtaUrl(e.target.value)}
+                    className="dash-field h-9 text-xs font-mono"
+                  />
+                </div>
+              </div>
 
-                <div className="pt-4 flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isCreating} className="btn-primary">
-                    {isCreating ? "Publishing..." : "Publish Action Page"}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+              <div className="pt-3 flex justify-end gap-2 border-t border-border">
+                <Button type="button" variant="outline" size="sm" onClick={() => setIsOpen(false)} className="h-9 text-xs">
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isCreating} size="sm" className="h-9 text-xs bg-foreground text-background font-semibold">
+                  {isCreating ? "Publishing..." : "Publish Page"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Monochrome Stats Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="border border-border bg-card p-4 rounded-md space-y-1">
+          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">Action Pages</p>
+          <p className="text-2xl font-bold font-mono text-foreground">{pages.length} <span className="text-xs text-muted-foreground font-normal">/ 20</span></p>
+        </div>
+        <div className="border border-border bg-card p-4 rounded-md space-y-1">
+          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">Total Views</p>
+          <p className="text-2xl font-bold font-mono text-foreground">{totalViews.toLocaleString()}</p>
+        </div>
+        <div className="border border-border bg-card p-4 rounded-md space-y-1">
+          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">Avg Conversion</p>
+          <p className="text-2xl font-bold font-mono text-foreground">18.4%</p>
+        </div>
+        <div className="border border-border bg-card p-4 rounded-md space-y-1">
+          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">Status</p>
+          <p className="text-xs font-mono font-semibold text-foreground mt-2 flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-foreground" /> Operational
+          </p>
         </div>
       </div>
 
-      {/* Metrics Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="dash-panel p-5 bg-card rounded-xl border border-border">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Layers className="size-3.5 text-primary" /> Active Pages
-          </p>
-          <p className="text-3xl font-extrabold text-foreground mt-2">{pages.length} <span className="text-xs text-muted-foreground font-normal">/ 20</span></p>
+      {/* Pages List */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between text-xs font-mono text-muted-foreground uppercase px-1">
+          <span>Active Pages ({pages.length})</span>
+          <span>Views</span>
         </div>
-        <div className="dash-panel p-5 bg-card rounded-xl border border-border">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Eye className="size-3.5 text-blue-500" /> Total Page Views
-          </p>
-          <p className="text-3xl font-extrabold text-foreground mt-2">{totalViews.toLocaleString()}</p>
-        </div>
-        <div className="dash-panel p-5 bg-card rounded-xl border border-border">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <MousePointerClick className="size-3.5 text-emerald-500" /> Conversion Rate
-          </p>
-          <p className="text-3xl font-extrabold text-foreground mt-2">18.4%</p>
-        </div>
-        <div className="dash-panel p-5 bg-card rounded-xl border border-border">
-          <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
-            <TrendingUp className="size-3.5 text-amber-500" /> Page Capacity
-          </p>
-          <p className="text-3xl font-extrabold text-foreground mt-2">Unlimited</p>
-        </div>
-      </div>
 
-      {/* Action Pages Grid List */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-          Published Action Pages
-        </h2>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-2">
           {pages.map((p: any) => {
             const pageUrl = `${baseUrl}/a/${p.slug}`
             return (
               <div
                 key={p.id}
-                className="group relative bg-card border border-border hover:border-primary/40 rounded-2xl p-6 transition-all duration-300 shadow-md hover:shadow-xl flex flex-col justify-between"
+                className="group border border-border bg-card rounded-md p-4 transition-all duration-150 hover:border-foreground/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2.5">
-                      <div className="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
-                        <Zap className="size-4" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-foreground text-base group-hover:text-primary transition-colors line-clamp-1">
-                          {p.title}
-                        </h3>
-                        <p className="text-xs font-mono text-muted-foreground mt-0.5">/a/{p.slug}</p>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => handleDelete(p.id)}
-                      className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-1"
-                      title="Delete page"
-                    >
-                      <Trash2 className="size-4" />
-                    </button>
+                <div className="space-y-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-foreground text-sm truncate">{p.title}</h3>
+                    <span className="text-[11px] font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded border border-border">/a/{p.slug}</span>
                   </div>
-
                   {p.description && (
-                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                      {p.description}
-                    </p>
+                    <p className="text-xs text-muted-foreground truncate">{p.description}</p>
                   )}
                 </div>
 
-                <div className="pt-5 mt-4 border-t border-border/80 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
-                    <Eye className="size-3.5 text-primary" />
-                    {(p.viewsCount || 0).toLocaleString()} views
-                  </div>
+                <div className="flex items-center gap-4 shrink-0 justify-between sm:justify-end">
+                  <span className="text-xs font-mono font-bold text-foreground">{(p.viewsCount || 0).toLocaleString()} views</span>
 
                   <div className="flex items-center gap-1">
                     <Button
@@ -314,9 +283,8 @@ export function ActionPagesClient({ initialPages }: ActionPagesClientProps) {
                       size="icon"
                       className="size-8 text-muted-foreground hover:text-foreground"
                       onClick={() => handleCopy(p.slug, p.id)}
-                      title="Copy Link"
                     >
-                      {copiedId === p.id ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
+                      {copiedId === p.id ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
                     </Button>
 
                     <SocialShareModal url={pageUrl} title={p.title} />
@@ -325,10 +293,19 @@ export function ActionPagesClient({ initialPages }: ActionPagesClientProps) {
                       href={pageUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline px-2.5 py-1.5 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-foreground hover:underline px-2.5 py-1 rounded bg-muted hover:bg-muted/80 transition-colors"
                     >
-                      Visit <ExternalLink className="size-3" />
+                      View <ArrowUpRight className="size-3" />
                     </a>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => handleDelete(p.id)}
+                    >
+                      <Trash2 className="size-3.5" />
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -336,14 +313,12 @@ export function ActionPagesClient({ initialPages }: ActionPagesClientProps) {
           })}
 
           {pages.length === 0 && (
-            <div className="col-span-full py-20 text-center border-2 border-dashed border-border rounded-2xl bg-card/50">
-              <Layers className="size-12 text-muted-foreground/40 mx-auto mb-3 animate-float" />
-              <h3 className="text-lg font-bold text-foreground">No Action Pages Created Yet</h3>
-              <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-                Create dynamic, mobile-optimized landing pages with videos, call-to-actions, and lead generation in under 60 seconds.
-              </p>
-              <Button onClick={() => setIsOpen(true)} className="btn-primary mt-6 gap-2">
-                <Plus className="size-4" /> Create First Action Page
+            <div className="py-16 text-center border border-dashed border-border rounded-md bg-card">
+              <Layers className="size-8 text-muted-foreground/40 mx-auto mb-2" />
+              <h3 className="text-sm font-semibold text-foreground font-mono">No Action Pages created</h3>
+              <p className="text-xs text-muted-foreground mt-1 font-mono">Create your first landing page router.</p>
+              <Button onClick={() => setIsOpen(true)} size="sm" className="mt-4 h-9 px-4 text-xs font-semibold bg-foreground text-background">
+                <Plus className="mr-1.5 size-3.5" /> Create Action Page
               </Button>
             </div>
           )}
