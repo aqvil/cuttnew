@@ -32,6 +32,9 @@ import {
   Download,
   Calendar,
   ChevronDown,
+  Lock,
+  Clock,
+  Smartphone,
 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
@@ -46,13 +49,15 @@ export function LinkEditor({ link }: LinkEditorProps) {
   const [originalUrl, setOriginalUrl] = useState(link.originalUrl)
   const [title, setTitle] = useState(link.title || "")
   const [tagsInput, setTagsInput] = useState<string>((link.tags || []).join(", "))
-  const [password, setPassword] = useState("")
+  const [password, setPassword] = useState(link.password || "")
   const [usePassword, setUsePassword] = useState(!!link.password)
   const [expiresAt, setExpiresAt] = useState(
     link.expiresAt ? new Date(link.expiresAt).toISOString().slice(0, 16) : ""
   )
   const [useExpiration, setUseExpiration] = useState(!!link.expiresAt)
-  const [isActive, setIsActive] = useState(link.isActive)
+  const [iosUrl, setIosUrl] = useState(link.iosUrl || "")
+  const [androidUrl, setAndroidUrl] = useState(link.androidUrl || "")
+  const [isActive, setIsActive] = useState(link.isActive ?? true)
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -69,8 +74,8 @@ export function LinkEditor({ link }: LinkEditorProps) {
         year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
-      }) + " GMT+1"
-    : "March 11, 2025 10:59 AM GMT+1"
+      }) + " GMT+2"
+    : "August 8, 2026 3:09 PM GMT+2"
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(`https://${shortUrl}`)
@@ -88,9 +93,11 @@ export function LinkEditor({ link }: LinkEditorProps) {
         tags: tagsInput.split(",").map((t) => t.trim()).filter(Boolean),
         password: usePassword ? (password || undefined) : null,
         expiresAt: useExpiration && expiresAt ? expiresAt : null,
+        iosUrl: iosUrl || null,
+        androidUrl: androidUrl || null,
         isActive,
       })
-      toast.success("Link updated")
+      toast.success("Link updated successfully")
       setIsEditingForm(false)
       router.refresh()
     } catch (err: any) {
@@ -114,7 +121,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-5 p-4 sm:p-8 font-mono text-foreground">
-      {/* Bitly Header Row */}
+      {/* Bitly Header Row matching user's screenshot */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
         <div className="flex items-center gap-3 min-w-0">
           <Link href="/dashboard/links">
@@ -125,7 +132,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
           <div className="flex items-center gap-2 min-w-0">
             <ChevronRightCircle className="w-5 h-5 text-muted-foreground shrink-0" />
             <h1 className="text-xl font-bold tracking-tight text-foreground truncate">
-              {title || "Reminderly - Your Ultimate Reminder Service"}
+              {title || `${originalUrl.replace(/^https?:\/\//, "").split("/")[0]} - untitled`}
             </h1>
           </div>
         </div>
@@ -167,7 +174,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
         </div>
       </div>
 
-      {/* Main Layout: Flex Row with 100% matching card widths and 3px border radius */}
+      {/* Main 2-Column Layout matching user screenshot */}
       <div className="flex flex-col lg:flex-row items-start gap-6 w-full">
         {/* Left Column (Details, Dynamic Routing, Analytics) */}
         <div className="flex-1 w-full space-y-5 min-w-0">
@@ -243,29 +250,98 @@ export function LinkEditor({ link }: LinkEditorProps) {
             </Button>
           </div>
 
-          {/* Edit Form Drawer */}
+          {/* Edit Form Drawer (All Advanced Options Moved Here) */}
           {isEditingForm && (
-            <div className="w-full p-5 rounded-[3px] border border-primary/30 bg-primary/5 space-y-4">
-              <h3 className="font-bold text-sm text-foreground">Edit Link Target</h3>
-              <div className="space-y-3">
-                <div className="space-y-1">
+            <div className="w-full p-6 rounded-[3px] border border-primary/30 bg-card space-y-5 shadow-sm">
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <h3 className="font-bold text-sm text-foreground">Edit Link Details & Rules</h3>
+                <span className="text-xs text-muted-foreground">Configure targeting, protection & tags</span>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-1.5">
                   <Label className="text-xs font-semibold">Title</Label>
                   <Input value={title} onChange={(e) => setTitle(e.target.value)} className="h-9 font-mono text-xs rounded-[3px]" />
                 </div>
-                <div className="space-y-1">
+
+                <div className="space-y-1.5">
                   <Label className="text-xs font-semibold">Destination URL</Label>
                   <Input value={originalUrl} onChange={(e) => setOriginalUrl(e.target.value)} className="h-9 font-mono text-xs rounded-[3px]" />
                 </div>
-                <div className="space-y-1">
+
+                <div className="space-y-1.5">
                   <Label className="text-xs font-semibold">Tags (comma-separated)</Label>
-                  <Input value={tagsInput} onChange={(e) => setTagsInput(e.target.value)} className="h-9 font-mono text-xs rounded-[3px]" />
+                  <Input value={tagsInput} onChange={(e) => setTagsInput(e.target.value)} className="h-9 font-mono text-xs rounded-[3px]" placeholder="marketing, campaign, release" />
                 </div>
-                <div className="flex items-center justify-between pt-2">
-                  <Label className="text-xs font-semibold">Active Status</Label>
+
+                {/* Password Protection Option */}
+                <div className="p-3.5 rounded-[3px] border border-border bg-muted/30 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+                      <Label className="text-xs font-semibold">Password Protection</Label>
+                    </div>
+                    <Switch checked={usePassword} onCheckedChange={setUsePassword} />
+                  </div>
+                  {usePassword && (
+                    <Input
+                      type="password"
+                      placeholder="Enter access password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="h-9 font-mono text-xs rounded-[3px]"
+                    />
+                  )}
+                </div>
+
+                {/* Expiration Option */}
+                <div className="p-3.5 rounded-[3px] border border-border bg-muted/30 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                      <Label className="text-xs font-semibold">Link Expiration</Label>
+                    </div>
+                    <Switch checked={useExpiration} onCheckedChange={setUseExpiration} />
+                  </div>
+                  {useExpiration && (
+                    <Input
+                      type="datetime-local"
+                      value={expiresAt}
+                      onChange={(e) => setExpiresAt(e.target.value)}
+                      className="h-9 font-mono text-xs rounded-[3px]"
+                    />
+                  )}
+                </div>
+
+                {/* Mobile Deep Links Option */}
+                <div className="p-3.5 rounded-[3px] border border-border bg-muted/30 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Smartphone className="w-3.5 h-3.5 text-muted-foreground" />
+                    <Label className="text-xs font-semibold">Mobile Device Targeting (iOS / Android)</Label>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Input
+                      placeholder="iOS Target URL (https://...)"
+                      value={iosUrl}
+                      onChange={(e) => setIosUrl(e.target.value)}
+                      className="h-9 font-mono text-xs rounded-[3px]"
+                    />
+                    <Input
+                      placeholder="Android Target URL (https://...)"
+                      value={androidUrl}
+                      onChange={(e) => setAndroidUrl(e.target.value)}
+                      className="h-9 font-mono text-xs rounded-[3px]"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <Label className="text-xs font-semibold">Active Redirect Status</Label>
                   <Switch checked={isActive} onCheckedChange={setIsActive} />
                 </div>
               </div>
-              <div className="flex items-center gap-3 pt-2">
+
+              <div className="flex items-center gap-3 pt-3 border-t border-border">
                 <Button size="sm" onClick={handleSave} disabled={isSaving} className="font-mono text-xs font-bold rounded-[3px]">
                   {isSaving ? "Saving..." : "Save changes"}
                 </Button>
@@ -276,7 +352,7 @@ export function LinkEditor({ link }: LinkEditorProps) {
             </div>
           )}
 
-          {/* Analytics Card */}
+          {/* Analytics Section matching user's screenshot */}
           <div className="w-full p-5 rounded-[3px] border border-border bg-card space-y-5 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h2 className="text-base font-bold text-foreground">Analytics</h2>
@@ -312,24 +388,23 @@ export function LinkEditor({ link }: LinkEditorProps) {
           </div>
         </div>
 
-        {/* Right Column Sidebar Cards (Fixed 340px width with 3px border radius) */}
+        {/* Right Column Sidebar Cards matching user screenshot */}
         <div className="w-full lg:w-[340px] shrink-0 space-y-5">
           {/* QR Code Box */}
           <div className="w-full p-5 rounded-[3px] border border-border bg-card space-y-4 shadow-xs">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-foreground">QR Code</h2>
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <button className="p-1 hover:text-foreground"><MoreHorizontal className="w-4 h-4" /></button>
-                <button className="p-1 hover:text-foreground"><Download className="w-4 h-4" /></button>
-              </div>
+              <button className="text-xs text-primary font-bold hover:underline">
+                + Create QR Code
+              </button>
             </div>
             <QrCodeCard url={`https://${shortUrl}`} fileName={`cuttly-${link.shortCode}`} />
           </div>
 
-          {/* Cuttly Pages Box */}
+          {/* Bitly Pages Box */}
           <div className="w-full p-5 rounded-[3px] border border-border bg-card space-y-4 shadow-xs">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-foreground">Cuttly Pages</h2>
+              <h2 className="text-base font-bold text-foreground">Bitly Pages</h2>
               <Link href="/dashboard/bio" className="text-xs text-primary font-bold hover:underline">
                 + Add to a page
               </Link>
