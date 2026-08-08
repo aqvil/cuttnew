@@ -18,3 +18,4 @@ node_modules
 # SQL Dumps & Database Backups
 *.sql
 import-legacy.sql
+!scripts/import-legacy-pg.sql
