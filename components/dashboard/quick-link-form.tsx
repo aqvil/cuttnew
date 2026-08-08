@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowRight, Link2, QrCode, Sparkles, Lock, Info, Check, Copy, ExternalLink, Loader2 } from "lucide-react"
+import { Link2, QrCode, Sparkles, Lock, Info, Check, Copy, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 function generateShortCode(length = 7): string {
@@ -62,15 +62,15 @@ export function QuickLinkForm() {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto font-mono">
-      {/* Top Creation Tabs (Bitly Screenshot 5) */}
+    <div className="space-y-5 w-full font-mono">
+      {/* Top Creation Tabs */}
       <div className="flex items-center justify-center gap-2">
         <button
           type="button"
           onClick={() => setActiveTab("link")}
           className={`flex items-center gap-2 px-5 py-2 rounded-full font-mono text-xs font-bold transition-all border ${
             activeTab === "link"
-              ? "bg-card text-foreground border-border shadow-sm"
+              ? "bg-card text-foreground border-border shadow-xs"
               : "text-muted-foreground hover:text-foreground border-transparent"
           }`}
         >
@@ -81,7 +81,7 @@ export function QuickLinkForm() {
           onClick={() => setActiveTab("qr")}
           className={`flex items-center gap-2 px-5 py-2 rounded-full font-mono text-xs font-bold transition-all border ${
             activeTab === "qr"
-              ? "bg-card text-foreground border-border shadow-sm"
+              ? "bg-card text-foreground border-border shadow-xs"
               : "text-muted-foreground hover:text-foreground border-transparent"
           }`}
         >
@@ -89,10 +89,10 @@ export function QuickLinkForm() {
         </button>
       </div>
 
-      {/* Main Quick Create Box Grid (Bitly Screenshot 5) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        {/* Left 2 Columns: Shortener Form */}
-        <div className="lg:col-span-2 p-6 rounded-2xl border border-border bg-card space-y-6 shadow-sm">
+      {/* Main Quick Create Box Grid */}
+      <div className="flex flex-col lg:flex-row items-start gap-5 w-full">
+        {/* Left Column: Shortener Form */}
+        <div className="flex-1 w-full p-5 rounded-[3px] border border-border bg-card space-y-5 shadow-xs min-w-0">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-foreground">Quick create: Short link</h2>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -109,7 +109,7 @@ export function QuickLinkForm() {
           </div>
 
           {result ? (
-            <div className="p-4 rounded-xl border border-primary/30 bg-primary/5 space-y-3">
+            <div className="p-4 rounded-[3px] border border-primary/30 bg-primary/5 space-y-3">
               <div className="text-xs font-bold text-foreground">Your link is ready!</div>
               <div className="flex items-center gap-2">
                 <a
@@ -120,7 +120,7 @@ export function QuickLinkForm() {
                 >
                   {result.shortUrl.replace(/^https?:\/\//, "")}
                 </a>
-                <Button size="sm" onClick={handleCopy} className="font-mono text-xs font-bold ml-auto">
+                <Button size="sm" onClick={handleCopy} className="font-mono text-xs font-bold ml-auto rounded-[3px]">
                   {copied ? <Check className="w-3.5 h-3.5 mr-1" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
                   {copied ? "Copied" : "Copy"}
                 </Button>
@@ -144,13 +144,13 @@ export function QuickLinkForm() {
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="https://example.com/my-long-url"
-                    className="font-mono text-xs h-11 border-border bg-background flex-1"
+                    className="font-mono text-xs h-10 border-border bg-background flex-1 rounded-[3px]"
                     required
                   />
                   <Button
                     type="submit"
                     disabled={isPending || !url.trim()}
-                    className="h-11 px-6 font-mono text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 shrink-0"
+                    className="h-10 px-5 font-mono text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 shrink-0 rounded-[3px]"
                   >
                     {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create your Cuttly link"}
                   </Button>
@@ -162,6 +162,7 @@ export function QuickLinkForm() {
                   id="create_qr"
                   checked={createQr}
                   onCheckedChange={(c) => setCreateQr(!!c)}
+                  className="rounded-[2px]"
                 />
                 <Label htmlFor="create_qr" className="text-xs font-mono text-muted-foreground cursor-pointer">
                   Also create a QR Code for this link
@@ -170,8 +171,8 @@ export function QuickLinkForm() {
             </form>
           )}
 
-          {/* Bottom Cyan Callout (Bitly Screenshot 5) */}
-          <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-xs font-mono text-foreground flex items-center justify-between">
+          {/* Bottom Callout */}
+          <div className="p-3 rounded-[3px] bg-cyan-500/10 border border-cyan-500/20 text-xs font-mono text-foreground flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-teal-500" />
               <span>Get custom links and a complimentary domain.</span>
@@ -182,8 +183,8 @@ export function QuickLinkForm() {
           </div>
         </div>
 
-        {/* Right 1 Column: Pink/Purple Gradient Callout Box (Bitly Screenshot 5) */}
-        <div className="p-6 rounded-2xl border border-purple-500/20 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-purple-500/10 space-y-4 shadow-sm">
+        {/* Right Column: Callout Box (Fixed 340px width matching 100% grid) */}
+        <div className="w-full lg:w-[340px] shrink-0 p-5 rounded-[3px] border border-purple-500/20 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-purple-500/10 space-y-4 shadow-xs">
           <div className="space-y-1">
             <div className="flex items-center gap-1.5 text-purple-600 font-bold text-xs">
               <Sparkles className="w-4 h-4" /> Simplify your workflow
@@ -194,15 +195,15 @@ export function QuickLinkForm() {
           </div>
 
           <div className="space-y-2">
-            <div className="p-2.5 rounded-full bg-card border border-border text-xs font-semibold text-foreground text-center shadow-xs">
+            <div className="p-2.5 rounded-[3px] bg-card border border-border text-xs font-semibold text-foreground text-center shadow-xs">
               Personalize a short link
             </div>
-            <div className="p-2.5 rounded-full bg-card border border-border text-xs font-semibold text-foreground text-center shadow-xs">
+            <div className="p-2.5 rounded-[3px] bg-card border border-border text-xs font-semibold text-foreground text-center shadow-xs">
               Make a unique link for every post
             </div>
           </div>
 
-          <Button className="w-full h-10 font-mono text-xs font-bold gap-1.5 bg-teal-600 hover:bg-teal-700 text-white shadow-sm">
+          <Button className="w-full h-9 font-mono text-xs font-bold gap-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-[3px]">
             <Sparkles className="w-3.5 h-3.5" /> Upgrade to Create with AI
           </Button>
         </div>
