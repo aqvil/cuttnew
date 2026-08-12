@@ -132,6 +132,13 @@ export async function getAnalyticsSummary(
     gte(linkAnalytics.clickedAt, start)
   )
 
+  // The unit must be inlined, not bound: Postgres matches GROUP BY against the
+  // select list by expression, and two bind parameters holding the same value
+  // are still two different expressions. `bucket` is a closed union, never
+  // user input, so raw interpolation is safe here. Built once and reused so
+  // select/group/order are literally the same expression.
+  const truncated = sql`date_trunc('${sql.raw(bucket)}', ${linkAnalytics.clickedAt})`
+
   const [
     [totals],
     [previous],
@@ -164,13 +171,13 @@ export async function getAnalyticsSummary(
 
     db
       .select({
-        bucket: sql<string>`to_char(date_trunc(${bucket}, ${linkAnalytics.clickedAt}), 'YYYY-MM-DD"T"HH24:MI:SS')`,
+        bucket: sql<string>`to_char(${truncated}, 'YYYY-MM-DD"T"HH24:MI:SS')`,
         clicks: count(),
       })
       .from(linkAnalytics)
       .where(inWindow)
-      .groupBy(sql`date_trunc(${bucket}, ${linkAnalytics.clickedAt})`)
-      .orderBy(sql`date_trunc(${bucket}, ${linkAnalytics.clickedAt})`),
+      .groupBy(truncated)
+      .orderBy(truncated),
 
     db
       .select({ label: linkAnalytics.referrer, value: count() })

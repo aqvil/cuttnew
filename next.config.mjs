@@ -1,5 +1,27 @@
+import { fileURLToPath } from 'node:url'
+
+/*
+ * Pin the project root.
+ *
+ * Next infers a "workspace root" by walking up from the working directory
+ * looking for a lockfile. When that inference lands above the project, module
+ * resolution starts from the wrong directory and the project's own
+ * node_modules is never consulted — which showed up as
+ * `Can't resolve 'tailwindcss' in '/var/www'` on the Ubuntu box, where the app
+ * lives in /var/www/cuttnew and resolution was starting at /var/www.
+ *
+ * Anchoring both the bundler root and the file-tracing root to this file's
+ * directory makes resolution independent of what sits above the project.
+ */
+const projectRoot = fileURLToPath(new URL('.', import.meta.url))
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  turbopack: {
+    root: projectRoot,
+  },
+  outputFileTracingRoot: projectRoot,
+
   // `ignoreBuildErrors` was on, which meant type errors shipped silently.
   // The project now typechecks clean, so failures should break the build.
   typescript: {
