@@ -107,11 +107,11 @@ export function SurveysClient({ initialSurveys }: SurveysClientProps) {
   }
 
   return (
-    <div className="dash-narrow space-y-8">
+    <div className="page-narrow space-y-8">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
-          <div className="dash-kicker mb-2">Surveys & Polls</div>
+          <div className="eyebrow mb-2">Surveys & Polls</div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Surveys & Feedback Studio
           </h1>
@@ -142,7 +142,7 @@ export function SurveysClient({ initialSurveys }: SurveysClientProps) {
                   placeholder="e.g. Customer Feedback 2026"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="dash-field h-10 text-xs font-mono"
+                  className="h-10 h-10 text-xs font-mono"
                   required
                 />
               </div>

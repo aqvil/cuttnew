@@ -1,4 +1,4 @@
-import { ThemeToggle } from "@/components/theme-toggle"
+import Link from "next/link"
 import {
   ArrowRight,
   BarChart3,
@@ -6,526 +6,289 @@ import {
   Globe,
   Link2,
   Lock,
-  MousePointerClick,
   QrCode,
   Smartphone,
-  Tag,
+  Tags,
   Timer,
-  Zap,
-  Shield,
-  TrendingUp,
 } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { HeroShortenForm } from "./hero-shorten-form"
 
-const features = [
+import { Button } from "@/components/ui/button"
+import { SiteHeader } from "@/components/marketing/site-header"
+import { SiteFooter } from "@/components/marketing/site-footer"
+import { HeroShortenForm } from "./hero-shorten-form"
+import { PLANS } from "@/lib/plans"
+import { appOrigin } from "@/lib/app-url"
+
+/**
+ * Landing page.
+ *
+ * Every claim below describes something the product actually does. The
+ * previous page advertised "10M+ links shortened", "99.9% uptime SLA" and
+ * "< 50ms redirect speed" — none of which were measured, and the first of
+ * which was demonstrably false for a fresh deployment.
+ */
+
+const FEATURES = [
   {
     icon: Link2,
-    title: "Short links",
-    desc: "Turn any URL into a clean, shareable link with a custom back-half. Instant redirects, zero friction.",
+    title: "Editable destinations",
+    body: "Change where a link points after you've shared it. The short URL never changes, so print and posts stay valid.",
   },
   {
     icon: BarChart3,
-    title: "Deep analytics",
-    desc: "Track clicks, referrers, countries, browsers, and devices — per link, in real time.",
+    title: "Click analytics",
+    body: "Clicks over time, referrer, country, device, browser and OS — recorded on every redirect, aggregated in the database.",
   },
   {
     icon: QrCode,
-    title: "QR codes",
-    desc: "Generate high-res QR codes for every link. Download PNG with your branding built in.",
-  },
-  {
-    icon: Smartphone,
-    title: "Bio pages",
-    desc: "One public page. Many destinations. Perfect for Instagram, Twitter, and everywhere else.",
+    title: "QR codes that report back",
+    body: "Generate a code for any link and download it as PNG or SVG. Scans are counted separately from ordinary clicks.",
   },
   {
     icon: Lock,
     title: "Password protection",
-    desc: "Gate any link behind a password. Share sensitive content with only the right audience.",
+    body: "Gate a link behind a password. The destination is never present in the page until the password verifies.",
   },
   {
     icon: Timer,
-    title: "Link expiration",
-    desc: "Set links to auto-expire on a date or after a click limit. Perfect for time-limited campaigns.",
+    title: "Expiry rules",
+    body: "Expire a link on a date or after a number of clicks, and optionally redirect expired traffic somewhere else.",
   },
   {
-    icon: Tag,
-    title: "Tags & organization",
-    desc: "Label links with tags for campaigns, clients, or channels. Filter and export instantly.",
+    icon: Smartphone,
+    title: "Device targeting",
+    body: "Send iOS and Android visitors to their respective app stores while everyone else gets the main destination.",
+  },
+  {
+    icon: Tags,
+    title: "Tags and search",
+    body: "Tag links by campaign or client, then search and filter server-side — it stays fast at thousands of links.",
   },
   {
     icon: Globe,
-    title: "UTM tracking",
-    desc: "Auto-append UTM parameters to destination URLs for seamless GA4 and analytics integration.",
+    title: "REST API",
+    body: "Create, update and delete links programmatically with a scoped API key. Rate limited and documented.",
   },
-  {
-    icon: Shield,
-    title: "Reliable uptime",
-    desc: "99.9% uptime SLA. Every redirect is served from the edge so nothing breaks at the worst time.",
-  },
-]
-
-const plans = [
-  {
-    name: "Free",
-    price: "$0",
-    period: "",
-    description: "For anyone getting started",
-    features: [
-      "50 short links / month",
-      "Basic click analytics",
-      "QR code download",
-      "1 bio page",
-      "Link expiration",
-      "Password protection",
-    ],
-    cta: "Get started free",
-    href: "/auth/login",
-    popular: false,
-  },
-  {
-    name: "Pro",
-    price: "$9",
-    period: "/mo",
-    description: "For creators and professionals",
-    features: [
-      "500 short links / month",
-      "Advanced analytics",
-      "Unlimited bio pages",
-      "Custom slugs",
-      "UTM campaign builder",
-      "Remove branding",
-      "Custom themes",
-      "Priority support",
-    ],
-    cta: "Start Pro",
-    href: "/auth/login",
-    popular: true,
-  },
-  {
-    name: "Business",
-    price: "$29",
-    period: "/mo",
-    description: "For teams and agencies",
-    features: [
-      "Unlimited short links",
-      "Everything in Pro",
-      "Custom domains",
-      "Team collaboration",
-      "API access",
-      "Dedicated support",
-      "Analytics export",
-      "SSO (coming soon)",
-    ],
-    cta: "Start Business",
-    href: "/auth/login",
-    popular: false,
-  },
-]
-
-const stats = [
-  { value: "10M+", label: "links shortened" },
-  { value: "99.9%", label: "redirect uptime" },
-  { value: "< 50ms", label: "redirect speed" },
-  { value: "180+", label: "countries tracked" },
 ]
 
 export default function LandingPage() {
+  const origin = appOrigin().replace(/^https?:\/\//, "")
+
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* ── Header ─────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-6">
-          <Link href="/" className="flex items-center gap-3 font-semibold tracking-tight">
-            <span className="flex size-8 items-center justify-center rounded-md border border-foreground bg-foreground text-background shadow-sm">
-              <Link2 className="size-3.5 stroke-[3]" />
-            </span>
-            <span className="text-lg">Cuttly</span>
-          </Link>
-
-          <nav className="hidden items-center gap-7 md:flex">
-            {[
-              { label: "Features", href: "#features" },
-              { label: "Pricing", href: "#pricing" },
-              { label: "Analytics", href: "#analytics" },
-            ].map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Button variant="ghost" className="hidden text-sm sm:inline-flex" asChild>
-              <Link href="/auth/login">Log in</Link>
-            </Button>
-            <Button className="btn-primary" asChild>
-              <Link href="/auth/login">
-                Get started <ArrowRight className="size-3.5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
 
       <main className="flex-1">
-        {/* ── Hero ───────────────────────────────────────────────── */}
-        <section className="relative overflow-hidden border-b border-border bg-background">
-          {/* Grid bg */}
-          <div className="absolute inset-0 mono-grid opacity-60 pointer-events-none" />
-          {/* Radial spotlight */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[900px] h-[500px] rounded-full bg-foreground/[0.03] blur-3xl" />
-          </div>
+        {/* Hero */}
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 lg:py-28">
+            <div className="mx-auto max-w-2xl text-center">
+              <h1 className="text-4xl font-semibold leading-[1.1] tracking-[-0.03em] sm:text-5xl lg:text-[56px]">
+                Short links you can change your mind about.
+              </h1>
+              <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
+                Shorten a URL, print it, share it — then edit the destination later without
+                breaking a thing. And see exactly who clicked.
+              </p>
 
-          <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col items-center justify-center px-5 py-20 text-center sm:px-6">
-            <div className="mb-6 animate-fade-in-up" style={{ animationDelay: "0ms" }}>
-              <span className="dash-kicker">
-                <MousePointerClick className="size-3.5" />
-                URL shortener &amp; analytics
-              </span>
-            </div>
+              <div className="mt-9 flex justify-center">
+                <HeroShortenForm />
+              </div>
 
-            <h1
-              className="max-w-4xl text-5xl font-bold leading-[0.95] tracking-tighter text-foreground sm:text-6xl lg:text-7xl animate-fade-in-up"
-              style={{ animationDelay: "60ms" }}
-            >
-              Short links that do
-              <br />
-              <span className="relative inline-block">
-                more than redirect.
-                <span className="absolute -bottom-1 left-0 h-[3px] w-full bg-foreground/15 rounded-full" />
-              </span>
-            </h1>
-
-            <p
-              className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl animate-fade-in-up"
-              style={{ animationDelay: "120ms" }}
-            >
-              Shorten URLs, track every click, generate QR codes, and build link-in-bio pages.
-              The link infrastructure for builders who care about data.
-            </p>
-
-            <div
-              className="animate-fade-in-up flex w-full max-w-2xl justify-center"
-              style={{ animationDelay: "180ms" }}
-            >
-              <HeroShortenForm />
-            </div>
-
-            <div
-              className="mt-8 flex flex-wrap justify-center gap-5 text-sm text-muted-foreground animate-fade-in-up"
-              style={{ animationDelay: "240ms" }}
-            >
-              {["No credit card required", "Free forever plan", "Instant setup"].map((item) => (
-                <span key={item} className="inline-flex items-center gap-2">
-                  <Check className="size-3.5 text-foreground" />
-                  {item}
-                </span>
-              ))}
-            </div>
-
-            {/* Stats bar */}
-            <div
-              className="mt-16 grid w-full max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4 animate-fade-in-up"
-              style={{ animationDelay: "300ms" }}
-            >
-              {stats.map((stat) => (
-                <div key={stat.label} className="dash-panel p-5 text-center">
-                  <div className="text-2xl font-bold tabular-nums tracking-tight text-foreground sm:text-3xl">
-                    {stat.value}
-                  </div>
-                  <div className="mt-1 text-xs font-medium text-muted-foreground">{stat.label}</div>
-                </div>
-              ))}
+              <p className="mt-4 text-sm text-muted-foreground">
+                Works without an account. Free plan includes{" "}
+                {PLANS.free.linksPerMonth} links a month.
+              </p>
             </div>
           </div>
         </section>
 
-        {/* ── Analytics Preview ───────────────────────────────────── */}
-        <section id="analytics" className="border-b border-border bg-muted/30 py-20 lg:py-28">
-          <div className="mx-auto max-w-7xl px-5 sm:px-6">
-            <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
+        {/* What it looks like */}
+        <section className="border-b border-border bg-subtle">
+          <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 lg:py-24">
+            <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
               <div>
-                <div className="dash-kicker mb-6 w-fit">
-                  <TrendingUp className="size-3.5" />
-                  Analytics
-                </div>
-                <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                  Know exactly who clicks,
-                  <br />
-                  where, and when.
+                <p className="eyebrow">Analytics</p>
+                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
+                  Real numbers, not a wall of charts.
                 </h2>
-                <p className="mt-5 text-lg leading-8 text-muted-foreground">
-                  Every link comes with a full analytics dashboard. Track clicks over time,
-                  referrer sources, country breakdown, devices, and browsers — all in one place.
+                <p className="mt-4 text-base leading-7 text-muted-foreground">
+                  Every redirect records where the visitor came from, what they used and roughly
+                  where they were. Nothing is estimated or modelled — if we can&apos;t measure it,
+                  we don&apos;t show it.
                 </p>
+
                 <ul className="mt-8 space-y-3">
                   {[
-                    "30-day click timeline",
-                    "Country & city breakdown",
-                    "Device & browser stats",
-                    "Referrer source tracking",
-                    "QR code scans vs. link clicks",
+                    "Clicks over 24 hours to 12 months",
+                    "Unique visitors, counted by hashed IP",
+                    "Referrer, country, device, browser and OS",
+                    "QR scans separated from link clicks",
+                    "CSV export of everything on screen",
                   ].map((item) => (
-                    <li key={item} className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-border bg-background">
-                        <Check className="size-3 text-foreground" />
-                      </span>
+                    <li key={item} className="flex items-start gap-3 text-sm">
+                      <Check
+                        className="mt-0.5 size-4 shrink-0 text-success"
+                        aria-hidden="true"
+                      />
                       {item}
                     </li>
                   ))}
                 </ul>
-                <div className="mt-10">
-                  <Button className="btn-primary" asChild>
-                    <Link href="/auth/login">Start tracking free <ArrowRight className="size-4" /></Link>
-                  </Button>
-                </div>
+
+                <Button asChild className="mt-9">
+                  <Link href="/auth/sign-up">
+                    Start tracking free
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  </Link>
+                </Button>
               </div>
 
-              {/* Fake analytics card */}
-              <div className="relative animate-float">
-                <div className="dash-panel overflow-hidden p-0">
-                  <div className="border-b border-border px-5 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-semibold text-foreground">cuttly.io/l/spring25</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Spring campaign → product page</p>
-                      </div>
-                      <span className="dash-kicker text-[10px]">Live</span>
+              {/* An illustration of the interface, clearly labelled as an
+                  example rather than presented as live data. */}
+              <div className="overflow-hidden rounded-lg border border-border bg-card">
+                <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+                  <div className="min-w-0">
+                    <p className="truncate font-mono text-sm font-medium">{origin}/l/spring25</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">Example dashboard</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
+                  {[
+                    { value: "4,218", label: "Clicks" },
+                    { value: "3,104", label: "Unique" },
+                    { value: "612", label: "QR scans" },
+                  ].map((stat) => (
+                    <div key={stat.label} className="px-4 py-5">
+                      <p className="text-xl font-semibold tabular">{stat.value}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{stat.label}</p>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
-                    {[
-                      { v: "4,218", l: "Total clicks" },
-                      { v: "62%", l: "Mobile" },
-                      { v: "US", l: "Top country" },
-                    ].map((s) => (
-                      <div key={s.l} className="p-4 text-center">
-                        <div className="text-xl font-bold tabular-nums">{s.v}</div>
-                        <div className="text-xs text-muted-foreground mt-0.5">{s.l}</div>
+                  ))}
+                </div>
+
+                <div className="space-y-3 p-5">
+                  <p className="eyebrow">Top referrers</p>
+                  {[
+                    { label: "Direct", pct: 42 },
+                    { label: "linkedin.com", pct: 27 },
+                    { label: "newsletter", pct: 19 },
+                    { label: "x.com", pct: 12 },
+                  ].map((row) => (
+                    <div key={row.label} className="space-y-1.5">
+                      <div className="flex items-baseline justify-between text-sm">
+                        <span>{row.label}</span>
+                        <span className="text-muted-foreground tabular">{row.pct}%</span>
                       </div>
-                    ))}
-                  </div>
-                  <div className="p-5 space-y-3">
-                    {[
-                      { label: "chrome", pct: 58 },
-                      { label: "safari", pct: 28 },
-                      { label: "firefox", pct: 9 },
-                      { label: "edge", pct: 5 },
-                    ].map((b) => (
-                      <div key={b.label} className="grid grid-cols-[4.5rem_1fr_2.5rem] items-center gap-3 text-xs">
-                        <span className="font-mono text-muted-foreground capitalize">{b.label}</span>
-                        <span className="h-1.5 rounded-full bg-muted">
-                          <span
-                            className="block h-1.5 rounded-full bg-foreground transition-all"
-                            style={{ width: `${b.pct}%` }}
-                          />
-                        </span>
-                        <span className="text-right font-semibold tabular-nums">{b.pct}%</span>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-chart-1"
+                          style={{ width: `${row.pct}%` }}
+                        />
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── Features Grid ───────────────────────────────────────── */}
-        <section id="features" className="border-b border-border bg-background py-20 lg:py-28">
-          <div className="mx-auto max-w-7xl px-5 sm:px-6">
+        {/* Features */}
+        <section id="features" className="border-b border-border scroll-mt-20">
+          <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 lg:py-24">
             <div className="max-w-2xl">
-              <div className="dash-kicker mb-6 w-fit">
-                <Zap className="size-3.5" />
-                Features
-              </div>
-              <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                Everything a link needs. Nothing it doesn't.
+              <p className="eyebrow">Features</p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
+                Everything a link needs. Nothing it doesn&apos;t.
               </h2>
-              <p className="mt-5 text-lg leading-8 text-muted-foreground">
-                A focused toolkit for teams and solo builders who want links that are easy to
-                create, share, and measure.
-              </p>
             </div>
 
-            <div className="mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {features.map((feature, i) => (
-                <div
-                  key={feature.title}
-                  className="dash-panel group cursor-default p-6 transition-all duration-200 hover:-translate-y-0.5"
-                  style={{ animationDelay: `${i * 40}ms` }}
-                >
-                  <div className="dash-icon mb-6 transition-colors group-hover:bg-foreground group-hover:text-background">
-                    <feature.icon className="size-4" />
-                  </div>
-                  <h3 className="font-semibold text-foreground">{feature.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{feature.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── Pricing ─────────────────────────────────────────────── */}
-        <section id="pricing" className="border-b border-border bg-muted/20 py-20 lg:py-28">
-          <div className="mx-auto max-w-7xl px-5 sm:px-6">
-            <div className="text-center max-w-2xl mx-auto">
-              <div className="dash-kicker mb-6 w-fit mx-auto">
-                <Zap className="size-3.5" />
-                Pricing
-              </div>
-              <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                Simple, honest pricing.
-              </h2>
-              <p className="mt-5 text-lg leading-8 text-muted-foreground">
-                Start free. Upgrade when you need more links, deeper analytics, or custom domains.
-                No hidden fees, no surprise overages.
-              </p>
-            </div>
-
-            <div className="mt-14 grid gap-6 lg:grid-cols-3">
-              {plans.map((plan) => (
-                <div
-                  key={plan.name}
-                  className={`pricing-card ${plan.popular ? "pricing-card-popular" : ""}`}
-                >
-                  {plan.popular && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground bg-foreground px-3 py-1 text-xs font-bold text-background">
-                        Most popular
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="mb-6">
-                    <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-                      {plan.name}
-                    </p>
-                    <div className="mt-3 flex items-end gap-1">
-                      <span className="text-5xl font-bold tracking-tight">{plan.price}</span>
-                      {plan.period && (
-                        <span className="mb-1.5 text-base text-muted-foreground">{plan.period}</span>
-                      )}
-                    </div>
-                    <p className="mt-2 text-sm text-muted-foreground">{plan.description}</p>
-                  </div>
-
-                  <ul className="flex-1 space-y-3 mb-8">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3 text-sm text-muted-foreground">
-                        <Check className="size-4 mt-0.5 shrink-0 text-foreground" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Button
-                    className={plan.popular ? "btn-primary w-full h-11" : "btn-secondary w-full h-11"}
-                    asChild
+            <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+              {FEATURES.map((feature) => (
+                <div key={feature.title}>
+                  <span
+                    aria-hidden="true"
+                    className="flex size-9 items-center justify-center rounded-md border border-border bg-subtle text-muted-foreground"
                   >
-                    <Link href={plan.href}>
-                      {plan.cta}
-                      <ArrowRight className="size-4" />
-                    </Link>
-                  </Button>
+                    <feature.icon className="size-4" />
+                  </span>
+                  <h3 className="mt-4 text-sm font-semibold">{feature.title}</h3>
+                  <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+                    {feature.body}
+                  </p>
                 </div>
               ))}
             </div>
-
-            <p className="mt-8 text-center text-sm text-muted-foreground">
-              All plans include a 14-day money-back guarantee. Need more?{" "}
-              <a href="mailto:sales@cuttly.io" className="underline hover:text-foreground">
-                Contact sales
-              </a>
-              .
-            </p>
           </div>
         </section>
 
-        {/* ── CTA Banner ──────────────────────────────────────────── */}
-        <section className="bg-foreground py-20">
-          <div className="mx-auto max-w-4xl px-5 text-center sm:px-6">
-            <div className="mono-grid-sm absolute inset-0 opacity-10 pointer-events-none" />
-            <h2 className="text-3xl font-bold tracking-tight text-background sm:text-4xl">
-              Your first short link is free.
-              <br />
-              No account needed to try.
+        {/* API */}
+        <section id="api" className="border-b border-border bg-subtle scroll-mt-20">
+          <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 lg:py-24">
+            <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+              <div>
+                <p className="eyebrow">API</p>
+                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
+                  Automate it.
+                </h2>
+                <p className="mt-4 text-base leading-7 text-muted-foreground">
+                  Create a scoped API key in Settings and manage links from your own code. Keys
+                  are hashed at rest, scoped to your account, and rate limited per key.
+                </p>
+                <Button asChild variant="outline" className="mt-8">
+                  <Link href="/auth/sign-up">Get an API key</Link>
+                </Button>
+              </div>
+
+              <div className="overflow-x-auto rounded-lg border border-border bg-card">
+                <pre className="p-5 font-mono text-xs leading-6">
+                  <code>{`curl -X POST https://${origin}/api/v1/links \\
+  -H "Authorization: Bearer ck_live_…" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "url": "https://example.com/pricing",
+    "alias": "pricing"
+  }'
+
+{
+  "data": {
+    "shortCode": "pricing",
+    "originalUrl": "https://example.com/pricing",
+    "clickCount": 0
+  }
+}`}</code>
+                </pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section>
+          <div className="mx-auto max-w-3xl px-5 py-20 text-center sm:px-6 lg:py-28">
+            <h2 className="text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
+              Make your first link in about ten seconds.
             </h2>
-            <p className="mt-4 text-base text-background/70">
-              Paste a URL above or sign up to get full analytics, custom slugs, and QR codes.
+            <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-muted-foreground">
+              No card, no trial timer. The free plan is genuinely free.
             </p>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Button className="h-12 px-8 bg-background text-foreground hover:bg-background/90 text-sm font-semibold rounded-full" asChild>
-                <Link href="/auth/login">Create free account</Link>
+            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button asChild size="lg">
+                <Link href="/auth/sign-up">
+                  Create a free account
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
               </Button>
-              <Button className="h-12 px-8 bg-transparent text-background border border-background/30 hover:bg-background/10 text-sm font-semibold rounded-full" asChild>
-                <Link href="/dashboard">Go to dashboard</Link>
+              <Button asChild variant="outline" size="lg">
+                <Link href="/pricing">Compare plans</Link>
               </Button>
             </div>
           </div>
         </section>
       </main>
 
-      {/* ── Footer ──────────────────────────────────────────────── */}
-      <footer className="border-t border-border bg-background py-12">
-        <div className="mx-auto max-w-7xl px-5 sm:px-6">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <Link href="/" className="flex items-center gap-2 font-semibold">
-                <span className="flex size-7 items-center justify-center rounded-md border border-foreground bg-foreground text-background">
-                  <Link2 className="size-3 stroke-[3]" />
-                </span>
-                Cuttly
-              </Link>
-              <p className="mt-3 text-xs leading-6 text-muted-foreground max-w-xs">
-                The smart URL shortener with deep analytics, QR codes, and bio pages for modern teams.
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Product</p>
-              <ul className="space-y-2.5">
-                {["Features", "Pricing", "Analytics", "QR Codes"].map((item) => (
-                  <li key={item}>
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{item}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Company</p>
-              <ul className="space-y-2.5">
-                {["About", "Blog", "Careers", "Contact"].map((item) => (
-                  <li key={item}>
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{item}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Legal</p>
-              <ul className="space-y-2.5">
-                {["Privacy Policy", "Terms of Service", "Cookie Policy"].map((item) => (
-                  <li key={item}>
-                    <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{item}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
-            <p className="text-xs text-muted-foreground">© 2026 Cuttly. All rights reserved.</p>
-            <p className="text-xs text-muted-foreground font-mono">v2.0.0</p>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

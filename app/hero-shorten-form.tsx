@@ -1,126 +1,136 @@
 'use client'
 
 import { useState, useTransition } from "react"
+import Link from "next/link"
+import { AlertCircle, ArrowRight, Check, Loader2 } from "lucide-react"
+
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Loader2, Link2, Check, Copy } from "lucide-react"
-import { createShortLink } from "@/app/actions/links"
-import { toast } from "sonner"
-import Link from "next/link"
+import { CopyButton } from "@/components/app/copy-button"
+import { createAnonymousLink } from "@/app/actions/links"
+import { appOrigin } from "@/lib/app-url"
 
-function generateShortCode(length: number = 6): string {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
-  let result = ''
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return result
-}
-
+/**
+ * Try-it-now shortener on the marketing page.
+ *
+ * Creates a real, working link without an account — the point is that the
+ * product does what it says before you sign up. The action behind it is
+ * rate limited per IP, and the result invites (rather than requires) sign-up
+ * to manage the link.
+ */
 export function HeroShortenForm() {
   const [url, setUrl] = useState("")
   const [shortUrl, setShortUrl] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
-  const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
     setError(null)
-    setShortUrl(null)
 
-    if (!url) return
-
-    // Validate URL
-    try {
-      new URL(url.startsWith("http") ? url : `https://${url}`)
-    } catch {
-      setError("Please enter a valid URL")
+    if (!url.trim()) {
+      setError("Paste a URL to shorten.")
       return
     }
 
-    const finalUrl = url.startsWith("http") ? url : `https://${url}`
-
     startTransition(async () => {
-      try {
-        const code = generateShortCode()
-        const link = await createShortLink({
-          originalUrl: finalUrl,
-          shortCode: code,
-          title: null,
-          password: null,
-          expiresAt: null,
-          tags: [],
-        })
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-        setShortUrl(`${appUrl}/l/${link.shortCode}`)
-      } catch (err: any) {
-        if (err.message?.includes("Unauthorized") || err.message?.includes("auth")) {
-          // Redirect to login with the URL as a query param
-          window.location.href = `/auth/login?callbackUrl=${encodeURIComponent("/dashboard/links/new?url=" + encodeURIComponent(finalUrl))}`
-        } else {
-          setError(err.message || "Something went wrong")
-        }
-      }
-    })
-  }
+      const result = await createAnonymousLink(url)
 
-  const handleCopy = async () => {
-    if (!shortUrl) return
-    await navigator.clipboard.writeText(shortUrl)
-    setCopied(true)
-    toast.success("Copied to clipboard!")
-    setTimeout(() => setCopied(false), 2000)
+      if (!result.ok) {
+        setError(result.error)
+        return
+      }
+
+      setShortUrl(`${appOrigin()}/l/${result.data.shortCode}`)
+      setUrl("")
+    })
   }
 
   if (shortUrl) {
     return (
-      <div className="mt-8 max-w-2xl w-full rounded-lg border border-border bg-card p-3 shadow-[var(--shadow-elevated)] animate-fade-in-up">
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="relative flex-1 flex items-center gap-3 bg-background border border-border rounded-md px-4 h-14">
-            <Check className="size-4 text-foreground shrink-0" />
-            <span className="text-sm font-semibold text-foreground truncate">{shortUrl}</span>
-          </div>
-          <div className="flex gap-2">
-            <Button className="btn-primary h-14 px-5 shrink-0" onClick={handleCopy}>
-              {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-              {copied ? "Copied!" : "Copy"}
-            </Button>
-            <Button variant="secondary" className="h-14 px-4 shrink-0" onClick={() => { setShortUrl(null); setUrl("") }}>
+      <div className="animate-rise w-full max-w-xl space-y-3">
+        <div className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3 sm:flex-row sm:items-center">
+          <span
+            aria-hidden="true"
+            className="hidden size-8 shrink-0 items-center justify-center rounded-full bg-success/10 text-success sm:flex"
+          >
+            <Check className="size-4" />
+          </span>
+          <a
+            href={shortUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="min-w-0 flex-1 truncate font-mono text-sm font-medium text-brand hover:underline"
+          >
+            {shortUrl.replace(/^https?:\/\//, "")}
+          </a>
+          <div className="flex shrink-0 gap-2">
+            <CopyButton value={shortUrl} successMessage="Short link copied" />
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setShortUrl(null)
+                setUrl("")
+              }}
+            >
               New
             </Button>
           </div>
         </div>
-        <p className="mt-2 px-1 text-xs text-muted-foreground">
-          <Link href="/auth/login" className="underline hover:text-foreground">Sign in</Link> to track clicks and manage this link.
+
+        <p className="text-sm text-muted-foreground">
+          This link works right now.{" "}
+          <Link href="/auth/sign-up" className="link-brand font-medium">
+            Create a free account
+          </Link>{" "}
+          to track its clicks, edit the destination, or add a QR code.
         </p>
       </div>
     )
   }
 
   return (
-    <div className="mt-8 max-w-2xl w-full">
-      <div className="rounded-lg border border-border bg-card p-2 shadow-[var(--shadow-elevated)]">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row">
-          <div className="relative flex-1">
-            <Link2 className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Paste a long URL here..."
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              className="h-14 rounded-md border-transparent bg-background pl-11 text-sm font-medium placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:border-border"
-            />
-          </div>
-          <Button type="submit" disabled={isPending || !url} className="btn-primary h-14 px-7 text-sm shrink-0">
-            {isPending ? <Loader2 className="size-4 animate-spin" /> : (
-              <>Shorten <ArrowRight className="size-4" /></>
-            )}
-          </Button>
-        </form>
-      </div>
-      {error && (
-        <p className="mt-2 px-1 text-xs text-destructive font-medium">{error}</p>
-      )}
+    <div className="w-full max-w-xl space-y-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row" noValidate>
+        <label htmlFor="hero-url" className="sr-only">
+          URL to shorten
+        </label>
+        <Input
+          id="hero-url"
+          value={url}
+          onChange={(event) => setUrl(event.target.value)}
+          placeholder="Paste a long URL"
+          inputMode="url"
+          autoComplete="url"
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? "hero-url-error" : undefined}
+          className="h-12 flex-1 text-base sm:text-sm"
+        />
+        <Button type="submit" size="lg" className="h-12 shrink-0" disabled={isPending}>
+          {isPending ? (
+            <>
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+              Shortening…
+            </>
+          ) : (
+            <>
+              Shorten
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </>
+          )}
+        </Button>
+      </form>
+
+      {error ? (
+        <p
+          id="hero-url-error"
+          role="alert"
+          className="flex items-start justify-center gap-1.5 text-sm text-destructive"
+        >
+          <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          {error}
+        </p>
+      ) : null}
     </div>
   )
 }

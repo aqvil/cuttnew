@@ -1,11 +1,47 @@
 import { generateText, Output } from "ai"
 import { z } from "zod"
+import { auth } from "@/auth"
+import { hit } from "@/lib/rate-limit"
 
+/**
+ * One-shot AI copy generation.
+ *
+ * Requires a session and is rate limited per user — it was previously an open
+ * endpoint that billed LLM calls to this account for any anonymous caller.
+ */
 export async function POST(req: Request) {
-  const { type, context } = await req.json()
+  const session = await auth()
+  if (!session?.user?.id) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  if (!process.env.OPENAI_API_KEY && !process.env.GROQ_API_KEY) {
+    return Response.json(
+      { error: "The AI assistant isn't configured on this deployment." },
+      { status: 503 }
+    )
+  }
+
+  const limit = hit(`ai:generate:${session.user.id}`, { limit: 30, windowMs: 60_000 })
+  if (!limit.allowed) {
+    return Response.json(
+      { error: `Slow down — try again in ${limit.resetInSeconds}s.` },
+      { status: 429 }
+    )
+  }
+
+  const body = await req.json().catch(() => null)
+  if (!body || typeof body.type !== "string") {
+    return Response.json({ error: "Send { type, context }" }, { status: 400 })
+  }
+
+  const { type } = body
+  // Cap the free-text portion so the prompt can't be used to smuggle a large
+  // arbitrary workload through this endpoint.
+  const context = typeof body.context === "string" ? body.context.slice(0, 500) : ""
 
   let prompt = ""
-  let schema = z.object({ result: z.string() })
+  const schema = z.object({ result: z.string() })
 
   switch (type) {
     case "bio-description":
@@ -48,7 +84,7 @@ Return just the CTA text.`
   }
 
   const result = await generateText({
-    model: "groq/llama-3.3-70b-versatile",
+    model: process.env.GROQ_API_KEY ? "groq/llama-3.3-70b-versatile" : "openai/gpt-4o-mini",
     prompt,
     output: Output.object({ schema }),
   })

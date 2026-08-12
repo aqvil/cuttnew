@@ -53,7 +53,7 @@ export function BioBlockItem({
                 value={content.title || ""}
                 onChange={(e) => onUpdate(block.id, { ...content, title: e.target.value })}
                 placeholder="Link title"
-                className="dash-field font-medium"
+                className="h-10 font-medium"
               />
             </div>
             <div className="space-y-2">
@@ -62,7 +62,7 @@ export function BioBlockItem({
                 value={content.url || ""}
                 onChange={(e) => onUpdate(block.id, { ...content, url: e.target.value })}
                 placeholder="https://example.com"
-                className="dash-field font-medium"
+                className="h-10 font-medium"
               />
             </div>
           </div>
@@ -79,7 +79,7 @@ export function BioBlockItem({
                 value={content.text || ""}
                 onChange={(e) => onUpdate(block.id, { ...content, text: e.target.value })}
                 placeholder="Header text"
-                className="dash-field font-medium"
+                className="h-10 font-medium"
               />
             </div>
             <div className="space-y-2">
@@ -88,7 +88,7 @@ export function BioBlockItem({
                 value={content.size || "medium"}
                 onValueChange={(value) => onUpdate(block.id, { ...content, size: value })}
               >
-                <SelectTrigger className="dash-field font-medium">
+                <SelectTrigger className="h-10 font-medium">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="rounded-md border-border">
@@ -128,7 +128,7 @@ export function BioBlockItem({
                 value={content.platform || "twitter"}
                 onValueChange={(value) => onUpdate(block.id, { ...content, platform: value })}
               >
-                <SelectTrigger className="dash-field font-medium">
+                <SelectTrigger className="h-10 font-medium">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="rounded-md border-border">
@@ -149,7 +149,7 @@ export function BioBlockItem({
                 value={content.url || ""}
                 onChange={(e) => onUpdate(block.id, { ...content, url: e.target.value })}
                 placeholder="https://twitter.com/username"
-                className="dash-field font-medium"
+                className="h-10 font-medium"
               />
             </div>
           </div>
@@ -166,7 +166,7 @@ export function BioBlockItem({
                 value={content.title || ""}
                 onChange={(e) => onUpdate(block.id, { ...content, title: e.target.value })}
                 placeholder="Subscribe"
-                className="dash-field font-medium"
+                className="h-10 font-medium"
               />
             </div>
             <div className="space-y-2">
@@ -175,7 +175,7 @@ export function BioBlockItem({
                 value={content.button_text || ""}
                 onChange={(e) => onUpdate(block.id, { ...content, button_text: e.target.value })}
                 placeholder="Subscribe"
-                className="dash-field font-medium"
+                className="h-10 font-medium"
               />
             </div>
           </div>
@@ -212,11 +212,11 @@ export function BioBlockItem({
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <div className={`dash-panel overflow-hidden transition-opacity ${!block.isVisible ? "opacity-40" : "opacity-100"}`}>
+      <div className={`surface overflow-hidden transition-opacity ${!block.isVisible ? "opacity-40" : "opacity-100"}`}>
         <CollapsibleTrigger asChild>
           <div className="flex items-center gap-4 p-4 cursor-pointer hover:bg-muted/50 transition-colors">
             <GripVertical className="h-4 w-4 text-muted-foreground" />
-            <div className="dash-icon">
+            <div className="flex items-center justify-center rounded-md border border-border bg-subtle text-muted-foreground">
               <Icon className="h-5 w-5" />
             </div>
             <div className="flex-1 min-w-0">

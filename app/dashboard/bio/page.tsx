@@ -2,14 +2,15 @@ import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { bioPages, bioBlocks, pageViews, linkAnalytics } from "@/lib/db/schema"
 import { eq, desc, inArray, count } from "drizzle-orm"
-import { LayoutTemplate, ArrowUpRight, Link2, Palette } from "lucide-react"
+import { Plus } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { redirect } from "next/navigation"
 import { BioPagesList } from "@/components/bio/bio-pages-list"
+import { PageHeader } from "@/components/app/page-header"
 
 export const metadata = {
-  title: "Bio Pages - Cuttly",
+  title: "Bio pages",
 }
 
 export default async function BioPagesPage() {
@@ -59,44 +60,24 @@ export default async function BioPagesPage() {
   }))
 
   return (
-    <div className="dash-page">
-      <div className="dash-hero flex flex-col items-center gap-6">
-        <div>
-          <div className="dash-kicker mb-4">
-            <LayoutTemplate className="size-3.5" />
-            Profile pages
-          </div>
-          <h1 className="dash-title">Bio Pages</h1>
-          <p className="dash-subtitle">Use this when one short link needs to open a page of many links. Short links are still the fastest place to start.</p>
-        </div>
-        <Button className="btn-primary h-11 px-5" asChild>
-          <Link href="/dashboard/bio/new">
-            Create page
-            <ArrowUpRight className="size-4" />
-          </Link>
-        </Button>
-      </div>
+    <div className="page">
+      <PageHeader
+        title="Bio pages"
+        description="One short link that opens a page of many destinations — for profiles, launches, menus and multi-link campaigns."
+        actions={
+          <Button asChild>
+            <Link href="/dashboard/bio/new">
+              <Plus className="size-4" aria-hidden="true" />
+              Create page
+            </Link>
+          </Button>
+        }
+      />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        {[
-          { title: "Profile", text: "Name the page and choose its public slug.", icon: LayoutTemplate },
-          { title: "Blocks", text: "Add links, text, dividers, social buttons, or email capture.", icon: Link2 },
-          { title: "Design", text: "Tune colors and publish when the page is ready.", icon: Palette },
-        ].map((step, index) => (
-          <div key={step.title} className="dash-panel p-4">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="dash-icon size-9">
-                <step.icon className="size-4" />
-              </div>
-              <span className="font-mono text-xs text-muted-foreground">0{index + 1}</span>
-            </div>
-            <h2 className="font-semibold text-foreground">{step.title}</h2>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">{step.text}</p>
-          </div>
-        ))}
-      </div>
-
-      <BioPagesList pages={pagesWithStats} appUrl={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"} />
+      <BioPagesList
+        pages={pagesWithStats}
+        appUrl={process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}
+      />
     </div>
   )
 }

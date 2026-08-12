@@ -1,91 +1,115 @@
 'use client'
 
 import { useState } from "react"
+import Link from "next/link"
 import { useParams } from "next/navigation"
-import { unlockShortLink } from "@/app/actions/unlock"
+import { AlertCircle, ArrowRight, Link2, Loader2, Lock } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Lock, Loader2, Link2, ArrowRight } from "lucide-react"
-import { toast } from "sonner"
+import { Label } from "@/components/ui/label"
+import { unlockShortLink } from "@/app/actions/unlock"
 
+/**
+ * Password gate for a protected link.
+ *
+ * The destination is only ever revealed by the server action, and only after
+ * the password verifies — nothing about the target is present in the page
+ * source beforehand.
+ */
 export default function UnlockLinkPage() {
+  const params = useParams()
+  const code = String(params.code ?? "")
+
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const params = useParams()
-  const code = params.code as string
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
     setIsLoading(true)
     setError(null)
 
-    try {
-      const originalUrl = await unlockShortLink(code, password)
-      toast.success("Access granted — redirecting…")
-      window.location.href = originalUrl
-    } catch (err: any) {
-      setError("Incorrect password. Please try again.")
+    const result = await unlockShortLink(code, password)
+
+    if (!result.ok) {
+      setError(result.error)
       setIsLoading(false)
+      setPassword("")
+      return
     }
+
+    // `replace` so the back button doesn't return to this gate.
+    window.location.replace(result.url)
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6">
-      {/* Grid bg */}
-      <div className="fixed inset-0 mono-grid opacity-50 pointer-events-none" />
-
-      <div className="relative w-full max-w-sm">
-        {/* Logo */}
-        <div className="mb-10 flex items-center justify-center gap-2.5">
-          <span className="flex size-8 items-center justify-center rounded-md bg-foreground text-background">
-            <Link2 className="size-3.5 stroke-[3]" />
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background p-6">
+      <div className="w-full max-w-sm">
+        <Link
+          href="/"
+          className="mb-10 flex items-center justify-center gap-2.5 text-sm font-semibold"
+        >
+          <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <Link2 className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
           </span>
-          <span className="text-lg font-bold tracking-tight">Cuttly</span>
-        </div>
+          Cuttly
+        </Link>
 
-        {/* Card */}
-        <div className="dash-panel p-8">
-          <div className="text-center mb-8">
-            <div className="dash-icon size-14 mx-auto mb-5">
-              <Lock className="size-5" />
+        <div className="rounded-lg border border-border bg-card p-8">
+          <div className="mb-7 text-center">
+            <div
+              aria-hidden="true"
+              className="mx-auto mb-4 flex size-10 items-center justify-center rounded-lg border border-border bg-subtle text-muted-foreground"
+            >
+              <Lock className="size-4" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight">Protected link</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              This link requires a password before it can redirect you.
+            <h1 className="text-lg font-semibold tracking-[-0.01em]">
+              This link is protected
+            </h1>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              Enter the password you were given to continue to the destination.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-2">
+              <Label htmlFor="link-password">Password</Label>
               <Input
+                id="link-password"
                 type="password"
-                placeholder="Enter link password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+                onChange={(event) => setPassword(event.target.value)}
+                autoComplete="off"
                 autoFocus
-                className="h-12 text-sm text-center tracking-widest placeholder:tracking-normal"
+                required
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "unlock-error" : undefined}
+                className="h-11"
               />
             </div>
 
-            {error && (
-              <div className="rounded-md border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive font-medium text-center">
+            {error ? (
+              <p
+                id="unlock-error"
+                role="alert"
+                className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
+              >
+                <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                 {error}
-              </div>
-            )}
+              </p>
+            ) : null}
 
-            <Button
-              type="submit"
-              className="btn-primary w-full h-11"
-              disabled={isLoading || !password}
-            >
+            <Button type="submit" className="w-full" size="lg" disabled={isLoading || !password}>
               {isLoading ? (
-                <Loader2 className="size-4 animate-spin" />
+                <>
+                  <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                  Checking…
+                </>
               ) : (
                 <>
-                  Unlock link
-                  <ArrowRight className="size-4" />
+                  Continue
+                  <ArrowRight className="size-4" aria-hidden="true" />
                 </>
               )}
             </Button>
@@ -93,10 +117,12 @@ export default function UnlockLinkPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Redirects are protected by{" "}
-          <a href="/" className="underline hover:text-foreground">Cuttly</a>
+          Protected links are served by{" "}
+          <Link href="/" className="underline underline-offset-4 hover:text-foreground">
+            Cuttly
+          </Link>
         </p>
       </div>
-    </div>
+    </main>
   )
 }

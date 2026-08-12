@@ -1,24 +1,38 @@
-import { auth } from "@/auth"
-import { db } from "@/lib/db"
-import { shortLinks } from "@/lib/db/schema"
-import { eq, desc } from "drizzle-orm"
+import Link from "next/link"
 import { redirect } from "next/navigation"
-import { QrCodesList } from "./qr-codes-list"
+import { Plus } from "lucide-react"
 
-export const metadata = {
-  title: "QR Codes",
-}
+import { auth } from "@/auth"
+import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/app/page-header"
+import { QrCodesList } from "./qr-codes-list"
+import { getQrCodes } from "@/lib/qr/queries"
+import { appOrigin } from "@/lib/app-url"
+
+export const metadata = { title: "QR codes" }
 
 export default async function QrCodesPage() {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/login")
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://2s.ms"
+  const codes = await getQrCodes(session.user.id)
 
-  const userLinks = await db.query.shortLinks.findMany({
-    where: eq(shortLinks.userId, session.user.id),
-    orderBy: [desc(shortLinks.createdAt)],
-  })
+  return (
+    <div className="page">
+      <PageHeader
+        title="QR codes"
+        description="Scannable codes for your short links. Scans are counted separately from clicks."
+        actions={
+          <Button asChild>
+            <Link href="/dashboard/qr-codes/new">
+              <Plus className="size-4" aria-hidden="true" />
+              Create QR code
+            </Link>
+          </Button>
+        }
+      />
 
-  return <QrCodesList links={userLinks} appUrl={appUrl} />
+      <QrCodesList codes={codes} appOrigin={appOrigin()} />
+    </div>
+  )
 }

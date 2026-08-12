@@ -1,188 +1,246 @@
 'use client'
 
-import { useState, useEffect } from "react"
+import { useMemo, useState, useTransition } from "react"
 import Link from "next/link"
-import QRCode from "qrcode"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { ExternalLink, MoreHorizontal, QrCode, Search, Trash2 } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Calendar, Filter, Download, Edit2, BarChart2, MoreHorizontal, Globe, Tag, ExternalLink } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { EmptyState } from "@/components/app/empty-state"
+import { QrPreview } from "@/components/qr/qr-preview"
+import { CopyButton } from "@/components/app/copy-button"
+import { deleteQrCode } from "@/app/actions/qr-codes"
+import type { QrCodeListItem } from "@/lib/qr/queries"
+import { formatDate, fullNumber, truncateMiddle } from "@/lib/format"
+import { cn } from "@/lib/utils"
 
-interface QrCodesListProps {
-  links: any[]
-  appUrl: string
-}
+/**
+ * QR code library.
+ *
+ * Each card shows the code as it will actually print, and a scan count that is
+ * a real measurement — the encoded URL carries a `?qr=1` marker, so scans are
+ * recorded separately from ordinary clicks. The previous page rendered a
+ * hardcoded "0 scans" under every code and a download button that did nothing.
+ */
+export function QrCodesList({
+  codes,
+  appOrigin,
+}: {
+  codes: QrCodeListItem[]
+  appOrigin: string
+}) {
+  const router = useRouter()
+  const [search, setSearch] = useState("")
+  const [pendingDelete, setPendingDelete] = useState<QrCodeListItem | null>(null)
+  const [isPending, startTransition] = useTransition()
 
-function QrThumbnail({ url }: { url: string }) {
-  const [dataUrl, setDataUrl] = useState<string | null>(null)
+  // Client-side filtering is correct here: the list is capped server-side at a
+  // size that comfortably fits in memory, unlike the links table.
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase()
+    if (!term) return codes
+    return codes.filter(
+      (code) =>
+        (code.title || "").toLowerCase().includes(term) ||
+        code.shortCode.toLowerCase().includes(term) ||
+        code.destinationUrl.toLowerCase().includes(term)
+    )
+  }, [codes, search])
 
-  useEffect(() => {
-    QRCode.toDataURL(url, { width: 120, margin: 1 })
-      .then(setDataUrl)
-      .catch(() => setDataUrl(null))
-  }, [url])
-
-  if (!dataUrl) {
-    return <div className="w-16 h-16 bg-muted rounded-md animate-pulse" />
+  const handleDelete = (code: QrCodeListItem) => {
+    startTransition(async () => {
+      const result = await deleteQrCode(code.id)
+      if (!result.ok) {
+        toast.error(result.error)
+        return
+      }
+      toast.success("QR code deleted.")
+      router.refresh()
+    })
   }
 
-  return <img src={dataUrl} alt="QR Thumbnail" className="w-16 h-16 rounded-md object-contain" />
-}
-
-export function QrCodesList({ links, appUrl }: QrCodesListProps) {
-  const [search, setSearch] = useState("")
-
-  const filtered = links.filter((link) => {
-    if (!search) return true
-    const q = search.toLowerCase()
+  if (codes.length === 0) {
     return (
-      (link.title || "").toLowerCase().includes(q) ||
-      link.shortCode.toLowerCase().includes(q) ||
-      link.originalUrl.toLowerCase().includes(q)
+      <EmptyState
+        icon={QrCode}
+        title="No QR codes yet"
+        description="Turn any short link into a scannable code for print, packaging or signage. Scans are tracked separately from clicks, so you can see what physical placement actually earns."
+        action={
+          <Button asChild>
+            <Link href="/dashboard/qr-codes/new">Create your first QR code</Link>
+          </Button>
+        }
+      />
     )
-  })
+  }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 p-6 font-mono">
-      {/* Bitly Header Row (Attachment 4) */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          QR Codes
-        </h1>
-        <Button asChild className="bg-primary text-primary-foreground font-mono font-bold text-xs px-5 h-10 hover:opacity-90">
-          <Link href="/dashboard/qr-codes/new">Create code</Link>
-        </Button>
+    <div className={cn("space-y-5", isPending && "pointer-events-none opacity-60")}>
+      <div className="relative max-w-sm">
+        <Search
+          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
+        <Input
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search QR codes"
+          aria-label="Search QR codes"
+          className="h-9 pl-9"
+        />
       </div>
 
-      {/* Bitly Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row items-center gap-3">
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search codes"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-10 font-mono text-xs bg-card border-border"
-          />
-        </div>
-
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Button variant="outline" size="sm" className="h-10 text-xs font-mono font-semibold gap-1.5 bg-card">
-            <Calendar className="w-3.5 h-3.5" /> Filter by created date
-          </Button>
-          <Button variant="outline" size="sm" className="h-10 text-xs font-mono font-semibold gap-1.5 bg-card">
-            <Filter className="w-3.5 h-3.5" /> Add filters
-          </Button>
-        </div>
-      </div>
-
-      {/* Toolbar Controls */}
-      <div className="flex items-center justify-between text-xs font-mono text-muted-foreground bg-card border border-border px-4 py-2.5 rounded-lg shadow-sm">
-        <Button variant="ghost" size="sm" className="h-7 text-xs font-mono font-semibold text-muted-foreground hover:text-foreground">
-          Export
-        </Button>
-
-        <select className="bg-transparent font-mono text-xs font-semibold text-foreground focus:outline-none cursor-pointer">
-          <option value="active">Show: Active</option>
-          <option value="archived">Show: Archived</option>
-        </select>
-      </div>
-
-      {/* QR Code Cards List (Bitly Screenshot 4) */}
-      <div className="space-y-3">
-        {filtered.length > 0 ? (
-          filtered.map((link) => {
-            const shortUrl = `${appUrl}/l/${link.shortCode}`
-            const dateFormatted = link.createdAt
-              ? new Date(link.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-              : "Mar 11, 2025"
+      {filtered.length === 0 ? (
+        <EmptyState
+          variant="filtered"
+          icon={Search}
+          title="No QR codes match your search"
+          description="Try a different name, short code or destination."
+        />
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((code) => {
+            const shortUrl = `${appOrigin}/l/${code.shortCode}`
+            const displayUrl = shortUrl.replace(/^https?:\/\//, "")
 
             return (
-              <div
-                key={link.id}
-                className="p-5 rounded-2xl border border-border bg-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-sm hover:border-primary/40 transition-colors"
+              <li
+                key={code.id}
+                className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4"
               >
-                <div className="flex items-start gap-4 min-w-0 flex-1">
-                  {/* QR Matrix Thumbnail */}
-                  <div className="p-1 bg-white border border-border rounded-lg shrink-0 shadow-sm">
-                    <QrThumbnail url={shortUrl} />
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 space-y-0.5">
+                    <p className="truncate text-sm font-medium">
+                      {code.title || displayUrl}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {truncateMiddle(code.destinationUrl, 44)}
+                    </p>
                   </div>
 
-                  <div className="space-y-1.5 min-w-0 flex-1">
-                    {/* Category Pill */}
-                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted border border-border text-[10px] font-bold text-foreground">
-                      <Globe className="w-3 h-3 text-muted-foreground" /> Website
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="font-bold text-sm text-foreground truncate">
-                      {link.title || "Reminderly - Your Ultimate Reminder Service"}
-                    </h3>
-
-                    {/* Destination URL */}
-                    <div className="text-xs text-muted-foreground flex items-center gap-1 truncate">
-                      <span className="text-muted-foreground font-bold">↳</span>
-                      <a href={link.originalUrl} target="_blank" rel="noopener noreferrer" className="hover:underline truncate">
-                        {link.originalUrl}
-                      </a>
-                    </div>
-
-                    {/* Footer Metadata */}
-                    <div className="pt-1 flex items-center gap-3 text-[11px] text-muted-foreground flex-wrap">
-                      <span className="font-semibold text-foreground">0 scans</span>
-                      <span>·</span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" /> {dateFormatted}
-                      </span>
-                      <span>·</span>
-                      <span className="text-primary font-bold">{shortUrl.replace(/^https?:\/\//, "")}</span>
-                      <span>·</span>
-                      <span className="flex items-center gap-1">
-                        <Tag className="w-3 h-3" /> No tags
-                      </span>
-                    </div>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={`Actions for ${code.title || displayUrl}`}
+                      >
+                        <MoreHorizontal className="size-4" aria-hidden="true" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/links/${code.linkId}`}>
+                          <ExternalLink className="size-4" aria-hidden="true" />
+                          Open link details
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onSelect={() => setPendingDelete(code)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="size-4" aria-hidden="true" />
+                        Delete QR code
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
-                {/* Right Action Icons */}
-                <div className="flex items-center gap-2 text-muted-foreground shrink-0 self-end sm:self-center">
-                  <Link href={`/dashboard/links/${link.id}`}>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-foreground">
-                      <Edit2 className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-foreground">
-                    <Download className="w-4 h-4" />
-                  </Button>
-                  <Link href={`/dashboard/links/${link.id}`}>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-foreground">
-                      <BarChart2 className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-foreground">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
+                <QrPreview
+                  value={`${shortUrl}?qr=1`}
+                  size={148}
+                  fileName={`cuttly-${code.shortCode}`}
+                  design={{
+                    foregroundColor: code.foregroundColor || "#000000",
+                    backgroundColor: code.backgroundColor || "#ffffff",
+                    logoUrl: code.logoUrl,
+                    errorCorrection: code.errorCorrection || "M",
+                  }}
+                />
+
+                <div className="flex items-center gap-1.5">
+                  <a
+                    href={shortUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="min-w-0 flex-1 truncate font-mono text-xs text-brand hover:underline"
+                  >
+                    {displayUrl}
+                  </a>
+                  <CopyButton
+                    value={shortUrl}
+                    variant="ghost"
+                    size="icon-sm"
+                    iconOnly
+                    label="Copy short link"
+                    successMessage="Short link copied"
+                  />
                 </div>
-              </div>
+
+                <div className="flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
+                  <span>
+                    <span className="font-medium text-foreground tabular">
+                      {fullNumber(code.scans)}
+                    </span>{" "}
+                    scan{code.scans === 1 ? "" : "s"}
+                  </span>
+                  <span>{formatDate(code.createdAt)}</span>
+                </div>
+              </li>
             )
-          })
-        ) : (
-          <div className="p-12 text-center border border-dashed border-border rounded-2xl bg-card">
-            <ExternalLink className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
-            <h3 className="text-sm font-semibold text-foreground font-mono">No QR codes created yet</h3>
-            <p className="text-xs text-muted-foreground mt-1 font-mono">Create your first QR code to track physical scans.</p>
-            <Button asChild className="mt-4 h-9 px-4 font-mono text-xs font-bold">
-              <Link href="/dashboard/qr-codes/new">Create code</Link>
-            </Button>
-          </div>
-        )}
-      </div>
+          })}
+        </ul>
+      )}
 
-      {/* Bitly End Divider */}
-      <div className="pt-4 text-center font-mono text-xs text-muted-foreground flex items-center justify-center gap-4">
-        <span className="h-px bg-border flex-1 max-w-[120px]" />
-        <span>You've reached the end of your QR codes</span>
-        <span className="h-px bg-border flex-1 max-w-[120px]" />
-      </div>
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this QR code?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Any printed copies of this code will keep working, because they point at the short
+              link — but you&apos;ll lose this saved design and its scan history. The link itself
+              is not deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                const target = pendingDelete
+                setPendingDelete(null)
+                if (target) handleDelete(target)
+              }}
+            >
+              Delete QR code
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

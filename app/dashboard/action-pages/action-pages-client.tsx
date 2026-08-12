@@ -104,11 +104,11 @@ export function ActionPagesClient({ initialPages }: ActionPagesClientProps) {
   }
 
   return (
-    <div className="dash-narrow space-y-8">
+    <div className="page-narrow space-y-8">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
-          <div className="dash-kicker mb-2">Action Pages</div>
+          <div className="eyebrow mb-2">Action Pages</div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Landing Pages & Action Router
           </h1>
@@ -142,7 +142,7 @@ export function ActionPagesClient({ initialPages }: ActionPagesClientProps) {
                     setTitle(e.target.value)
                     if (!slug) setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))
                   }}
-                  className="dash-field h-10 text-xs font-mono"
+                  className="h-10 h-10 text-xs font-mono"
                   required
                 />
               </div>
@@ -155,7 +155,7 @@ export function ActionPagesClient({ initialPages }: ActionPagesClientProps) {
                     placeholder="launch-2026"
                     value={slug}
                     onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
-                    className="dash-field h-10 text-xs font-mono"
+                    className="h-10 h-10 text-xs font-mono"
                     required
                   />
                 </div>
@@ -179,7 +179,7 @@ export function ActionPagesClient({ initialPages }: ActionPagesClientProps) {
                     placeholder="https://..."
                     value={heroImage}
                     onChange={(e) => setHeroImage(e.target.value)}
-                    className="dash-field h-9 text-xs font-mono"
+                    className="h-10 h-9 text-xs font-mono"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -188,7 +188,7 @@ export function ActionPagesClient({ initialPages }: ActionPagesClientProps) {
                     placeholder="https://youtube.com/embed/..."
                     value={videoUrl}
                     onChange={(e) => setVideoUrl(e.target.value)}
-                    className="dash-field h-9 text-xs font-mono"
+                    className="h-10 h-9 text-xs font-mono"
                   />
                 </div>
               </div>
@@ -200,7 +200,7 @@ export function ActionPagesClient({ initialPages }: ActionPagesClientProps) {
                     placeholder="Get Started Now"
                     value={ctaText}
                     onChange={(e) => setCtaText(e.target.value)}
-                    className="dash-field h-9 text-xs font-mono"
+                    className="h-10 h-9 text-xs font-mono"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -209,7 +209,7 @@ export function ActionPagesClient({ initialPages }: ActionPagesClientProps) {
                     placeholder="https://..."
                     value={ctaUrl}
                     onChange={(e) => setCtaUrl(e.target.value)}
-                    className="dash-field h-9 text-xs font-mono"
+                    className="h-10 h-9 text-xs font-mono"
                   />
                 </div>
               </div>

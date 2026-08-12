@@ -5,7 +5,7 @@ import { SurveysClient } from "./surveys-client"
 
 export default async function SurveysPage() {
   const session = await auth()
-  if (!session?.user) redirect("/auth/signin")
+  if (!session?.user) redirect("/auth/login")
 
   const surveys = await getSurveys()
 

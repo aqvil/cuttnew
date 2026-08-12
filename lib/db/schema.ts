@@ -8,6 +8,8 @@ import {
   jsonb,
   primaryKey,
   bigint,
+  index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import type { AdapterAccountType } from "next-auth/adapters";
@@ -112,6 +114,9 @@ export const profiles = pgTable("profiles", {
   plan: text("plan", { enum: ["free", "pro", "business"] }).default("free"),
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
+  /** Email notification preferences, surfaced in Settings → Notifications. */
+  productEmails: boolean("product_emails").default(true),
+  marketingEmails: boolean("marketing_emails").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -209,47 +214,160 @@ export const bioBlocks = pgTable("bio_blocks", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const shortLinks = pgTable("short_links", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: text("user_id").references(() => profiles.id, { onDelete: "cascade" }),
-  teamId: uuid("team_id").references(() => teams.id, { onDelete: "set null" }),
-  domainId: uuid("domain_id").references(() => customDomains.id, { onDelete: "set null" }),
-  originalUrl: text("original_url").notNull(),
-  shortCode: text("short_code").unique().notNull(),
-  title: text("title"),
-  customSlug: text("custom_slug"),
-  password: text("password"),
-  tags: text("tags").array().default([]),
-  archivedAt: timestamp("archived_at"),
-  expiresAt: timestamp("expires_at"),
-  expirationUrl: text("expiration_url"),
-  maxClicks: integer("max_clicks"),
-  iosUrl: text("ios_url"),
-  androidUrl: text("android_url"),
-  deepLinkScheme: text("deep_link_scheme"),
-  rotationUrls: jsonb("rotation_urls").default([]),
-  retargetingPixelIds: text("retargeting_pixel_ids").array().default([]),
-  isActive: boolean("is_active").default(true),
-  clickCount: integer("click_count").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export const shortLinks = pgTable(
+  "short_links",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").references(() => profiles.id, { onDelete: "cascade" }),
+    teamId: uuid("team_id").references(() => teams.id, { onDelete: "set null" }),
+    domainId: uuid("domain_id").references(() => customDomains.id, { onDelete: "set null" }),
+    originalUrl: text("original_url").notNull(),
+    shortCode: text("short_code").unique().notNull(),
+    title: text("title"),
+    customSlug: text("custom_slug"),
+    password: text("password"),
+    tags: text("tags").array().default([]),
+    archivedAt: timestamp("archived_at"),
+    expiresAt: timestamp("expires_at"),
+    expirationUrl: text("expiration_url"),
+    maxClicks: integer("max_clicks"),
+    iosUrl: text("ios_url"),
+    androidUrl: text("android_url"),
+    deepLinkScheme: text("deep_link_scheme"),
+    rotationUrls: jsonb("rotation_urls").default([]),
+    retargetingPixelIds: text("retargeting_pixel_ids").array().default([]),
+    isActive: boolean("is_active").default(true),
+    clickCount: integer("click_count").default(0),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => ({
+    // The links list is always "this user's links, newest first" — a composite
+    // index keeps that ordered scan off a sort.
+    userCreatedIdx: index("short_links_user_created_idx").on(
+      table.userId,
+      table.createdAt
+    ),
+    // Powers the "top performing links" ordering.
+    userClicksIdx: index("short_links_user_clicks_idx").on(
+      table.userId,
+      table.clickCount
+    ),
+  })
+);
 
-export const linkAnalytics = pgTable("link_analytics", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  linkId: uuid("link_id").references(() => shortLinks.id, { onDelete: "cascade" }),
-  bioBlockId: uuid("bio_block_id").references(() => bioBlocks.id, {
-    onDelete: "cascade",
-  }),
-  clickedAt: timestamp("clicked_at").defaultNow(),
-  referrer: text("referrer"),
-  country: text("country"),
-  city: text("city"),
-  device: text("device"),
-  browser: text("browser"),
-  os: text("os"),
-  ipHash: text("ip_hash"),
-});
+export const linkAnalytics = pgTable(
+  "link_analytics",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    linkId: uuid("link_id").references(() => shortLinks.id, { onDelete: "cascade" }),
+    bioBlockId: uuid("bio_block_id").references(() => bioBlocks.id, {
+      onDelete: "cascade",
+    }),
+    clickedAt: timestamp("clicked_at").defaultNow(),
+    referrer: text("referrer"),
+    country: text("country"),
+    city: text("city"),
+    device: text("device"),
+    browser: text("browser"),
+    os: text("os"),
+    /** "link" for a normal click, "qr" when the visitor scanned a QR code. */
+    source: text("source").default("link"),
+    ipHash: text("ip_hash"),
+  },
+  (table) => ({
+    // Every analytics query filters by link and a time window.
+    linkTimeIdx: index("link_analytics_link_time_idx").on(
+      table.linkId,
+      table.clickedAt
+    ),
+    timeIdx: index("link_analytics_time_idx").on(table.clickedAt),
+  })
+);
+
+/**
+ * A QR code is a first-class object: it has its own design, its own name and
+ * its own scan count, but always points at a short link so the destination
+ * stays editable after the code has been printed.
+ */
+export const qrCodes = pgTable(
+  "qr_codes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").references(() => profiles.id, { onDelete: "cascade" }),
+    linkId: uuid("link_id")
+      .references(() => shortLinks.id, { onDelete: "cascade" })
+      .notNull(),
+    title: text("title"),
+    foregroundColor: text("foreground_color").default("#000000"),
+    backgroundColor: text("background_color").default("#ffffff"),
+    /** Data-URI or absolute URL of a logo drawn in the centre. */
+    logoUrl: text("logo_url"),
+    /** Error-correction level: L | M | Q | H. */
+    errorCorrection: text("error_correction").default("M"),
+    archivedAt: timestamp("archived_at"),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => ({
+    userCreatedIdx: index("qr_codes_user_created_idx").on(
+      table.userId,
+      table.createdAt
+    ),
+    linkIdx: index("qr_codes_link_idx").on(table.linkId),
+  })
+);
+
+/**
+ * API keys for the public REST API.
+ *
+ * Only a SHA-256 hash of the key is stored — the plaintext is shown exactly
+ * once, at creation. A short non-secret prefix is kept so the UI can identify
+ * which key is which without ever holding the secret.
+ */
+export const apiKeys = pgTable(
+  "api_keys",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .references(() => profiles.id, { onDelete: "cascade" })
+      .notNull(),
+    name: text("name").notNull(),
+    /** First characters of the key, e.g. "ck_live_a1b2" — safe to display. */
+    prefix: text("prefix").notNull(),
+    keyHash: text("key_hash").notNull(),
+    lastUsedAt: timestamp("last_used_at"),
+    revokedAt: timestamp("revoked_at"),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => ({
+    hashIdx: uniqueIndex("api_keys_hash_idx").on(table.keyHash),
+    userIdx: index("api_keys_user_idx").on(table.userId),
+  })
+);
+
+/**
+ * Contact-form submissions. Stored rather than relayed, so the form can never
+ * be used to send mail to an arbitrary address supplied by the visitor.
+ */
+export const contactMessages = pgTable(
+  "contact_messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    subject: text("subject"),
+    message: text("message").notNull(),
+    /** Hashed, so we can rate-limit and investigate abuse without storing IPs. */
+    ipHash: text("ip_hash"),
+    userAgent: text("user_agent"),
+    status: text("status", { enum: ["new", "read", "archived"] }).default("new"),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => ({
+    createdIdx: index("contact_messages_created_idx").on(table.createdAt),
+  })
+);
 
 export const pageViews = pgTable("page_views", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -366,6 +484,14 @@ export const shortLinksRelations = relations(shortLinks, ({ one, many }) => ({
     references: [customDomains.id],
   }),
   analytics: many(linkAnalytics),
+  qrCodes: many(qrCodes),
+}));
+
+export const qrCodesRelations = relations(qrCodes, ({ one }) => ({
+  link: one(shortLinks, {
+    fields: [qrCodes.linkId],
+    references: [shortLinks.id],
+  }),
 }));
 
 export const linkAnalyticsRelations = relations(linkAnalytics, ({ one }) => ({

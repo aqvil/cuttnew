@@ -1,33 +1,56 @@
-import { auth } from "@/auth"
-import { db } from "@/lib/db"
-import { shortLinks } from "@/lib/db/schema"
-import { eq, and } from "drizzle-orm"
 import { notFound, redirect } from "next/navigation"
-import { LinkEditor } from "@/components/links/link-editor"
 
-export const metadata = {
-  title: "Edit Link",
+import { auth } from "@/auth"
+import { LinkDetail } from "@/components/links/link-detail"
+import { getOwnedLink } from "@/lib/links/queries"
+import { getQrCodesForLink } from "@/lib/qr/queries"
+import { getAnalyticsSummary, isAnalyticsRange, type AnalyticsRange } from "@/lib/analytics/queries"
+import { appOrigin } from "@/lib/app-url"
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const session = await auth()
+  if (!session?.user?.id) return { title: "Link" }
+
+  const { id } = await params
+  const link = await getOwnedLink(session.user.id, id)
+  return { title: link?.title || link?.shortCode || "Link" }
 }
 
-export default async function EditLinkPage({
+export default async function LinkDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: SearchParams
 }) {
-  const { id } = await params
   const session = await auth()
-  
-  if (!session?.user?.id) {
-    redirect("/auth/login")
-  }
+  if (!session?.user?.id) redirect("/auth/login")
 
-  const link = await db.query.shortLinks.findFirst({
-    where: and(eq(shortLinks.id, id), eq(shortLinks.userId, session.user.id)),
-  })
+  const { id } = await params
+  const link = await getOwnedLink(session.user.id, id)
 
-  if (!link) {
-    notFound()
-  }
+  // getOwnedLink scopes by userId, so a link belonging to someone else is
+  // indistinguishable from one that doesn't exist.
+  if (!link) notFound()
 
-  return <LinkEditor link={link} />
+  const query = await searchParams
+  const rangeParam = Array.isArray(query.range) ? query.range[0] : query.range
+  const range: AnalyticsRange = isAnalyticsRange(rangeParam) ? rangeParam : "30d"
+
+  const [summary, qrCodes] = await Promise.all([
+    getAnalyticsSummary([link.id], range),
+    getQrCodesForLink(session.user.id, link.id),
+  ])
+
+  return (
+    <LinkDetail
+      link={link}
+      summary={summary}
+      range={range}
+      appOrigin={appOrigin()}
+      qrCodes={qrCodes}
+    />
+  )
 }

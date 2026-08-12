@@ -43,7 +43,7 @@ export default async function PublicActionPage({
       {/* Background ambient lighting */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-primary/20 via-primary/5 to-transparent blur-3xl pointer-events-none" />
 
-      <div className="max-w-3xl w-full text-center space-y-8 bg-[#121215]/90 border border-white/10 rounded-3xl p-6 sm:p-12 shadow-2xl backdrop-blur-xl relative z-10 animate-fade-in-up">
+      <div className="max-w-3xl w-full text-center space-y-8 bg-[#121215]/90 border border-white/10 rounded-3xl p-6 sm:p-12 shadow-2xl backdrop-blur-xl relative z-10 animate-rise">
         {/* Kicker badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-white/80 tracking-wide uppercase">
           <Zap className="size-3.5 text-amber-400" /> Featured Action Page

@@ -1,293 +1,364 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { createTeam, inviteTeamMember, deleteTeam } from "@/app/actions/teams"
+import { toast } from "sonner"
+import { AlertCircle, Loader2, Plus, Trash2, UserPlus, Users } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
-  Users,
-  Plus,
-  UserPlus,
-  Trash2,
-} from "lucide-react"
-import { toast } from "sonner"
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { EmptyState } from "@/components/app/empty-state"
+import { createTeam, deleteTeam, inviteTeamMember, type TeamSummary } from "@/app/actions/teams"
+import { formatDate } from "@/lib/format"
+import { cn } from "@/lib/utils"
 
-interface TeamsClientProps {
-  initialTeams: any[]
-}
+export function TeamsClient({
+  teams,
+  canUseTeams,
+  planName,
+}: {
+  teams: TeamSummary[]
+  canUseTeams: boolean
+  planName: string
+}) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
 
-export function TeamsClient({ initialTeams }: TeamsClientProps) {
-  const [teams, setTeams] = useState(initialTeams)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [name, setName] = useState("")
+  const [slug, setSlug] = useState("")
+  const [slugTouched, setSlugTouched] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
 
-  const [isTeamOpen, setIsTeamOpen] = useState(false)
-  const [teamName, setTeamName] = useState("")
-  const [teamSlug, setTeamSlug] = useState("")
-  const [isCreatingTeam, setIsCreatingTeam] = useState(false)
-
-  const [isInviteOpen, setIsInviteOpen] = useState(false)
-  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null)
+  const [inviteTeam, setInviteTeam] = useState<TeamSummary | null>(null)
   const [inviteEmail, setInviteEmail] = useState("")
   const [inviteRole, setInviteRole] = useState<"admin" | "member">("member")
-  const [isInviting, setIsInviting] = useState(false)
+  const [inviteError, setInviteError] = useState<string | null>(null)
 
-  const router = useRouter()
+  const [pendingDelete, setPendingDelete] = useState<TeamSummary | null>(null)
 
-  const handleCreateTeam = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!teamName || !teamSlug) {
-      toast.error("Team name and slug are required")
-      return
-    }
-
-    setIsCreatingTeam(true)
-    try {
-      const newTeam = await createTeam(teamName, teamSlug)
-      setTeams([{ ...newTeam, role: "owner" }, ...teams])
-      toast.success("Team created")
-      setIsTeamOpen(false)
-      setTeamName("")
-      setTeamSlug("")
+  const handleCreate = () => {
+    setCreateError(null)
+    startTransition(async () => {
+      const result = await createTeam(name, slug)
+      if (!result.ok) {
+        setCreateError(result.error)
+        return
+      }
+      setCreateOpen(false)
+      setName("")
+      setSlug("")
+      setSlugTouched(false)
+      toast.success("Team created.")
       router.refresh()
-    } catch (err: any) {
-      toast.error(err.message || "Failed to create team")
-    } finally {
-      setIsCreatingTeam(false)
-    }
+    })
   }
 
-  const handleInviteMember = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedTeamId || !inviteEmail) {
-      toast.error("Please enter an email address")
-      return
-    }
+  const handleInvite = () => {
+    if (!inviteTeam) return
+    setInviteError(null)
 
-    setIsInviting(true)
-    try {
-      await inviteTeamMember(selectedTeamId, inviteEmail, inviteRole)
-      toast.success(`Invitation sent to ${inviteEmail}`)
-      setIsInviteOpen(false)
+    startTransition(async () => {
+      const result = await inviteTeamMember(inviteTeam.id, inviteEmail, inviteRole)
+      if (!result.ok) {
+        setInviteError(result.error)
+        return
+      }
+
+      setInviteTeam(null)
       setInviteEmail("")
+      // Say what actually happened rather than claiming an email was sent.
+      toast.success(
+        result.data.joinedImmediately
+          ? `${inviteEmail} was added to ${inviteTeam.name}.`
+          : `${inviteEmail} is saved as pending — they'll join automatically when they create an account with that address.`
+      )
       router.refresh()
-    } catch (err: any) {
-      toast.error(err.message || "Failed to invite member")
-    } finally {
-      setIsInviting(false)
-    }
+    })
   }
 
-  const handleDeleteTeam = async (teamId: string) => {
-    try {
-      await deleteTeam(teamId)
-      setTeams(teams.filter((t) => t.id !== teamId))
-      toast.success("Team deleted")
-      router.refresh()
-    } catch {
-      toast.error("Failed to delete team")
-    }
+  if (!canUseTeams) {
+    return (
+      <div className="flex items-start gap-3 rounded-lg border border-border bg-subtle p-4 text-sm">
+        <Users className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+        <div className="space-y-1">
+          <p className="font-medium">Teams aren&apos;t included in the {planName} plan</p>
+          <p className="text-muted-foreground">
+            Share links and analytics with colleagues on the Business plan.{" "}
+            <Link href="/dashboard/billing" className="link-brand font-medium">
+              See plans
+            </Link>
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="dash-narrow space-y-8">
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-6">
-        <div>
-          <div className="dash-kicker mb-2">Workspace Teams</div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Team Workspaces & Roles
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1 max-w-xl font-mono">
-            Create up to 10 workspace teams and invite up to 20 members per team to collaborate on short links.
-          </p>
-        </div>
+    <div className={cn("space-y-6", isPending && "opacity-70")}>
+      <div className="flex justify-end">
+        <Button onClick={() => setCreateOpen(true)}>
+          <Plus className="size-4" aria-hidden="true" />
+          New team
+        </Button>
+      </div>
 
-        <Dialog open={isTeamOpen} onOpenChange={setIsTeamOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="h-10 px-4 bg-foreground text-background font-semibold text-xs rounded-md hover:opacity-90 transition-opacity gap-2">
-              <Plus className="size-3.5" />
-              New Team
+      {teams.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="No teams yet"
+          description="Create a workspace to share links and analytics with colleagues, with owner, admin and member roles."
+          action={
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="size-4" aria-hidden="true" />
+              Create your first team
             </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md border border-border bg-card">
-            <DialogHeader>
-              <DialogTitle className="text-base font-bold text-foreground">Create Workspace Team</DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground">
-                Setup a shared workspace team (Max 10 teams).
-              </DialogDescription>
-            </DialogHeader>
-
-            <form onSubmit={handleCreateTeam} className="space-y-4 pt-2">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-foreground">Team Name</Label>
-                <Input
-                  placeholder="e.g. Marketing Team"
-                  value={teamName}
-                  onChange={(e) => {
-                    setTeamName(e.target.value)
-                    if (!teamSlug) setTeamSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))
-                  }}
-                  className="dash-field h-10 text-xs font-mono"
-                  required
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-foreground">Slug</Label>
-                <Input
-                  placeholder="marketing"
-                  value={teamSlug}
-                  onChange={(e) => setTeamSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
-                  className="dash-field h-10 text-xs font-mono"
-                  required
-                />
-              </div>
-
-              <div className="pt-3 flex justify-end gap-2 border-t border-border">
-                <Button type="button" variant="outline" size="sm" onClick={() => setIsTeamOpen(false)} className="h-9 text-xs">Cancel</Button>
-                <Button type="submit" disabled={isCreatingTeam} size="sm" className="h-9 text-xs bg-foreground text-background font-semibold">Create Team</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Monochrome Stats Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="border border-border bg-card p-4 rounded-md space-y-1">
-          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">Active Teams</p>
-          <p className="text-2xl font-bold font-mono text-foreground">{teams.length} <span className="text-xs text-muted-foreground font-normal">/ 10</span></p>
-        </div>
-        <div className="border border-border bg-card p-4 rounded-md space-y-1">
-          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">Capacity / Team</p>
-          <p className="text-2xl font-bold font-mono text-foreground">20 Members</p>
-        </div>
-        <div className="border border-border bg-card p-4 rounded-md space-y-1">
-          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">Team Short Links</p>
-          <p className="text-2xl font-bold font-mono text-foreground">Unlimited</p>
-        </div>
-        <div className="border border-border bg-card p-4 rounded-md space-y-1">
-          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">Role Model</p>
-          <p className="text-xs font-mono font-semibold text-foreground mt-2">Owner / Admin / Member</p>
-        </div>
-      </div>
-
-      {/* Teams List */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between text-xs font-mono text-muted-foreground uppercase px-1">
-          <span>Workspace Teams ({teams.length})</span>
-          <span>Members</span>
-        </div>
-
-        <div className="space-y-2">
-          {teams.map((t: any) => (
-            <div
-              key={t.id}
-              className="group border border-border bg-card rounded-md p-4 transition-all duration-150 hover:border-foreground/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-            >
-              <div className="space-y-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-foreground text-sm truncate">{t.name}</h3>
-                  <span className="text-[11px] font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded border border-border">/{t.slug}</span>
-                  <span className="text-[10px] font-mono uppercase bg-muted text-foreground px-2 py-0.5 rounded border border-border font-bold">
-                    {t.role}
-                  </span>
+          }
+        />
+      ) : (
+        <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+          {teams.map((team) => (
+            <li key={team.id} className="flex flex-wrap items-center gap-4 p-4">
+              <div className="min-w-0 flex-1 space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="truncate text-sm font-medium">{team.name}</span>
+                  <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
+                    /{team.slug}
+                  </code>
+                  <Badge variant="secondary" className="h-5 font-normal capitalize">
+                    {team.role}
+                  </Badge>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  {team.memberCount} member{team.memberCount === 1 ? "" : "s"} · created{" "}
+                  {formatDate(team.createdAt)}
+                </p>
               </div>
 
-              <div className="flex items-center gap-3 shrink-0 justify-between sm:justify-end">
-                <span className="text-xs font-mono text-muted-foreground">1 / 20 Members</span>
-
+              <div className="flex shrink-0 items-center gap-1.5">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 px-3 text-xs font-mono gap-1.5"
                   onClick={() => {
-                    setSelectedTeamId(t.id)
-                    setIsInviteOpen(true)
+                    setInviteTeam(team)
+                    setInviteError(null)
                   }}
                 >
-                  <UserPlus className="size-3" /> Invite
+                  <UserPlus className="size-4" aria-hidden="true" />
+                  Invite
                 </Button>
-
-                {t.role === "owner" && (
+                {team.isOwner ? (
                   <Button
                     variant="ghost"
-                    size="icon"
-                    className="size-8 text-muted-foreground hover:text-destructive"
-                    onClick={() => handleDeleteTeam(t.id)}
+                    size="icon-sm"
+                    className="text-muted-foreground hover:text-destructive"
+                    onClick={() => setPendingDelete(team)}
+                    aria-label={`Delete team ${team.name}`}
                   >
-                    <Trash2 className="size-3.5" />
+                    <Trash2 className="size-4" aria-hidden="true" />
                   </Button>
-                )}
+                ) : null}
               </div>
-            </div>
+            </li>
           ))}
+        </ul>
+      )}
 
-          {teams.length === 0 && (
-            <div className="py-16 text-center border border-dashed border-border rounded-md bg-card">
-              <Users className="size-8 text-muted-foreground/40 mx-auto mb-2" />
-              <h3 className="text-sm font-semibold text-foreground font-mono">No teams created</h3>
-              <p className="text-xs text-muted-foreground mt-1 font-mono">Create a team workspace to invite collaborators.</p>
-              <Button onClick={() => setIsTeamOpen(true)} size="sm" className="mt-4 h-9 px-4 text-xs font-semibold bg-foreground text-background">
-                <Plus className="mr-1.5 size-3.5" /> Create Team
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Invite Member Dialog */}
-      <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
-        <DialogContent className="sm:max-w-md border border-border bg-card">
+      {/* Create team */}
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-base font-bold text-foreground">Invite Team Member</DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
-              Add a team member to collaborate (Max 20 members).
+            <DialogTitle>Create a team</DialogTitle>
+            <DialogDescription>
+              You&apos;ll be the owner. Invite people once it exists.
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleInviteMember} className="space-y-4 pt-2">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-foreground">Member Email Address</Label>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="team-name">Team name</Label>
               <Input
-                type="email"
-                placeholder="colleague@acme.com"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                className="dash-field h-10 text-xs font-mono"
-                required
+                id="team-name"
+                value={name}
+                onChange={(event) => {
+                  setName(event.target.value)
+                  if (!slugTouched) {
+                    setSlug(
+                      event.target.value
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, "-")
+                        .replace(/^-+|-+$/g, "")
+                    )
+                  }
+                }}
+                placeholder="Marketing"
+                maxLength={100}
+                autoFocus
+                className="h-10"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-foreground">Role</Label>
-              <select
-                value={inviteRole}
-                onChange={(e: any) => setInviteRole(e.target.value)}
-                className="w-full h-10 px-3 border border-border rounded-md bg-background text-xs font-mono text-foreground"
-              >
-                <option value="member">Member</option>
-                <option value="admin">Admin</option>
-              </select>
+            <div className="space-y-2">
+              <Label htmlFor="team-slug">Slug</Label>
+              <Input
+                id="team-slug"
+                value={slug}
+                onChange={(event) => {
+                  setSlugTouched(true)
+                  setSlug(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))
+                }}
+                placeholder="marketing"
+                maxLength={48}
+                className="h-10 font-mono"
+              />
             </div>
 
-            <div className="pt-3 flex justify-end gap-2 border-t border-border">
-              <Button type="button" variant="outline" size="sm" onClick={() => setIsInviteOpen(false)} className="h-9 text-xs">Cancel</Button>
-              <Button type="submit" disabled={isInviting} size="sm" className="h-9 text-xs bg-foreground text-background font-semibold">Send Invitation</Button>
-            </div>
-          </form>
+            {createError ? (
+              <p role="alert" className="flex items-start gap-1.5 text-sm text-destructive">
+                <AlertCircle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+                {createError}
+              </p>
+            ) : null}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreate} disabled={isPending || !name.trim()}>
+              {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
+              Create team
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Invite */}
+      <Dialog open={inviteTeam !== null} onOpenChange={(open) => !open && setInviteTeam(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Invite to {inviteTeam?.name}</DialogTitle>
+            <DialogDescription>
+              If they already have a Cuttly account they join right away. Otherwise the invite
+              stays pending until they sign up with that address.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="invite-email">Email</Label>
+              <Input
+                id="invite-email"
+                type="email"
+                value={inviteEmail}
+                onChange={(event) => setInviteEmail(event.target.value)}
+                placeholder="colleague@example.com"
+                autoFocus
+                className="h-10"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="invite-role">Role</Label>
+              <Select
+                value={inviteRole}
+                onValueChange={(value) => setInviteRole(value as "admin" | "member")}
+              >
+                <SelectTrigger id="invite-role" className="h-10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="member">Member — can view and create links</SelectItem>
+                  <SelectItem value="admin">Admin — can also invite and remove people</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {inviteError ? (
+              <p role="alert" className="flex items-start gap-1.5 text-sm text-destructive">
+                <AlertCircle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+                {inviteError}
+              </p>
+            ) : null}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInviteTeam(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleInvite} disabled={isPending || !inviteEmail.trim()}>
+              {isPending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
+              Send invite
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete team */}
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete “{pendingDelete?.name}”?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Everyone loses access to this workspace. Links created inside it keep working and
+              stay with their creators. This can&apos;t be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                const target = pendingDelete
+                setPendingDelete(null)
+                if (!target) return
+                startTransition(async () => {
+                  const result = await deleteTeam(target.id)
+                  if (!result.ok) {
+                    toast.error(result.error)
+                    return
+                  }
+                  toast.success("Team deleted.")
+                  router.refresh()
+                })
+              }}
+            >
+              Delete team
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

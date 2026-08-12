@@ -1,60 +1,65 @@
 'use client'
 
+import { useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
+import { AlertCircle, Check, Loader2 } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { AuthShell } from "@/components/auth/auth-shell"
+import { DiscordIcon } from "@/components/auth/discord-icon"
 import { registerWithEmail } from "@/app/actions/auth"
-import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/components/theme-toggle'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { GamePromoPanel } from '@/components/auth/game-promo-panel'
-import { Link2, DiscIcon as Discord, Mail } from 'lucide-react'
-import Link from 'next/link'
-import { useState } from 'react'
-import type { FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { cn } from "@/lib/utils"
+
+const MIN_PASSWORD_LENGTH = 8
 
 export default function SignUpPage() {
-  const [isDiscordLoading, setIsDiscordLoading] = useState(false)
-  const [isEmailLoading, setIsEmailLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const [error, setError] = useState<{ message: string; field?: string } | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isDiscordLoading, setIsDiscordLoading] = useState(false)
+  const [password, setPassword] = useState("")
 
-  const handleDiscordLogin = () => {
-    setIsDiscordLoading(true)
-    signIn("discord", { callbackUrl: "/dashboard" })
-  }
+  const passwordLongEnough = password.length >= MIN_PASSWORD_LENGTH
 
-  const handleEmailSignUp = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError(null)
-    setIsEmailLoading(true)
+    setIsLoading(true)
 
     const formData = new FormData(event.currentTarget)
     const email = String(formData.get("email") || "")
-    const password = String(formData.get("password") || "")
+    const rawPassword = String(formData.get("password") || "")
+
     const result = await registerWithEmail({
       name: String(formData.get("name") || ""),
       email,
-      password,
+      password: rawPassword,
     })
 
     if (!result.ok) {
-      setError(result.error || "Could not create your account.")
-      setIsEmailLoading(false)
+      setError({ message: result.error || "We couldn't create your account.", field: result.field })
+      setIsLoading(false)
       return
     }
 
+    // Sign in immediately so the new account lands on the dashboard rather
+    // than back at a login form.
     const signInResult = await signIn("credentials", {
       email,
-      password,
+      password: rawPassword,
       redirect: false,
-      callbackUrl: "/dashboard",
     })
 
-    setIsEmailLoading(false)
+    setIsLoading(false)
 
-    if (signInResult?.error) {
-      setError("Account created, but automatic login failed. Please log in.")
+    if (!signInResult || signInResult.error) {
+      setError({
+        message: "Your account was created, but automatic sign-in failed. Please sign in.",
+      })
       return
     }
 
@@ -63,116 +68,141 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-background p-6 font-sans md:p-10">
-      <div className="absolute right-5 top-5 z-10">
-        <ThemeToggle />
-      </div>
-
-      <div className="mx-auto grid min-h-[calc(100vh-5rem)] w-full max-w-5xl items-center gap-8 lg:grid-cols-2">
-        <div className="order-2 lg:order-1">
-          <GamePromoPanel />
-        </div>
-
-        <div className="order-1 flex flex-col items-center gap-8 lg:order-2">
-          <Link href="/" className="flex items-center gap-2 text-primary font-bold text-2xl tracking-tight">
-            <Link2 className="h-7 w-7 stroke-[3]" />
-            Cuttly
+    <AuthShell
+      title="Create your account"
+      description="Free forever for 50 links a month. No card required."
+      footer={
+        <>
+          Already have an account?{" "}
+          <Link href="/auth/login" className="link-brand font-medium">
+            Sign in
           </Link>
-
-          <div className="w-full max-w-sm rounded-md border border-border bg-card p-8 shadow-[var(--shadow-card)]">
-            <div className="mb-8 space-y-2">
-              <div className="inline-flex items-center gap-2 rounded-sm border border-border bg-background px-2.5 py-1 text-[10px] font-black uppercase tracking-[2px] text-muted-foreground">
-                New account
-              </div>
-              <h2 className="text-2xl font-black uppercase tracking-[1px] text-foreground">Create account</h2>
-              <p className="text-sm font-medium text-muted-foreground">Sign up to start creating short links.</p>
-            </div>
-
-            <div className="space-y-6">
-              <form onSubmit={handleEmailSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-[10px] font-bold uppercase tracking-[1px] text-muted-foreground">Name</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    autoComplete="name"
-                    required
-                    className="h-12 rounded-sm bg-background font-mono"
-                    placeholder="Your name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-[10px] font-bold uppercase tracking-[1px] text-muted-foreground">Email address</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    className="h-12 rounded-sm bg-background font-mono"
-                    placeholder="you@example.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-[10px] font-bold uppercase tracking-[1px] text-muted-foreground">Password (min 8 characters)</Label>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="new-password"
-                    minLength={8}
-                    required
-                    className="h-12 rounded-sm bg-background font-mono"
-                    placeholder="At least 8 characters"
-                  />
-                </div>
-                {error && (
-                  <p className="rounded-sm border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
-                    {error}
-                  </p>
-                )}
-                <Button type="submit" className="h-12 w-full rounded-full text-sm font-bold uppercase tracking-[1px]" disabled={isEmailLoading}>
-                  <Mail className="mr-2 h-5 w-5" />
-                  {isEmailLoading ? "Creating account..." : "Create account"}
-                </Button>
-              </form>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border" />
-                </div>
-                <div className="relative flex justify-center text-[10px] font-bold uppercase tracking-[1px]">
-                  <span className="bg-card px-2 text-muted-foreground">or</span>
-                </div>
-              </div>
-
-              <Button
-                onClick={handleDiscordLogin}
-                disabled={isDiscordLoading}
-                variant="outline"
-                className="w-full h-12 rounded-full bg-card hover:bg-muted text-foreground font-bold uppercase tracking-[1px] text-sm border-border transition-all"
-              >
-                {isDiscordLoading ? (
-                  "Connecting..."
-                ) : (
-                  <>
-                    <Discord className="mr-3 h-5 w-5 text-foreground" />
-                    Sign up with Discord
-                  </>
-                )}
-              </Button>
-            </div>
-
-            <div className="mt-8 text-center text-sm font-medium text-muted-foreground">
-               Already have an account? <Link href="/auth/login" className="text-primary hover:underline">Log in</Link>
-            </div>
+        </>
+      }
+    >
+      <div className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              name="name"
+              autoComplete="name"
+              required
+              placeholder="Alex Rivera"
+              aria-invalid={error?.field === "name"}
+              className="h-11"
+            />
           </div>
 
-          <p className="text-center text-[10px] font-bold uppercase tracking-[1.5px] text-muted-foreground">
-            Encrypted connection // your session is secure
-          </p>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              placeholder="you@example.com"
+              aria-invalid={error?.field === "email"}
+              className="h-11"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              required
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              aria-invalid={error?.field === "password"}
+              aria-describedby="password-requirement"
+              className="h-11"
+            />
+            <p
+              id="password-requirement"
+              className={cn(
+                "flex items-center gap-1.5 text-xs",
+                password.length === 0
+                  ? "text-muted-foreground"
+                  : passwordLongEnough
+                    ? "text-success"
+                    : "text-muted-foreground"
+              )}
+            >
+              {passwordLongEnough ? (
+                <Check className="size-3" aria-hidden="true" />
+              ) : null}
+              At least {MIN_PASSWORD_LENGTH} characters
+            </p>
+          </div>
+
+          {error ? (
+            <p
+              role="alert"
+              className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
+            >
+              <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              {error.message}
+            </p>
+          ) : null}
+
+          <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                Creating account…
+              </>
+            ) : (
+              "Create account"
+            )}
+          </Button>
+        </form>
+
+        <div className="relative">
+          <span className="absolute inset-0 flex items-center" aria-hidden="true">
+            <span className="w-full border-t border-border" />
+          </span>
+          <span className="relative flex justify-center">
+            <span className="bg-background px-3 text-xs text-muted-foreground">or</span>
+          </span>
         </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="w-full"
+          disabled={isDiscordLoading}
+          onClick={() => {
+            setIsDiscordLoading(true)
+            signIn("discord", { callbackUrl: "/dashboard" })
+          }}
+        >
+          {isDiscordLoading ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <DiscordIcon className="size-4" />
+          )}
+          Continue with Discord
+        </Button>
+
+        <p className="text-xs leading-5 text-muted-foreground">
+          By creating an account you agree to our{" "}
+          <Link href="/terms" className="underline underline-offset-4 hover:text-foreground">
+            Terms
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </div>
-    </div>
+    </AuthShell>
   )
 }

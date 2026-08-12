@@ -53,7 +53,7 @@ export function DeleteBioPageItem({ pageId }: { pageId: string }) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="btn-secondary">Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="">Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isDeleting}

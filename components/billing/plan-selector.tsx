@@ -2,135 +2,197 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Check, Zap } from "lucide-react"
+import { Check, Minus } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { BillingPortalButton } from "@/components/billing/portal-button"
+import { PLANS, type PlanId } from "@/lib/plans"
 import type { Product } from "@/lib/products"
+import { cn } from "@/lib/utils"
 
-interface PlanSelectorProps {
-  products: Product[]
-  currentPlan: "free" | "pro" | "business"
-  hasSubscription: boolean
+/**
+ * Plan comparison and upgrade.
+ *
+ * Feature rows are read from `lib/plans.ts` — the same source the server uses
+ * to enforce quotas — so what's advertised and what's allowed can't diverge.
+ */
+
+const BLURBS: Record<PlanId, string> = {
+  free: "For personal links and trying things out.",
+  pro: "For creators and marketers running campaigns.",
+  business: "For teams that need domains and API access.",
 }
 
-const FREE_FEATURES = [
-  "1 bio page",
-  "50 short links / month",
-  "Basic click analytics",
-  "Standard support",
+const ROWS: Array<{ label: string; value: (plan: (typeof PLANS)[PlanId]) => string | boolean }> = [
+  {
+    label: "Links per month",
+    value: (plan) =>
+      plan.linksPerMonth === null ? "Unlimited" : plan.linksPerMonth.toLocaleString(),
+  },
+  {
+    label: "Analytics history",
+    value: (plan) =>
+      plan.analyticsRetentionDays >= 365
+        ? `${Math.round(plan.analyticsRetentionDays / 365)} year${plan.analyticsRetentionDays >= 730 ? "s" : ""}`
+        : `${plan.analyticsRetentionDays} days`,
+  },
+  { label: "Custom back-halves", value: (plan) => plan.customAlias },
+  { label: "Password protection", value: (plan) => plan.passwordProtection },
+  { label: "Expiry & click limits", value: (plan) => plan.linkExpiration },
+  {
+    label: "Custom domains",
+    value: (plan) => (plan.customDomains === 0 ? false : String(plan.customDomains)),
+  },
+  { label: "API keys", value: (plan) => (plan.apiKeys === 0 ? false : String(plan.apiKeys)) },
+  { label: "Team collaboration", value: (plan) => plan.teamCollaboration },
 ]
 
-export function PlanSelector({ products, currentPlan, hasSubscription }: PlanSelectorProps) {
+const ORDER: PlanId[] = ["free", "pro", "business"]
+
+export function PlanSelector({
+  products,
+  currentPlan,
+  hasSubscription,
+}: {
+  products: Product[]
+  currentPlan: PlanId
+  hasSubscription: boolean
+}) {
   const [interval, setInterval] = useState<"month" | "year">("month")
 
-  const pro = products.find((p) => p.id === `pro-${interval}ly`)!
-  const business = products.find((p) => p.id === `business-${interval}ly`)!
+  const priceFor = (id: PlanId): { amount: string; cadence: string; productId?: string } => {
+    if (id === "free") return { amount: "$0", cadence: "forever" }
 
-  const formatPrice = (cents: number) => `$${(cents / 100) % 1 === 0 ? cents / 100 : (cents / 100).toFixed(2)}`
+    const product = products.find((p) => p.id === `${id}-${interval}ly`)
+    if (!product) return { amount: "—", cadence: "" }
+
+    const dollars = product.priceInCents / 100
+    return {
+      amount: `$${dollars % 1 === 0 ? dollars : dollars.toFixed(2)}`,
+      cadence: interval === "year" ? "per year" : "per month",
+      productId: product.id,
+    }
+  }
 
   return (
     <div className="space-y-8">
-      <div className="mx-auto flex w-fit items-center rounded-md border border-border bg-background p-1">
-        <button
-          type="button"
-          onClick={() => setInterval("month")}
-          className={`rounded-sm px-4 py-1.5 text-sm font-semibold transition-colors ${interval === "month" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+      <div className="flex justify-center">
+        <div
+          role="group"
+          aria-label="Billing interval"
+          className="inline-flex items-center rounded-md border border-border bg-subtle p-0.5"
         >
-          Monthly
-        </button>
-        <button
-          type="button"
-          onClick={() => setInterval("year")}
-          className={`rounded-sm px-4 py-1.5 text-sm font-semibold transition-colors ${interval === "year" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-        >
-          Yearly <span className="text-xs font-normal opacity-80">(save 17%)</span>
-        </button>
+          {(["month", "year"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setInterval(value)}
+              aria-pressed={interval === value}
+              className={cn(
+                "rounded-sm px-4 py-1.5 text-sm font-medium transition-colors",
+                interval === value
+                  ? "bg-card text-foreground shadow-[var(--shadow-subtle)]"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {value === "month" ? "Monthly" : "Yearly"}
+              {value === "year" ? (
+                <span className="ml-1.5 text-xs text-success">save 17%</span>
+              ) : null}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4 max-w-6xl mx-auto">
-        {/* Free */}
-        <div className="dash-panel relative p-6 flex flex-col">
-          <div className="mb-6">
-            <h3 className="text-2xl font-semibold text-foreground mb-2">Free</h3>
-            <p className="text-sm text-muted-foreground min-h-10">For getting started with clean short links and one public page.</p>
-          </div>
-          <div className="mb-8 border-b border-border pb-8 flex items-baseline gap-1">
-            <span className="text-5xl font-semibold text-foreground tracking-tight">$0</span>
-            <span className="text-muted-foreground font-medium">/month</span>
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">Features included</p>
-            <ul className="space-y-4 mb-8">
-              {FREE_FEATURES.map((feature) => (
-                <li key={feature} className="flex items-start gap-3 text-sm font-medium text-muted-foreground">
-                  <Check className="h-5 w-5 text-primary shrink-0" />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="mt-auto">
-            {currentPlan === "free" ? (
-              <Button className="w-full h-12 text-base btn-secondary bg-muted border-border text-muted-foreground cursor-default" disabled>
-                Current Plan
-              </Button>
-            ) : hasSubscription ? (
-              <BillingPortalButton />
-            ) : (
-              <Button className="w-full h-12 text-base btn-secondary bg-muted border-border text-muted-foreground cursor-default" disabled>
-                Downgrade unavailable
-              </Button>
-            )}
-          </div>
-        </div>
+      <div className="grid gap-5 lg:grid-cols-3">
+        {ORDER.map((id) => {
+          const plan = PLANS[id]
+          const price = priceFor(id)
+          const isCurrent = currentPlan === id
+          const highlighted = id === "pro" && !isCurrent
 
-        {/* Pro */}
-        {[pro, business].map((product) => {
-          const tier = product.id.startsWith("pro") ? "pro" : "business"
-          const isCurrent = currentPlan === tier
-          const isPopular = tier === "pro"
           return (
             <div
-              key={product.id}
-              className={`dash-panel relative p-6 flex flex-col ${isPopular ? "border-foreground ring-1 ring-foreground shadow-xl shadow-foreground/10" : ""}`}
-            >
-              {isPopular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-foreground text-background px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md flex items-center gap-1.5">
-                  <Zap className="h-3 w-3 fill-primary" /> Most Popular
-                </div>
+              key={id}
+              className={cn(
+                "flex flex-col rounded-lg border bg-card p-6",
+                isCurrent ? "border-foreground" : highlighted ? "border-foreground/40" : "border-border"
               )}
-              <div className="mb-6">
-                <h3 className="text-2xl font-semibold text-foreground mb-2 capitalize">{tier}</h3>
-                <p className="text-sm text-muted-foreground min-h-10">{product.description}</p>
-              </div>
-              <div className="mb-8 border-b border-border pb-8 flex items-baseline gap-1">
-                <span className="text-5xl font-semibold text-foreground tracking-tight">{formatPrice(product.priceInCents)}</span>
-                <span className="text-muted-foreground font-medium">/{interval}</span>
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">Features included</p>
-                <ul className="space-y-4 mb-8">
-                  {product.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3 text-sm font-medium text-muted-foreground">
-                      <Check className="h-5 w-5 text-primary shrink-0" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-auto">
+            >
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-semibold">{plan.name}</h3>
                 {isCurrent ? (
-                  <Button className="w-full h-12 text-base btn-secondary bg-muted border-border text-muted-foreground cursor-default" disabled>
-                    Current Plan
-                  </Button>
+                  <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-medium">
+                    Current plan
+                  </span>
+                ) : highlighted ? (
+                  <span className="rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-medium text-primary-foreground">
+                    Most popular
+                  </span>
+                ) : null}
+              </div>
+
+              <p className="mt-4 flex items-baseline gap-1.5">
+                <span className="text-4xl font-semibold tracking-[-0.03em]">{price.amount}</span>
+                <span className="text-sm text-muted-foreground">{price.cadence}</span>
+              </p>
+
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">{BLURBS[id]}</p>
+
+              <div className="mt-6">
+                {isCurrent ? (
+                  hasSubscription ? (
+                    <BillingPortalButton className="w-full" />
+                  ) : (
+                    <Button variant="outline" className="w-full" disabled>
+                      Your current plan
+                    </Button>
+                  )
+                ) : id === "free" ? (
+                  hasSubscription ? (
+                    <BillingPortalButton className="w-full" label="Cancel subscription" />
+                  ) : (
+                    <Button variant="outline" className="w-full" disabled>
+                      Included
+                    </Button>
+                  )
                 ) : (
-                  <Button className="w-full h-12 text-base btn-primary" asChild>
-                    <Link href={`/dashboard/billing/checkout?plan=${product.id}`}>
-                      Get {tier === "pro" ? "Pro" : "Business"}
+                  <Button
+                    asChild
+                    variant={highlighted ? "default" : "outline"}
+                    className="w-full"
+                  >
+                    <Link href={`/dashboard/billing/checkout?plan=${price.productId}`}>
+                      Upgrade to {plan.name}
                     </Link>
                   </Button>
                 )}
               </div>
+
+              <ul className="mt-6 space-y-2.5 border-t border-border pt-6">
+                {ROWS.map((row) => {
+                  const value = row.value(plan)
+                  const included = value !== false
+                  return (
+                    <li key={row.label} className="flex items-start gap-2.5 text-sm">
+                      {included ? (
+                        <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
+                      ) : (
+                        <Minus
+                          className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                          aria-hidden="true"
+                        />
+                      )}
+                      <span className={cn(!included && "text-muted-foreground")}>
+                        {row.label}
+                        {typeof value === "string" ? (
+                          <span className="text-muted-foreground"> — {value}</span>
+                        ) : null}
+                      </span>
+                    </li>
+                  )
+                })}
+              </ul>
             </div>
           )
         })}

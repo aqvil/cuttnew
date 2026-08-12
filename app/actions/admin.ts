@@ -16,38 +16,46 @@ import { runLegacySqlImport } from "@/lib/migration/import-sql";
 import { eq, ilike, or, count, desc, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-async function requireAdmin() {
+/**
+ * Authorises an administrative action.
+ *
+ * The role is read from the database on every call, not trusted from the JWT —
+ * a token issued before a demotion must not keep working. The previous
+ * implementation also promoted two hardcoded email addresses to superadmin,
+ * which meant anyone who registered with one of those addresses on a fresh
+ * deployment gained full platform control. That backdoor is gone; bootstrap is
+ * now controlled by the SUPERADMIN_EMAILS environment variable (see auth.ts).
+ */
+export async function requireAdmin() {
   const session = await auth();
   if (!session?.user?.id) {
     throw new Error("Unauthorized: Authentication required");
   }
 
-  let role = (session.user as any)?.role;
-  const email = (session.user.email || "").toLowerCase();
+  const dbUser = await db.query.users.findFirst({
+    where: eq(users.id, session.user.id),
+    columns: { role: true, bannedAt: true },
+  });
 
-  if (email === "bob@bob.com" || email === "bogdan@cuttly.io") {
-    role = "superadmin";
+  if (dbUser?.bannedAt) {
+    throw new Error("Unauthorized: Account suspended");
   }
 
-  if (role !== "admin" && role !== "superadmin") {
-    const dbUser = await db.query.users.findFirst({
-      where: eq(users.id, session.user.id),
-      columns: { role: true, email: true },
-    });
-
-    if (dbUser) {
-      const dbEmail = (dbUser.email || "").toLowerCase();
-      if (dbUser.role === "admin" || dbUser.role === "superadmin" || dbEmail === "bob@bob.com" || dbEmail === "bogdan@cuttly.io") {
-        role = dbUser.role || "superadmin";
-      }
-    }
-  }
-
-  if (role !== "admin" && role !== "superadmin") {
+  if (dbUser?.role !== "admin" && dbUser?.role !== "superadmin") {
     throw new Error("Unauthorized: Admin privileges required");
   }
 
-  return session.user;
+  return { ...session.user, role: dbUser.role };
+}
+
+/** Non-throwing variant for route guards. */
+export async function isAdmin(): Promise<boolean> {
+  try {
+    await requireAdmin();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function getAdminOverviewStats() {
@@ -155,21 +163,59 @@ export async function getAdminUsers({
   };
 }
 
-export async function updateUserRoleAction(targetUserId: string, newRole: "user" | "admin" | "superadmin") {
-  await requireAdmin();
+/**
+ * Guards an action taken against another account.
+ *
+ * Three rules, none of which existed before:
+ *  - You cannot act on yourself. Otherwise an admin can ban or delete their
+ *    own account by accident, or demote the last superadmin.
+ *  - An admin cannot act on a superadmin. Otherwise "admin" is effectively
+ *    equal to "superadmin", since one could demote the other and take over.
+ *  - Only a superadmin can grant or revoke elevated roles.
+ */
+async function guardTargetUser(targetUserId: string, actor: { id?: string; role?: string }) {
+  if (targetUserId === actor.id) {
+    throw new Error("You can't perform this action on your own account.");
+  }
 
-  await db.update(users).set({ role: newRole }).where(eq(users.id, targetUserId));
+  const target = await db.query.users.findFirst({
+    where: eq(users.id, targetUserId),
+    columns: { id: true, role: true },
+  });
+
+  if (!target) throw new Error("That account no longer exists.");
+
+  if (target.role === "superadmin" && actor.role !== "superadmin") {
+    throw new Error("Only a superadmin can manage another superadmin.");
+  }
+
+  return target;
+}
+
+export async function updateUserRoleAction(
+  targetUserId: string,
+  newRole: "user" | "admin" | "superadmin"
+) {
+  const actor = await requireAdmin();
+  await guardTargetUser(targetUserId, actor);
+
+  if (newRole !== "user" && actor.role !== "superadmin") {
+    throw new Error("Only a superadmin can grant elevated roles.");
+  }
+
+  await db.update(users).set({ role: newRole, updatedAt: new Date() }).where(eq(users.id, targetUserId));
   revalidatePath("/dashboard/admin");
   revalidatePath("/dashboard/admin/users");
   return { success: true };
 }
 
 export async function toggleUserBanAction(targetUserId: string, ban: boolean) {
-  await requireAdmin();
+  const actor = await requireAdmin();
+  await guardTargetUser(targetUserId, actor);
 
   await db
     .update(users)
-    .set({ bannedAt: ban ? new Date() : null })
+    .set({ bannedAt: ban ? new Date() : null, updatedAt: new Date() })
     .where(eq(users.id, targetUserId));
 
   revalidatePath("/dashboard/admin");
@@ -178,7 +224,12 @@ export async function toggleUserBanAction(targetUserId: string, ban: boolean) {
 }
 
 export async function deleteUserAdminAction(targetUserId: string) {
-  await requireAdmin();
+  const actor = await requireAdmin();
+  await guardTargetUser(targetUserId, actor);
+
+  if (actor.role !== "superadmin") {
+    throw new Error("Only a superadmin can permanently delete an account.");
+  }
 
   await db.delete(users).where(eq(users.id, targetUserId));
   revalidatePath("/dashboard/admin");

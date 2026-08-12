@@ -6,6 +6,16 @@ import { eq } from 'drizzle-orm'
 import Stripe from 'stripe'
 
 export async function POST(req: NextRequest) {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET
+
+  // Without a secret we cannot verify the signature, and an unverified webhook
+  // is a way for anyone to grant themselves a paid plan. Refuse rather than
+  // fall back to a placeholder.
+  if (!secret) {
+    console.error('[stripe] STRIPE_WEBHOOK_SECRET is not set; rejecting webhook')
+    return NextResponse.json({ error: 'Webhooks not configured' }, { status: 500 })
+  }
+
   const body = await req.text()
   const signature = req.headers.get('stripe-signature')
 
@@ -16,11 +26,7 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event
 
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder'
-    )
+    event = stripe.webhooks.constructEvent(body, signature, secret)
   } catch (err) {
     console.error('Webhook signature verification failed:', err)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
@@ -64,14 +70,27 @@ export async function POST(req: NextRequest) {
       })
 
       if (profile) {
-        // Update subscription status
-        const status = subscription.status
-        const isActive = status === 'active' || status === 'trialing'
+        const isActive =
+          subscription.status === 'active' || subscription.status === 'trialing'
 
         if (!isActive) {
-          // Downgrade to free if subscription is not active
+          // Past due, cancelled or unpaid — drop to the free entitlements.
           await db.update(profiles)
             .set({ plan: 'free', updatedAt: new Date() })
+            .where(eq(profiles.id, profile.id))
+        } else if (profile.plan === 'free') {
+          // A subscription that recovers (payment retried successfully) must
+          // restore the paid plan; previously it stayed downgraded forever.
+          const priceNickname =
+            subscription.items.data[0]?.price.nickname?.toLowerCase() ?? ''
+          const restored = priceNickname.includes('business') ? 'business' : 'pro'
+
+          await db.update(profiles)
+            .set({
+              plan: restored,
+              stripeSubscriptionId: subscription.id,
+              updatedAt: new Date(),
+            })
             .where(eq(profiles.id, profile.id))
         }
       }

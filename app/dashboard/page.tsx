@@ -1,100 +1,212 @@
-import { auth } from "@/auth"
-import { redirect } from "next/navigation"
-import { QuickLinkForm } from "@/components/dashboard/quick-link-form"
-import { CheckCircle2, ArrowRight, Chrome } from "lucide-react"
 import Link from "next/link"
+import { redirect } from "next/navigation"
+import { ArrowRight, BarChart3, Link2, QrCode } from "lucide-react"
 
-export const metadata = {
-  title: "Dashboard - Cuttly",
-}
+import { auth } from "@/auth"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { PageHeader, SectionHeader } from "@/components/app/page-header"
+import { EmptyState } from "@/components/app/empty-state"
+import { Stat, StatRow, percentChange } from "@/components/app/stat"
+import { QuickCreate } from "@/components/dashboard/quick-create"
+import { ClicksChart } from "@/components/analytics/clicks-chart"
+import { getLinkCounters, getLinksPage } from "@/lib/links/queries"
+import { countQrCodes } from "@/lib/qr/queries"
+import {
+  getAnalyticsSummary,
+  getOwnedLinkIds,
+  getRecentClicks,
+} from "@/lib/analytics/queries"
+import { appOrigin } from "@/lib/app-url"
+import { countryFlag, formatRelative, fullNumber, truncateMiddle } from "@/lib/format"
 
+export const metadata = { title: "Overview" }
+
+/**
+ * The dashboard.
+ *
+ * Answers, in order: what happened recently, what do I have, what do I do next.
+ * Everything on this page is derived from the user's real data — the previous
+ * version showed a hardcoded "100% complete" checklist and three integration
+ * cards for integrations that don't exist.
+ */
 export default async function DashboardPage() {
   const session = await auth()
-  
-  if (!session?.user?.id) {
-    redirect("/auth/login")
-  }
+  if (!session?.user?.id) redirect("/auth/login")
+
+  const userId = session.user.id
+  const linkIds = await getOwnedLinkIds(userId)
+
+  const [counters, summary, recentLinks, recentClicks, qrCount] = await Promise.all([
+    getLinkCounters(userId),
+    getAnalyticsSummary(linkIds, "30d"),
+    getLinksPage({ userId, pageSize: 5, sort: "newest" }),
+    getRecentClicks(linkIds, 6),
+    countQrCodes(userId),
+  ])
+
+  const origin = appOrigin()
+  const trend = percentChange(summary.totalClicks, summary.previousClicks)
+  const firstName = (session.user.name || "").split(" ")[0]
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-5 p-4 sm:p-8 font-mono text-foreground">
-      {/* Quick Create Box */}
-      <QuickLinkForm />
+    <div className="page space-y-8">
+      <PageHeader
+        title={firstName ? `Welcome back, ${firstName}` : "Overview"}
+        description="Your links at a glance, and everything you need to make another."
+      />
 
-      {/* Bottom Grid Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-        {/* Left Box: Connect your account */}
-        <div className="p-5 rounded-[3px] border border-border bg-card space-y-4 shadow-xs">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-foreground">Connect your account</h2>
-            <Link href="/dashboard/settings" className="text-xs text-primary font-bold hover:underline flex items-center gap-1">
-              Explore Integrations <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
+      <QuickCreate appOrigin={origin} />
 
-          <div className="text-xs font-semibold text-muted-foreground uppercase">
-            Recommended for you
-          </div>
+      {counters.totalLinks === 0 ? (
+        <EmptyState
+          icon={Link2}
+          title="Nothing to measure yet"
+          description="Create your first short link above. Once someone clicks it, this page fills in with real click data — where they came from, what they used, and when."
+          action={
+            <Button asChild>
+              <Link href="/dashboard/links/new">Create a link with options</Link>
+            </Button>
+          }
+        />
+      ) : (
+        <>
+          <StatRow>
+            <Stat
+              label="Clicks (30 days)"
+              value={fullNumber(summary.totalClicks)}
+              trend={
+                trend === null ? null : { changePercent: trend, label: "vs. previous 30 days" }
+              }
+            />
+            <Stat
+              label="Unique visitors"
+              value={fullNumber(summary.uniqueVisitors)}
+              hint="Last 30 days"
+            />
+            <Stat
+              label="Active links"
+              value={fullNumber(counters.activeLinks)}
+              hint={
+                counters.archivedLinks > 0
+                  ? `${fullNumber(counters.archivedLinks)} archived`
+                  : "All time"
+              }
+            />
+            <Stat
+              label="QR codes"
+              value={fullNumber(qrCount)}
+              hint={`${fullNumber(summary.qrScans)} scans in 30 days`}
+            />
+          </StatRow>
 
-          <div className="space-y-3">
-            {/* Chrome Extension */}
-            <div className="p-3.5 rounded-[3px] border border-border bg-muted/40 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-[3px] bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                <Chrome className="w-4 h-4 text-emerald-500" />
+          <section className="rounded-lg border border-border bg-card p-5">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div className="space-y-0.5">
+                <h2 className="h3">Clicks over time</h2>
+                <p className="text-xs text-muted-foreground">Last 30 days, all links</p>
               </div>
-              <div className="space-y-0.5 min-w-0">
-                <div className="font-bold text-xs text-foreground">Chrome Extension</div>
-                <div className="text-[11px] text-muted-foreground truncate">Instant links and QR codes from anywhere</div>
-              </div>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/dashboard/analytics">
+                  <BarChart3 className="size-4" aria-hidden="true" />
+                  Full analytics
+                </Link>
+              </Button>
             </div>
 
-            {/* Canva */}
-            <div className="p-3.5 rounded-[3px] border border-border bg-muted/40 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-[3px] bg-sky-500/10 border border-sky-500/20 flex items-center justify-center shrink-0">
-                <span className="font-bold text-sky-500 text-xs">Canva</span>
+            {summary.timeline.some((point) => point.clicks > 0) ? (
+              <ClicksChart data={summary.timeline} range="30d" height={220} />
+            ) : (
+              <div className="flex h-[220px] flex-col items-center justify-center gap-1 text-center">
+                <p className="text-sm font-medium">No clicks yet</p>
+                <p className="max-w-xs text-sm text-muted-foreground">
+                  Share one of your links — clicks show up here within seconds.
+                </p>
               </div>
-              <div className="space-y-0.5 min-w-0">
-                <div className="font-bold text-xs text-foreground">Canva</div>
-                <div className="text-[11px] text-muted-foreground truncate">Popular pick in productivity and design</div>
-              </div>
-            </div>
+            )}
+          </section>
 
-            {/* Shopify */}
-            <div className="p-3.5 rounded-[3px] border border-border bg-muted/40 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-[3px] bg-green-500/10 border border-green-500/20 flex items-center justify-center shrink-0">
-                <span className="font-bold text-green-600 text-xs">Shop</span>
-              </div>
-              <div className="space-y-0.5 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-xs text-foreground">Shopify</span>
-                  <span className="px-1.5 py-0.2 rounded-[2px] bg-primary/10 text-primary text-[9px] font-bold">NEW</span>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <section>
+              <SectionHeader
+                title="Recent links"
+                actions={
+                  <Button asChild variant="ghost" size="sm">
+                    <Link href="/dashboard/links">
+                      View all
+                      <ArrowRight className="size-4" aria-hidden="true" />
+                    </Link>
+                  </Button>
+                }
+              />
+
+              <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+                {recentLinks.items.map((link) => (
+                  <li key={link.id} className="flex items-center gap-3 p-4">
+                    <div className="min-w-0 flex-1 space-y-0.5">
+                      <Link
+                        href={`/dashboard/links/${link.id}`}
+                        className="block truncate text-sm font-medium hover:underline"
+                      >
+                        {link.title || `${origin.replace(/^https?:\/\//, "")}/l/${link.shortCode}`}
+                      </Link>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {truncateMiddle(link.originalUrl, 56)}
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-sm font-medium tabular">
+                      {fullNumber(link.clickCount)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section>
+              <SectionHeader title="Latest activity" />
+
+              {recentClicks.length === 0 ? (
+                <div className="flex h-[calc(100%-3rem)] min-h-[200px] items-center justify-center rounded-lg border border-dashed border-border p-6 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    No clicks recorded yet.
+                  </p>
                 </div>
-                <div className="text-[11px] text-muted-foreground truncate">Connect marketing activity to revenue</div>
-              </div>
-            </div>
+              ) : (
+                <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+                  {recentClicks.map((click, index) => (
+                    <li
+                      key={`${click.shortCode}-${index}`}
+                      className="flex items-center gap-3 p-4 text-sm"
+                    >
+                      <span aria-hidden="true" className="shrink-0 text-base">
+                        {click.country ? countryFlag(click.country) : "🌐"}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-mono text-xs text-muted-foreground">
+                          /l/{click.shortCode}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {[click.browser, click.device].filter(Boolean).join(" · ") ||
+                            "Unknown client"}
+                        </p>
+                      </div>
+                      {click.source === "qr" ? (
+                        <Badge variant="secondary" className="h-5 shrink-0 gap-1 font-normal">
+                          <QrCode className="size-3" aria-hidden="true" />
+                          Scan
+                        </Badge>
+                      ) : null}
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {formatRelative(click.clickedAt)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
           </div>
-        </div>
-
-        {/* Right Box: Do more with Cuttly */}
-        <div className="p-5 rounded-[3px] border border-border bg-card space-y-4 shadow-xs">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-foreground">Do more with Cuttly</h2>
-            <span className="text-xs font-bold text-emerald-500 flex items-center gap-1">
-              100% <span className="w-3 h-3 rounded-full border-2 border-emerald-500 border-t-transparent inline-block" />
-            </span>
-          </div>
-
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center gap-2.5 text-xs text-foreground font-medium">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span>QR Code created</span>
-            </div>
-            <div className="flex items-center gap-2.5 text-xs text-foreground font-medium">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span>Custom domains discovered</span>
-            </div>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   )
 }

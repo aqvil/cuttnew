@@ -1,97 +1,86 @@
 'use client'
 
-import { useSearchParams } from "next/navigation"
-import { Checkout } from "@/components/billing/checkout"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Shield } from "lucide-react"
-import Link from "next/link"
-import { PRODUCTS } from "@/lib/products"
 import { Suspense } from "react"
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { ArrowLeft, ShieldCheck } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import { PageHeader } from "@/components/app/page-header"
+import { EmptyState } from "@/components/app/empty-state"
+import { Checkout } from "@/components/billing/checkout"
+import { PRODUCTS } from "@/lib/products"
 
 function CheckoutContent() {
-  const searchParams = useSearchParams()
-  const planId = searchParams.get("plan")
-
-  const product = PRODUCTS.find(p => p.id === planId)
+  const planId = useSearchParams().get("plan")
+  const product = PRODUCTS.find((p) => p.id === planId)
 
   if (!planId || !product) {
     return (
-      <div className="dash-narrow">
-        <div className="dash-empty">
-            <h3 className="text-lg font-semibold mb-2">Invalid Plan</h3>
-            <p className="text-sm text-muted-foreground text-center mb-4">
-              The selected plan was not found. Please select a valid plan.
-            </p>
+      <div className="page-narrow">
+        <EmptyState
+          title="That plan doesn't exist"
+          description="The plan in this link isn't one we offer. Pick one from the billing page and we'll take it from there."
+          action={
             <Button asChild>
-              <Link href="/dashboard/billing">View Plans</Link>
+              <Link href="/dashboard/billing">View plans</Link>
             </Button>
-        </div>
+          }
+        />
       </div>
     )
   }
 
-  const priceDisplay = product.interval === 'year' 
-    ? `$${(product.priceInCents / 100).toFixed(0)}/year`
-    : `$${(product.priceInCents / 100).toFixed(0)}/month`
+  const dollars = product.priceInCents / 100
+  const price = `$${dollars % 1 === 0 ? dollars : dollars.toFixed(2)}`
+  const cadence = product.interval === "year" ? "per year" : "per month"
 
   return (
-    <div className="dash-narrow">
-      <div className="dash-hero flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="text-muted-foreground hover:bg-muted" asChild>
-          <Link href="/dashboard/billing">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <div className="dash-kicker mb-3">Checkout</div>
-          <h1 className="dash-title">Checkout</h1>
-          <p className="text-muted-foreground">
-            Subscribe to {product.name}
+    <div className="page">
+      <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4 text-muted-foreground">
+        <Link href="/dashboard/billing">
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Back to plans
+        </Link>
+      </Button>
+
+      <PageHeader
+        title="Complete your upgrade"
+        description={`You're subscribing to ${product.name}. You can cancel at any time from the billing portal.`}
+      />
+
+      <div className="grid gap-6 lg:grid-cols-[320px_1fr] lg:items-start">
+        <aside className="space-y-4 rounded-lg border border-border bg-card p-5 lg:sticky lg:top-24">
+          <h2 className="text-sm font-semibold">Order summary</h2>
+
+          <dl className="space-y-3 text-sm">
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="text-muted-foreground">{product.name}</dt>
+              <dd className="font-medium tabular">{price}</dd>
+            </div>
+            <div className="flex items-baseline justify-between gap-4 border-t border-border pt-3">
+              <dt className="font-medium">Total</dt>
+              <dd className="font-medium tabular">
+                {price} <span className="font-normal text-muted-foreground">{cadence}</span>
+              </dd>
+            </div>
+          </dl>
+
+          <ul className="space-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
+            {product.features.slice(0, 5).map((feature) => (
+              <li key={feature}>{feature}</li>
+            ))}
+          </ul>
+
+          <p className="flex items-start gap-2 border-t border-border pt-4 text-xs text-muted-foreground">
+            <ShieldCheck className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+            Payment is handled entirely by Stripe. Card details never reach our servers.
           </p>
-        </div>
-      </div>
+        </aside>
 
-      <div className="grid gap-6 lg:grid-cols-5">
-        {/* Order Summary */}
-        <div className="dash-panel lg:col-span-2">
-          <div className="dash-panel-header">
-            <div>
-            <h2 className="dash-panel-title">Order Summary</h2>
-            <p className="text-sm text-muted-foreground">
-              {product.name}
-            </p>
-            </div>
-          </div>
-          <div className="space-y-4 p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">{product.name}</span>
-              <span className="font-medium">{priceDisplay}</span>
-            </div>
-            <hr className="border-border" />
-            <div className="flex items-center justify-between font-medium">
-              <span>Total</span>
-              <span>{priceDisplay}</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground pt-4">
-              <Shield className="h-4 w-4" />
-              <span>Secure payment powered by Stripe</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Checkout Form */}
-        <div className="dash-panel lg:col-span-3">
-          <div className="dash-panel-header">
-            <div>
-            <h2 className="dash-panel-title">Payment Details</h2>
-            <p className="text-sm text-muted-foreground">
-              Enter your payment information to complete your subscription
-            </p>
-            </div>
-          </div>
-          <div className="p-5">
-            <Checkout productId={planId} />
-          </div>
+        <div className="min-w-0 rounded-lg border border-border bg-card p-5">
+          <Checkout productId={planId} />
         </div>
       </div>
     </div>
@@ -100,7 +89,14 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center p-8">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="page space-y-4">
+          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-96 w-full" />
+        </div>
+      }
+    >
       <CheckoutContent />
     </Suspense>
   )

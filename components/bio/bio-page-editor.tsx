@@ -171,7 +171,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
              />
           </div>
           
-          <Button onClick={handleSave} disabled={isSaving} className="btn-primary">
+          <Button onClick={handleSave} disabled={isSaving} className="">
             {isSaving ? (
                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
@@ -210,7 +210,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="Your name or brand"
-                      className="dash-field text-base"
+                      className="h-10 text-base"
                     />
                   </div>
                   <div className="space-y-2">
@@ -219,20 +219,20 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="A short description about you..."
-                      className="dash-field text-base"
+                      className="h-10 text-base"
                     />
                   </div>
               </div>
 
               <div className="pt-6 border-t border-border">
-                <Button className="w-full h-12 btn-primary rounded-md text-base" onClick={() => setShowAddBlock(true)}>
+                <Button className="w-full h-12 rounded-md text-base" onClick={() => setShowAddBlock(true)}>
                   <Plus className="mr-2 h-5 w-5" />
                   Add Link or Block
                 </Button>
                 
                 <div className="mt-8 space-y-4">
                   {blocks.length === 0 ? (
-                    <div className="dash-empty">
+                    <div className="flex flex-col items-center rounded-lg border border-dashed border-border px-6 py-16 text-center">
                       <p className="text-sm font-medium text-muted-foreground">You don't have any links yet.</p>
                       <p className="text-sm text-muted-foreground mt-1">Add your first link to get started.</p>
                     </div>
@@ -259,8 +259,8 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
             </TabsContent>
 
             <TabsContent value="design" className="space-y-8 mt-4 focus-visible:outline-none">
-               <div className="dash-panel p-6">
-                <h3 className="dash-panel-title mb-6 border-b border-border pb-4">Colors</h3>
+               <div className="surface p-6">
+                <h3 className="h3 mb-6 border-b border-border pb-4">Colors</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {[
                     { label: "Background", key: "background" },
@@ -283,8 +283,8 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                 </div>
               </div>
 
-              <div className="dash-panel p-6">
-                <h3 className="dash-panel-title mb-6 border-b border-border pb-4">Card Style</h3>
+              <div className="surface p-6">
+                <h3 className="h3 mb-6 border-b border-border pb-4">Card Style</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {[
                     { id: "minimal", label: "Minimal" },
@@ -309,22 +309,22 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
             </TabsContent>
 
             <TabsContent value="settings" className="space-y-8 mt-4 focus-visible:outline-none">
-              <div className="dash-panel p-6">
-                <h3 className="dash-panel-title mb-6 border-b border-border pb-4">Search Engine Optimization</h3>
+              <div className="surface p-6">
+                <h3 className="h3 mb-6 border-b border-border pb-4">Search Engine Optimization</h3>
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <Label className="text-sm font-semibold text-foreground">SEO Title</Label>
-                    <Input placeholder="Enter title for search engines" className="dash-field" />
+                    <Input placeholder="Enter title for search engines" className="h-10" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-semibold text-foreground">Meta Description</Label>
-                    <Input placeholder="Enter description for search engines" className="dash-field" />
+                    <Input placeholder="Enter description for search engines" className="h-10" />
                   </div>
                 </div>
               </div>
 
-              <div className="dash-panel p-6">
-                <h3 className="dash-panel-title mb-6 border-b border-border pb-4">QR Code</h3>
+              <div className="surface p-6">
+                <h3 className="h3 mb-6 border-b border-border pb-4">QR Code</h3>
                 <QrCodeCard
                   url={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/p/${page.slug}`}
                   fileName={`cuttly-${page.slug}`}
@@ -335,7 +335,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
         </div>
 
         {/* Right Panel - Phone Preview */}
-        <div className={`w-full md:w-[40%] lg:w-[45%] bg-background overflow-y-auto p-10 flex flex-col items-center border-l border-border mono-grid ${mobilePreviewOpen ? 'block' : 'hidden md:flex'}`}>
+        <div className={`w-full md:w-[40%] lg:w-[45%] bg-background overflow-y-auto p-10 flex flex-col items-center border-l border-border ${mobilePreviewOpen ? 'block' : 'hidden md:flex'}`}>
            <div className="mb-6 flex items-center justify-center gap-2 text-sm font-semibold text-muted-foreground">
              <Smartphone className="h-4 w-4" />
              Live Preview
