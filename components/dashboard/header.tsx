@@ -20,7 +20,7 @@ export function DashboardHeader({ plan }: { plan?: string | null }) {
   const isFreePlan = (plan || "free") === "free"
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
+    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/85 px-4 backdrop-blur-md sm:px-6">
       <SidebarTrigger className="size-8 text-muted-foreground" />
 
       <div className="flex flex-1 justify-start">

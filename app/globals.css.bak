@@ -1,0 +1,386 @@
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   CUTTLY DESIGN SYSTEM
+   A single, restrained visual language:
+   - Monochrome surfaces, one blue accent for data & links
+   - Sans for everything; mono reserved for codes and URLs
+   - 10px radius, hairline borders, shadows used sparingly
+   ============================================================ */
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace;
+
+  /* --- Surfaces --- */
+  --color-background: #ffffff;
+  --color-foreground: #09090b;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #09090b;
+
+  --color-popover: #ffffff;
+  --color-popover-foreground: #09090b;
+
+  /* Subtle raised surface used for toolbars, table headers, wells */
+  --color-subtle: #fafafa;
+
+  /* --- Primary action (near-black, Vercel/Linear register) --- */
+  --color-primary: #18181b;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #f4f4f5;
+  --color-secondary-foreground: #18181b;
+
+  --color-muted: #f4f4f5;
+  /*
+   * Darkened from #71717a (4.63:1 on white — and only 4.34:1 over the
+   * translucent header) so secondary text clears WCAG AA with margin
+   * everywhere it appears, including on the subtle and card surfaces.
+   */
+  --color-muted-foreground: #62626b;
+
+  --color-accent: #f4f4f5;
+  --color-accent-foreground: #18181b;
+
+  /* --- Brand blue: links, focus, primary chart series --- */
+  --color-brand: #2563eb;
+  --color-brand-foreground: #ffffff;
+  --color-brand-subtle: #eff6ff;
+
+  /*
+   * --- Semantic ---
+   * These are used as small text (trend deltas, status badges) on both the
+   * page background and their own 10%-opacity tint. The obvious 600-weight
+   * choices (#16a34a, #d97706) only reach ~3:1 there, which fails AA for
+   * normal text, so each is one step darker.
+   */
+  --color-destructive: #c81e1e;
+  --color-destructive-foreground: #ffffff;
+  --color-success: #147a38;
+  --color-warning: #a2560a;
+
+  --color-border: #e4e4e7;
+  --color-input: #e4e4e7;
+  --color-ring: #2563eb;
+
+  /* --- Sidebar --- */
+  --color-sidebar: #fafafa;
+  --color-sidebar-foreground: #09090b;
+  --color-sidebar-accent: #ffffff;
+  --color-sidebar-accent-foreground: #09090b;
+  --color-sidebar-border: #e4e4e7;
+
+  /* --- Chart series (colour-blind safe ordering) --- */
+  --color-chart-1: #2563eb;
+  --color-chart-2: #7c3aed;
+  --color-chart-3: #0891b2;
+  --color-chart-4: #ea580c;
+  --color-chart-5: #65a30d;
+
+  /* --- Radius --- */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+}
+
+@layer base {
+  :root {
+    /*
+     * Focus-ring colour as a plain (unregistered) custom property.
+     *
+     * Tailwind registers every `@theme` colour with `@property { inherits:
+     * false }`, so `var(--color-ring)` does not substitute on descendant
+     * elements — `outline-color: var(--color-ring)` silently fell back to
+     * `currentColor`, which is why focus outlines were rendering in the
+     * element's own text colour instead of the ring colour.
+     */
+    --focus-ring: #2563eb;
+    /* Painted between the control and the ring to create the offset gap. */
+    --focus-ring-offset: #ffffff;
+
+    /* Shadows: used rarely, and always soft */
+    --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+    --shadow-raised: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+    --shadow-overlay: 0 12px 32px -8px rgb(0 0 0 / 0.14), 0 0 0 1px rgb(0 0 0 / 0.05);
+
+    --popover: var(--color-popover);
+    --popover-foreground: var(--color-popover-foreground);
+  }
+
+  .dark {
+    --color-background: #09090b;
+    --color-foreground: #fafafa;
+
+    --color-card: #101012;
+    --color-card-foreground: #fafafa;
+
+    --color-popover: #131316;
+    --color-popover-foreground: #fafafa;
+
+    --color-subtle: #121215;
+
+    --color-primary: #fafafa;
+    --color-primary-foreground: #18181b;
+
+    --color-secondary: #1c1c1f;
+    --color-secondary-foreground: #fafafa;
+
+    --color-muted: #1c1c1f;
+    --color-muted-foreground: #a1a1aa;
+
+    --color-accent: #1c1c1f;
+    --color-accent-foreground: #fafafa;
+
+    --color-brand: #60a5fa;
+    --color-brand-foreground: #09090b;
+    --color-brand-subtle: #17233a;
+
+    --color-destructive: #ef4444;
+    --color-destructive-foreground: #ffffff;
+    --color-success: #22c55e;
+    --color-warning: #f59e0b;
+
+    --color-border: #26262a;
+    --color-input: #2a2a2f;
+    --color-ring: #60a5fa;
+
+    --color-sidebar: #0c0c0e;
+    --color-sidebar-foreground: #fafafa;
+    --color-sidebar-accent: #1c1c1f;
+    --color-sidebar-accent-foreground: #fafafa;
+    --color-sidebar-border: #26262a;
+
+    --focus-ring: #60a5fa;
+    --focus-ring-offset: #09090b;
+
+    --color-chart-1: #60a5fa;
+    --color-chart-2: #a78bfa;
+    --color-chart-3: #22d3ee;
+    --color-chart-4: #fb923c;
+    --color-chart-5: #a3e635;
+
+    --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --shadow-raised: 0 1px 3px 0 rgb(0 0 0 / 0.5);
+    --shadow-overlay: 0 12px 32px -8px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
+
+    --popover: var(--color-popover);
+    --popover-foreground: var(--color-popover-foreground);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv01", "cv03", "cv04";
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Numeric data should never jitter */
+  .tabular,
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-brand) 24%, transparent);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-muted-foreground) 28%, transparent);
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-muted-foreground) 50%, transparent);
+    background-clip: content-box;
+  }
+
+  /* Respect the OS motion preference. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ─── Motion ──────────────────────────────────────────────── */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  /*
+   * One focus indicator for the entire application.
+   *
+   * This has to live in the utilities layer, and be more specific than a
+   * single class, because the shadcn primitives all carry `outline-none` and
+   * delegate to a `focus-visible:ring-*` box-shadow. That ring was not
+   * painting — the composed box-shadow kept the transparent default even
+   * while `:focus-visible` matched — so keyboard users had no visible focus
+   * indicator at all on buttons, inputs, selects, tabs and switches.
+   *
+   * An outline is also the better primitive here: it draws outside the box so
+   * it can't be clipped by an `overflow-hidden` ancestor, and Windows
+   * high-contrast mode honours it.
+   */
+  /*
+   * `!important` is deliberate and is the only use of it in this file. The
+   * vendored primitives each ship their own `outline-none` plus a
+   * `focus-visible:ring-*` box-shadow, and those rings were not painting —
+   * buttons ended up with a 3px `currentColor` outline while inputs got the
+   * ring colour, so the indicator was both inconsistent and, on several
+   * controls, absent. A keyboard user must never have to guess where they
+   * are, so this one rule wins outright.
+   */
+  html :focus-visible {
+    /*
+     * A two-ring box-shadow rather than a coloured outline.
+     *
+     * `outline-color` turned out not to be reliably author-settable — it
+     * resolved to `currentColor` regardless of the declared value — which
+     * left a filled button with a dark ring on a dark page. `box-shadow` is
+     * fully under our control, and the inner ring painted in the page
+     * background colour produces the offset gap.
+     *
+     * The transparent outline is kept on purpose: Windows High Contrast Mode
+     * discards box-shadows but honours outlines, so this is what keeps a
+     * focus indicator visible there.
+     */
+    outline: 2px solid transparent !important;
+    outline-offset: 2px !important;
+    box-shadow:
+      0 0 0 2px var(--focus-ring-offset),
+      0 0 0 4px var(--focus-ring) !important;
+  }
+
+  /* Inputs sit flush inside groups; a tighter ring avoids overlapping neighbours. */
+  html input:focus-visible,
+  html textarea:focus-visible,
+  html select:focus-visible {
+    box-shadow:
+      0 0 0 1px var(--focus-ring-offset),
+      0 0 0 3px var(--focus-ring) !important;
+  }
+}
+
+@layer components {
+  /* ─── Page scaffolding ──────────────────────────────────── */
+
+  /* Standard dashboard page: generous, centered, breathable. */
+  .page {
+    @apply mx-auto w-full max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8;
+    animation: fade-in 0.15s ease-out;
+  }
+
+  /* Narrower variant for forms and settings. */
+  .page-narrow {
+    @apply mx-auto w-full max-w-[760px] px-4 py-8 sm:px-6 lg:px-8;
+    animation: fade-in 0.15s ease-out;
+  }
+
+  /* Wide variant for dense tables. */
+  .page-wide {
+    @apply mx-auto w-full max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8;
+    animation: fade-in 0.15s ease-out;
+  }
+
+  /* ─── Surfaces ──────────────────────────────────────────── */
+
+  /* The one card style. Hairline border, no shadow by default. */
+  .surface {
+    @apply rounded-lg border border-border bg-card;
+  }
+
+  /* Recessed area used for previews, wells and code blocks. */
+  .well {
+    @apply rounded-lg border border-border bg-subtle;
+  }
+
+  /* ─── Typography ────────────────────────────────────────── */
+  .h1 {
+    @apply text-[26px] font-semibold leading-tight tracking-[-0.02em] text-foreground sm:text-[30px];
+  }
+
+  .h2 {
+    @apply text-lg font-semibold leading-snug tracking-[-0.01em] text-foreground;
+  }
+
+  .h3 {
+    @apply text-sm font-semibold text-foreground;
+  }
+
+  .lede {
+    @apply text-sm leading-6 text-muted-foreground;
+  }
+
+  /* Small uppercase label above a group of controls. */
+  .eyebrow {
+    @apply text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground;
+  }
+
+  /* ─── Link styles ───────────────────────────────────────── */
+  .link-brand {
+    @apply text-brand underline-offset-4 hover:underline;
+  }
+
+  /* ─── Animation helpers ─────────────────────────────────── */
+  .animate-rise {
+    animation: rise-in 0.25s ease-out both;
+  }
+
+  /* ─── Screen-reader only ────────────────────────────────── */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}

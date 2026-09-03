@@ -29,7 +29,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-16 text-center",
+        "grid-field flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-16 text-center",
         variant === "filtered" && "py-12",
         className
       )}
@@ -37,16 +37,18 @@ export function EmptyState({
       {Icon ? (
         <div
           aria-hidden="true"
-          className="mb-4 flex size-10 items-center justify-center rounded-lg border border-border bg-subtle text-muted-foreground"
+          className="mb-4 flex size-10 items-center justify-center rounded-sm border border-border bg-card text-muted-foreground"
         >
           <Icon className="size-4" />
         </div>
       ) : null}
 
-      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <h3 className="text-[13px] font-semibold uppercase tracking-[0.1em] text-foreground">
+        {title}
+      </h3>
 
       {description ? (
-        <p className="mt-1.5 max-w-sm text-sm leading-6 text-muted-foreground">
+        <p className="mt-2 max-w-sm text-[13px] leading-6 text-muted-foreground">
           {description}
         </p>
       ) : null}

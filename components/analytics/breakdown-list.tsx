@@ -21,7 +21,9 @@ export function BreakdownList({
   max?: number
 }) {
   if (items.length === 0) {
-    return <p className="py-6 text-center text-sm text-muted-foreground">{emptyMessage}</p>
+    return (
+      <p className="py-6 text-center text-[12px] text-muted-foreground">{emptyMessage}</p>
+    )
   }
 
   const visible = items.slice(0, max)
@@ -34,7 +36,7 @@ export function BreakdownList({
         const share = total > 0 ? (item.value / total) * 100 : 0
         return (
           <li key={item.label} className="space-y-1.5">
-            <div className="flex items-baseline justify-between gap-3 text-sm">
+            <div className="flex items-baseline justify-between gap-3 text-[12px]">
               <span className="min-w-0 truncate">
                 {formatLabel ? formatLabel(item.label) : item.label}
               </span>
@@ -44,12 +46,12 @@ export function BreakdownList({
               </span>
             </div>
             <div
-              className="h-1.5 overflow-hidden rounded-full bg-muted"
+              className="h-1 overflow-hidden rounded-none bg-muted"
               role="img"
               aria-label={`${item.label}: ${item.value} of ${total}, ${share.toFixed(0)} percent`}
             >
               <div
-                className="h-full rounded-full bg-chart-1"
+                className="h-full bg-chart-1"
                 style={{ width: `${(item.value / largest) * 100}%` }}
               />
             </div>

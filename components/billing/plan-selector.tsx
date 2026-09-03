@@ -89,10 +89,10 @@ export function PlanSelector({
               onClick={() => setInterval(value)}
               aria-pressed={interval === value}
               className={cn(
-                "rounded-sm px-4 py-1.5 text-sm font-medium transition-colors",
+                "rounded-[2px] px-4 py-1.5 text-[10px] font-medium uppercase tracking-[0.12em] transition-colors",
                 interval === value
-                  ? "bg-card text-foreground shadow-[var(--shadow-subtle)]"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "border border-border bg-card text-foreground"
+                  : "border border-transparent text-muted-foreground hover:text-foreground"
               )}
             >
               {value === "month" ? "Monthly" : "Yearly"}

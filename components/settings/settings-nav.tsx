@@ -34,7 +34,7 @@ export function SettingsNav() {
                 href={section.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-2.5 rounded-sm px-3 py-2 text-[11px] font-medium uppercase tracking-[0.1em] transition-colors",
                   active
                     ? "bg-secondary text-foreground"
                     : "text-muted-foreground hover:bg-subtle hover:text-foreground"

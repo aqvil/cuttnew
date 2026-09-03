@@ -1,94 +1,131 @@
-@import "tailwindcss";
+/*
+ * `source(none)` turns off automatic source detection, and the `@source`
+ * rules below name the directories that actually contain class names.
+ *
+ * Left to itself, Tailwind crawls everything beside the stylesheet that git
+ * does not ignore — which here includes `tsconfig.tsbuildinfo`, a large
+ * machine-written file. Byte sequences in it were being read as utility
+ * candidates and emitted as malformed rules (`shadow-[var(--\e …)]`), and the
+ * resulting stylesheet failed to parse, taking the whole page down with a 500.
+ * Naming the source directories is both the fix and a meaningful speed-up.
+ */
+@import "tailwindcss" source(none);
+
+@source "../app";
+@source "../components";
+@source "../hooks";
+@source "../lib";
 
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================
-   CUTTLY DESIGN SYSTEM
-   A single, restrained visual language:
-   - Monochrome surfaces, one blue accent for data & links
-   - Sans for everything; mono reserved for codes and URLs
-   - 10px radius, hairline borders, shadows used sparingly
+   CUTTLY — TECHNICAL MONO
+   ------------------------------------------------------------
+   One visual language, stated once:
+
+   - Monospace is the *interface* typeface, not a decoration. Every
+     label, number, heading and control is set in it, so columns line
+     up by default and data never reflows as it updates.
+   - Geometry is near-square. 2–4px radii and hairline rules, so
+     surfaces read as panels in an instrument rather than cards in a
+     feed. Shadows exist only for things that float above the page.
+   - Colour is almost entirely absent. Neutral ink on neutral paper,
+     with a single accent reserved for links, focus and the primary
+     data series. Colour therefore always means something.
+   - Micro-labels are uppercase with wide tracking; content is not.
+     That contrast does the hierarchy work that font weight normally
+     would, which matters because mono weights are visually close.
    ============================================================ */
 
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /*
+   * Mono leads. The sans stack stays defined for long-form prose
+   * (legal pages, marketing body copy) where a mono paragraph would
+   * cost real reading speed.
+   */
+  --font-sans: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    Consolas, "Liberation Mono", monospace;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
-    Consolas, monospace;
+    Consolas, "Liberation Mono", monospace;
+  --font-prose: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  /* --- Surfaces --- */
-  --color-background: #ffffff;
-  --color-foreground: #09090b;
+  /* --- Surfaces ---------------------------------------------
+   * The page is very slightly off-white so that cards, which are
+   * pure white, read as raised without needing a shadow.
+   */
+  --color-background: #fbfbfb;
+  --color-foreground: #0b0b0c;
 
   --color-card: #ffffff;
-  --color-card-foreground: #09090b;
+  --color-card-foreground: #0b0b0c;
 
   --color-popover: #ffffff;
-  --color-popover-foreground: #09090b;
+  --color-popover-foreground: #0b0b0c;
 
-  /* Subtle raised surface used for toolbars, table headers, wells */
-  --color-subtle: #fafafa;
+  /* Recessed surface: toolbars, table headers, wells, code blocks. */
+  --color-subtle: #f4f4f5;
 
-  /* --- Primary action (near-black, Vercel/Linear register) --- */
-  --color-primary: #18181b;
-  --color-primary-foreground: #ffffff;
+  /* --- Primary action --- */
+  --color-primary: #101012;
+  --color-primary-foreground: #fafafa;
 
-  --color-secondary: #f4f4f5;
-  --color-secondary-foreground: #18181b;
+  --color-secondary: #f1f1f2;
+  --color-secondary-foreground: #101012;
 
-  --color-muted: #f4f4f5;
-  /*
-   * Darkened from #71717a (4.63:1 on white — and only 4.34:1 over the
-   * translucent header) so secondary text clears WCAG AA with margin
-   * everywhere it appears, including on the subtle and card surfaces.
+  --color-muted: #f1f1f2;
+  /* 5.9:1 on the page, 6.3:1 on card — clears AA on every surface. */
+  --color-muted-foreground: #5f5f68;
+
+  --color-accent: #f1f1f2;
+  --color-accent-foreground: #101012;
+
+  /* --- Accent: links, focus, primary data series ---
+   * A single hue, used sparingly. Everything else is neutral, so this
+   * always reads as "this is interactive" or "this is the metric".
    */
-  --color-muted-foreground: #62626b;
-
-  --color-accent: #f4f4f5;
-  --color-accent-foreground: #18181b;
-
-  /* --- Brand blue: links, focus, primary chart series --- */
-  --color-brand: #2563eb;
+  --color-brand: #1a4dff;
   --color-brand-foreground: #ffffff;
-  --color-brand-subtle: #eff6ff;
+  --color-brand-subtle: #edf1ff;
 
-  /*
-   * --- Semantic ---
-   * These are used as small text (trend deltas, status badges) on both the
-   * page background and their own 10%-opacity tint. The obvious 600-weight
-   * choices (#16a34a, #d97706) only reach ~3:1 there, which fails AA for
-   * normal text, so each is one step darker.
+  /* --- Semantic ---
+   * Rendered as small text on both the page and a 10% tint of
+   * themselves, so each is a step darker than the obvious 600 weight.
    */
   --color-destructive: #c81e1e;
   --color-destructive-foreground: #ffffff;
-  --color-success: #147a38;
-  --color-warning: #a2560a;
+  --color-success: #12703a;
+  --color-warning: #955008;
 
   --color-border: #e4e4e7;
-  --color-input: #e4e4e7;
-  --color-ring: #2563eb;
+  --color-input: #d9d9de;
+  --color-ring: #1a4dff;
 
   /* --- Sidebar --- */
-  --color-sidebar: #fafafa;
-  --color-sidebar-foreground: #09090b;
+  --color-sidebar: #f7f7f8;
+  --color-sidebar-foreground: #0b0b0c;
   --color-sidebar-accent: #ffffff;
-  --color-sidebar-accent-foreground: #09090b;
+  --color-sidebar-accent-foreground: #0b0b0c;
   --color-sidebar-border: #e4e4e7;
 
   /* --- Chart series (colour-blind safe ordering) --- */
-  --color-chart-1: #2563eb;
+  --color-chart-1: #1a4dff;
   --color-chart-2: #7c3aed;
   --color-chart-3: #0891b2;
   --color-chart-4: #ea580c;
   --color-chart-5: #65a30d;
 
-  /* --- Radius --- */
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
+  /* --- Radius: near-square, deliberately.
+   * `sm` is 2px rather than 0 so hairline borders do not fray at the
+   * corners on non-retina displays.
+   */
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --radius-2xl: 8px;
 }
 
 @layer base {
@@ -102,74 +139,86 @@
      * `currentColor`, which is why focus outlines were rendering in the
      * element's own text colour instead of the ring colour.
      */
-    --focus-ring: #2563eb;
+    --focus-ring: #1a4dff;
     /* Painted between the control and the ring to create the offset gap. */
     --focus-ring-offset: #ffffff;
 
-    /* Shadows: used rarely, and always soft */
-    --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.04);
-    --shadow-raised: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
-    --shadow-overlay: 0 12px 32px -8px rgb(0 0 0 / 0.14), 0 0 0 1px rgb(0 0 0 / 0.05);
+    /* Hairline used for the technical grid backdrop. */
+    --rule: #e4e4e7;
+    --rule-strong: #d4d4d8;
+
+    /* Shadows: only for things that genuinely float. */
+    --shadow-subtle: 0 1px 0 0 rgb(0 0 0 / 0.03);
+    --shadow-raised: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-overlay: 0 16px 40px -12px rgb(0 0 0 / 0.18), 0 0 0 1px rgb(0 0 0 / 0.06);
 
     --popover: var(--color-popover);
     --popover-foreground: var(--color-popover-foreground);
   }
 
   .dark {
-    --color-background: #09090b;
-    --color-foreground: #fafafa;
+    /*
+     * Not pure black. #08090a keeps a touch of blue in the neutral so
+     * the greys above it do not read as muddy, and gives OLED panels
+     * somewhere to put the border hairlines.
+     */
+    --color-background: #08090a;
+    --color-foreground: #ededf0;
 
-    --color-card: #101012;
-    --color-card-foreground: #fafafa;
+    --color-card: #0e0f11;
+    --color-card-foreground: #ededf0;
 
-    --color-popover: #131316;
-    --color-popover-foreground: #fafafa;
+    --color-popover: #121316;
+    --color-popover-foreground: #ededf0;
 
-    --color-subtle: #121215;
+    --color-subtle: #121316;
 
-    --color-primary: #fafafa;
-    --color-primary-foreground: #18181b;
+    --color-primary: #ededf0;
+    --color-primary-foreground: #0b0b0c;
 
-    --color-secondary: #1c1c1f;
-    --color-secondary-foreground: #fafafa;
+    --color-secondary: #1a1b1f;
+    --color-secondary-foreground: #ededf0;
 
-    --color-muted: #1c1c1f;
-    --color-muted-foreground: #a1a1aa;
+    --color-muted: #1a1b1f;
+    --color-muted-foreground: #8f9199;
 
-    --color-accent: #1c1c1f;
-    --color-accent-foreground: #fafafa;
+    --color-accent: #1a1b1f;
+    --color-accent-foreground: #ededf0;
 
-    --color-brand: #60a5fa;
-    --color-brand-foreground: #09090b;
-    --color-brand-subtle: #17233a;
+    --color-brand: #6b9bff;
+    --color-brand-foreground: #08090a;
+    --color-brand-subtle: #141c30;
 
-    --color-destructive: #ef4444;
+    --color-destructive: #f05252;
     --color-destructive-foreground: #ffffff;
-    --color-success: #22c55e;
-    --color-warning: #f59e0b;
+    --color-success: #34d17c;
+    --color-warning: #f2ab36;
 
-    --color-border: #26262a;
-    --color-input: #2a2a2f;
-    --color-ring: #60a5fa;
+    --color-border: #1f2124;
+    --color-input: #2a2c30;
+    --color-ring: #6b9bff;
 
-    --color-sidebar: #0c0c0e;
-    --color-sidebar-foreground: #fafafa;
-    --color-sidebar-accent: #1c1c1f;
-    --color-sidebar-accent-foreground: #fafafa;
-    --color-sidebar-border: #26262a;
+    --color-sidebar: #0b0c0d;
+    --color-sidebar-foreground: #ededf0;
+    --color-sidebar-accent: #1a1b1f;
+    --color-sidebar-accent-foreground: #ffffff;
+    --color-sidebar-border: #1f2124;
 
-    --focus-ring: #60a5fa;
-    --focus-ring-offset: #09090b;
+    --focus-ring: #6b9bff;
+    --focus-ring-offset: #08090a;
 
-    --color-chart-1: #60a5fa;
+    --rule: #1f2124;
+    --rule-strong: #2a2c30;
+
+    --color-chart-1: #6b9bff;
     --color-chart-2: #a78bfa;
     --color-chart-3: #22d3ee;
     --color-chart-4: #fb923c;
     --color-chart-5: #a3e635;
 
-    --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.4);
-    --shadow-raised: 0 1px 3px 0 rgb(0 0 0 / 0.5);
-    --shadow-overlay: 0 12px 32px -8px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
+    --shadow-subtle: 0 1px 0 0 rgb(0 0 0 / 0.5);
+    --shadow-raised: 0 1px 2px 0 rgb(0 0 0 / 0.6);
+    --shadow-overlay: 0 16px 40px -12px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(255 255 255 / 0.07);
 
     --popover: var(--color-popover);
     --popover-foreground: var(--color-popover-foreground);
@@ -185,18 +234,32 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: "cv01", "cv03", "cv04";
+    /*
+     * Mono at UI sizes needs a fraction less tracking to stop lines of
+     * labels running long, and tabular figures everywhere so no number
+     * in the product shifts its neighbours as it updates.
+     */
+    letter-spacing: -0.005em;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "ss01", "zero";
     text-rendering: optimizeLegibility;
   }
 
-  /* Numeric data should never jitter */
+  /* Long-form reading: legal pages, marketing prose. */
+  .prose-sans,
+  .prose-sans p,
+  .prose-sans li {
+    font-family: var(--font-prose);
+    letter-spacing: 0;
+  }
+
   .tabular,
   [data-numeric] {
     font-variant-numeric: tabular-nums;
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--color-brand) 24%, transparent);
+    background: color-mix(in srgb, var(--color-brand) 22%, transparent);
   }
 
   ::-webkit-scrollbar {
@@ -207,13 +270,13 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: color-mix(in srgb, var(--color-muted-foreground) 28%, transparent);
-    border-radius: 9999px;
+    background: color-mix(in srgb, var(--color-muted-foreground) 30%, transparent);
+    border-radius: 0;
     border: 3px solid transparent;
     background-clip: content-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--color-muted-foreground) 50%, transparent);
+    background: color-mix(in srgb, var(--color-muted-foreground) 55%, transparent);
     background-clip: content-box;
   }
 
@@ -251,6 +314,17 @@
   }
 }
 
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
 @layer utilities {
   /*
    * One focus indicator for the entire application.
@@ -263,32 +337,10 @@
    * indicator at all on buttons, inputs, selects, tabs and switches.
    *
    * An outline is also the better primitive here: it draws outside the box so
-   * it can't be clipped by an `overflow-hidden` ancestor, and Windows
+   * it cannot be clipped by an `overflow-hidden` ancestor, and Windows
    * high-contrast mode honours it.
    */
-  /*
-   * `!important` is deliberate and is the only use of it in this file. The
-   * vendored primitives each ship their own `outline-none` plus a
-   * `focus-visible:ring-*` box-shadow, and those rings were not painting —
-   * buttons ended up with a 3px `currentColor` outline while inputs got the
-   * ring colour, so the indicator was both inconsistent and, on several
-   * controls, absent. A keyboard user must never have to guess where they
-   * are, so this one rule wins outright.
-   */
   html :focus-visible {
-    /*
-     * A two-ring box-shadow rather than a coloured outline.
-     *
-     * `outline-color` turned out not to be reliably author-settable — it
-     * resolved to `currentColor` regardless of the declared value — which
-     * left a filled button with a dark ring on a dark page. `box-shadow` is
-     * fully under our control, and the inner ring painted in the page
-     * background colour produces the offset gap.
-     *
-     * The transparent outline is kept on purpose: Windows High Contrast Mode
-     * discards box-shadows but honours outlines, so this is what keeps a
-     * focus indicator visible there.
-     */
     outline: 2px solid transparent !important;
     outline-offset: 2px !important;
     box-shadow:
@@ -309,19 +361,16 @@
 @layer components {
   /* ─── Page scaffolding ──────────────────────────────────── */
 
-  /* Standard dashboard page: generous, centered, breathable. */
   .page {
     @apply mx-auto w-full max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8;
     animation: fade-in 0.15s ease-out;
   }
 
-  /* Narrower variant for forms and settings. */
   .page-narrow {
     @apply mx-auto w-full max-w-[760px] px-4 py-8 sm:px-6 lg:px-8;
     animation: fade-in 0.15s ease-out;
   }
 
-  /* Wide variant for dense tables. */
   .page-wide {
     @apply mx-auto w-full max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8;
     animation: fade-in 0.15s ease-out;
@@ -329,36 +378,93 @@
 
   /* ─── Surfaces ──────────────────────────────────────────── */
 
-  /* The one card style. Hairline border, no shadow by default. */
+  /* The one panel style. Hairline border, near-square, no shadow. */
   .surface {
     @apply rounded-lg border border-border bg-card;
   }
 
-  /* Recessed area used for previews, wells and code blocks. */
   .well {
     @apply rounded-lg border border-border bg-subtle;
   }
 
+  /*
+   * Engineering-drawing backdrop. A 32px grid at very low contrast,
+   * masked so it fades out rather than stopping at a hard edge. Used
+   * behind heroes and empty states — never behind dense data, where it
+   * would compete with the content.
+   */
+  .grid-field {
+    background-image:
+      linear-gradient(to right, var(--rule) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--rule) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: center;
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 20%, transparent 100%);
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 20%, transparent 100%);
+  }
+
+  /* Hairline rule with the weight of a technical drawing. */
+  .rule {
+    @apply h-px w-full bg-border;
+  }
+
   /* ─── Typography ────────────────────────────────────────── */
+  /*
+   * Mono weights sit visually close together, so hierarchy comes from
+   * size and tracking rather than from weight alone.
+   */
   .h1 {
-    @apply text-[26px] font-semibold leading-tight tracking-[-0.02em] text-foreground sm:text-[30px];
+    @apply text-[22px] font-semibold leading-tight tracking-[-0.03em] text-foreground sm:text-[26px];
   }
 
   .h2 {
-    @apply text-lg font-semibold leading-snug tracking-[-0.01em] text-foreground;
+    @apply text-base font-semibold leading-snug tracking-[-0.02em] text-foreground;
   }
 
   .h3 {
-    @apply text-sm font-semibold text-foreground;
+    @apply text-sm font-semibold tracking-[-0.01em] text-foreground;
   }
 
   .lede {
-    @apply text-sm leading-6 text-muted-foreground;
+    @apply text-[13px] leading-6 text-muted-foreground;
   }
 
-  /* Small uppercase label above a group of controls. */
-  .eyebrow {
-    @apply text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground;
+  /*
+   * The signature micro-label: uppercase, wide-tracked, small. This is
+   * what carries the technical register across the whole product —
+   * table headers, stat labels, sidebar groups, field labels.
+   */
+  .eyebrow,
+  .mono-label {
+    @apply text-[10px] font-medium uppercase leading-none tracking-[0.14em] text-muted-foreground;
+  }
+
+  /* A key/value line, as in a spec sheet. */
+  .kv {
+    @apply flex items-baseline justify-between gap-4 py-2 text-[13px];
+  }
+  .kv > dt {
+    @apply text-muted-foreground;
+  }
+  .kv > dd {
+    @apply truncate tabular-nums text-foreground;
+  }
+
+  /* Inline code / short-link token. */
+  .code-chip {
+    @apply inline-flex items-center rounded-sm border border-border bg-subtle px-1.5 py-0.5 text-[12px] text-foreground;
+  }
+
+  /* Terminal-style prompt marker, e.g. before a short URL. */
+  .prompt::before {
+    content: "\203A";
+    @apply mr-1.5 text-muted-foreground;
+  }
+
+  .caret::after {
+    content: "";
+    @apply ml-0.5 inline-block h-[1em] w-[7px] translate-y-[2px] bg-brand;
+    animation: caret-blink 1.1s steps(1) infinite;
   }
 
   /* ─── Link styles ───────────────────────────────────────── */

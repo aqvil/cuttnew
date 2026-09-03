@@ -37,13 +37,16 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl px-5 py-14 sm:px-6">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-3">
-            <Link href="/" className="flex items-center gap-2.5 text-sm font-semibold">
-              <span className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 text-[13px] font-semibold uppercase tracking-[0.16em]"
+            >
+              <span className="flex size-6 items-center justify-center rounded-sm bg-primary text-primary-foreground">
                 <Link2 className="size-3" strokeWidth={2.5} aria-hidden="true" />
               </span>
               Cuttly
             </Link>
-            <p className="max-w-xs text-sm leading-6 text-muted-foreground">
+            <p className="max-w-xs text-[12px] leading-6 text-muted-foreground">
               Short links, QR codes and click analytics — without the dashboard clutter.
             </p>
           </div>
@@ -58,7 +61,7 @@ export function SiteFooter() {
                       href={link.href}
                       // Extra vertical padding gives a comfortable tap target
                       // without changing the visual rhythm of the list.
-                      className="-my-1 inline-block py-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      className="-my-1 inline-block py-1 text-[12px] text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {link.label}
                     </Link>
@@ -70,7 +73,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-12 border-t border-border pt-8">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
             © {new Date().getFullYear()} Cuttly. All rights reserved.
           </p>
         </div>

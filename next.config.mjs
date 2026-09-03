@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 /*
@@ -13,7 +14,15 @@ import { fileURLToPath } from 'node:url'
  * Anchoring both the bundler root and the file-tracing root to this file's
  * directory makes resolution independent of what sits above the project.
  */
-const projectRoot = fileURLToPath(new URL('.', import.meta.url))
+/*
+ * `new URL('.', …)` yields a path with a trailing separator. Next then takes
+ * the *parent* of that value when it derives the module-resolution root, which
+ * landed the root one directory above the project and reproduced the very
+ * `Can't resolve 'tailwindcss'` failure this pin exists to prevent — on this
+ * machine, where a git repository sits in the parent directory, it killed the
+ * dev server outright. Strip the separator so the pin points at the project.
+ */
+const projectRoot = path.dirname(fileURLToPath(import.meta.url))
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

@@ -245,7 +245,7 @@ export function LinksList({ links, appOrigin, isFiltered, totalLinks }: LinksLis
             onCheckedChange={toggleAll}
             aria-label={allSelected ? "Deselect all links" : "Select all links"}
           />
-          <span className="text-sm text-muted-foreground" role="status" aria-live="polite">
+          <span className="text-[11px] uppercase tracking-[0.1em] text-muted-foreground" role="status" aria-live="polite">
             {selected.size > 0
               ? `${selected.size} selected`
               : `${fullNumber(totalLinks)} link${totalLinks === 1 ? "" : "s"}`}
@@ -405,7 +405,7 @@ export function LinksList({ links, appOrigin, isFiltered, totalLinks }: LinksLis
               placeholder="spring-campaign, newsletter"
               autoFocus
             />
-            <p className="text-xs text-muted-foreground">Separate multiple tags with commas.</p>
+            <p className="text-[11px] text-muted-foreground">Separate multiple tags with commas.</p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setTagDialogOpen(false)}>
@@ -477,7 +477,7 @@ function LinkRow({
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href={`/dashboard/links/${link.id}`}
-            className="truncate text-sm font-medium text-foreground hover:underline"
+            className="truncate text-[13px] font-medium text-foreground hover:underline"
           >
             {displayTitle}
           </Link>
@@ -512,7 +512,7 @@ function LinkRow({
             href={fullShortUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="truncate font-mono text-[13px] text-brand hover:underline"
+            className="truncate text-[13px] text-brand hover:underline"
           >
             {displayShortUrl}
           </a>
@@ -530,11 +530,11 @@ function LinkRow({
           </button>
         </div>
 
-        <p className="truncate text-xs text-muted-foreground" title={link.originalUrl}>
+        <p className="truncate text-[12px] text-muted-foreground" title={link.originalUrl}>
           {truncateMiddle(link.originalUrl, 90)}
         </p>
 
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-0.5 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-[11px] tabular-nums text-muted-foreground">
           <span className="font-medium text-foreground tabular">
             {fullNumber(link.clickCount)} click{link.clickCount === 1 ? "" : "s"}
           </span>

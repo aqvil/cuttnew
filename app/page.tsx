@@ -80,13 +80,18 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="border-b border-border">
+        <section className="grid-field border-b border-border">
           <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 lg:py-28">
             <div className="mx-auto max-w-2xl text-center">
-              <h1 className="text-4xl font-semibold leading-[1.1] tracking-[-0.03em] sm:text-5xl lg:text-[56px]">
+              <p className="eyebrow mb-6 flex items-center justify-center gap-2">
+                <span aria-hidden="true" className="inline-block h-px w-5 bg-border" />
+                Link infrastructure
+                <span aria-hidden="true" className="inline-block h-px w-5 bg-border" />
+              </p>
+              <h1 className="text-[34px] font-semibold leading-[1.08] tracking-[-0.045em] sm:text-[44px] lg:text-[52px]">
                 Short links you can change your mind about.
               </h1>
-              <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
+              <p className="mx-auto mt-5 max-w-xl text-[15px] leading-7 text-muted-foreground">
                 Shorten a URL, print it, share it — then edit the destination later without
                 breaking a thing. And see exactly who clicked.
               </p>
@@ -95,7 +100,7 @@ export default function LandingPage() {
                 <HeroShortenForm />
               </div>
 
-              <p className="mt-4 text-sm text-muted-foreground">
+              <p className="mt-4 text-[12px] text-muted-foreground">
                 Works without an account. Free plan includes{" "}
                 {PLANS.free.linksPerMonth} links a month.
               </p>
@@ -109,10 +114,10 @@ export default function LandingPage() {
             <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
               <div>
                 <p className="eyebrow">Analytics</p>
-                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
+                <h2 className="mt-3 text-[26px] font-semibold tracking-[-0.04em] sm:text-[32px]">
                   Real numbers, not a wall of charts.
                 </h2>
-                <p className="mt-4 text-base leading-7 text-muted-foreground">
+                <p className="mt-4 text-[13px] leading-7 text-muted-foreground">
                   Every redirect records where the visitor came from, what they used and roughly
                   where they were. Nothing is estimated or modelled — if we can&apos;t measure it,
                   we don&apos;t show it.
@@ -126,7 +131,7 @@ export default function LandingPage() {
                     "QR scans separated from link clicks",
                     "CSV export of everything on screen",
                   ].map((item) => (
-                    <li key={item} className="flex items-start gap-3 text-sm">
+                    <li key={item} className="flex items-start gap-3 text-[13px]">
                       <Check
                         className="mt-0.5 size-4 shrink-0 text-success"
                         aria-hidden="true"
@@ -149,8 +154,8 @@ export default function LandingPage() {
               <div className="overflow-hidden rounded-lg border border-border bg-card">
                 <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
                   <div className="min-w-0">
-                    <p className="truncate font-mono text-sm font-medium">{origin}/l/spring25</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">Example dashboard</p>
+                    <p className="truncate text-[13px] font-medium">{origin}/l/spring25</p>
+                    <p className="mono-label mt-1.5">Example dashboard</p>
                   </div>
                 </div>
 
@@ -161,8 +166,10 @@ export default function LandingPage() {
                     { value: "612", label: "QR scans" },
                   ].map((stat) => (
                     <div key={stat.label} className="px-4 py-5">
-                      <p className="text-xl font-semibold tabular">{stat.value}</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">{stat.label}</p>
+                      <p className="text-[22px] font-semibold tracking-[-0.03em] tabular">
+                        {stat.value}
+                      </p>
+                      <p className="mono-label mt-1.5">{stat.label}</p>
                     </div>
                   ))}
                 </div>
@@ -176,13 +183,13 @@ export default function LandingPage() {
                     { label: "x.com", pct: 12 },
                   ].map((row) => (
                     <div key={row.label} className="space-y-1.5">
-                      <div className="flex items-baseline justify-between text-sm">
+                      <div className="flex items-baseline justify-between text-[12px]">
                         <span>{row.label}</span>
                         <span className="text-muted-foreground tabular">{row.pct}%</span>
                       </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div className="h-1 overflow-hidden rounded-none bg-muted">
                         <div
-                          className="h-full rounded-full bg-chart-1"
+                          className="h-full bg-chart-1"
                           style={{ width: `${row.pct}%` }}
                         />
                       </div>
@@ -199,7 +206,7 @@ export default function LandingPage() {
           <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 lg:py-24">
             <div className="max-w-2xl">
               <p className="eyebrow">Features</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
+              <h2 className="mt-3 text-[26px] font-semibold tracking-[-0.04em] sm:text-[32px]">
                 Everything a link needs. Nothing it doesn&apos;t.
               </h2>
             </div>
@@ -209,12 +216,14 @@ export default function LandingPage() {
                 <div key={feature.title}>
                   <span
                     aria-hidden="true"
-                    className="flex size-9 items-center justify-center rounded-md border border-border bg-subtle text-muted-foreground"
+                    className="flex size-9 items-center justify-center rounded-sm border border-border bg-subtle text-muted-foreground"
                   >
                     <feature.icon className="size-4" />
                   </span>
-                  <h3 className="mt-4 text-sm font-semibold">{feature.title}</h3>
-                  <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
+                  <h3 className="mt-4 text-[12px] font-semibold uppercase tracking-[0.1em]">
+                    {feature.title}
+                  </h3>
+                  <p className="mt-2 text-[13px] leading-6 text-muted-foreground">
                     {feature.body}
                   </p>
                 </div>
@@ -229,10 +238,10 @@ export default function LandingPage() {
             <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
               <div>
                 <p className="eyebrow">API</p>
-                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
+                <h2 className="mt-3 text-[26px] font-semibold tracking-[-0.04em] sm:text-[32px]">
                   Automate it.
                 </h2>
-                <p className="mt-4 text-base leading-7 text-muted-foreground">
+                <p className="mt-4 text-[13px] leading-7 text-muted-foreground">
                   Create a scoped API key in Settings and manage links from your own code. Keys
                   are hashed at rest, scoped to your account, and rate limited per key.
                 </p>

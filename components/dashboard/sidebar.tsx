@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 /**
  * Primary navigation.
@@ -83,17 +84,23 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
-      <SidebarHeader className="h-16 justify-center px-4">
+      <SidebarHeader className="h-14 justify-center border-b border-sidebar-border px-4">
         <Link
           href="/dashboard"
           className="flex items-center gap-2.5 rounded-md"
           aria-label="Cuttly dashboard"
         >
-          <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-sm bg-primary text-primary-foreground">
             <Link2 className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
           </span>
-          <span className="text-[15px] font-semibold tracking-[-0.01em] group-data-[collapsible=icon]:hidden">
-            Cuttly
+          <span className="flex items-baseline gap-1.5 group-data-[collapsible=icon]:hidden">
+            <span className="text-[14px] font-semibold uppercase tracking-[0.16em]">
+              Cuttly
+            </span>
+            {/* Build channel, in the register of a status line. */}
+            <span className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
+              v1
+            </span>
           </span>
         </Link>
       </SidebarHeader>
@@ -125,7 +132,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
         </SidebarGroup>
 
         <SidebarGroup className="px-0 pt-4">
-          <SidebarGroupLabel className="px-2 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+          <SidebarGroupLabel className="mono-label px-2 pb-1">
             Workspace
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -139,7 +146,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
 
         {isAdmin ? (
           <SidebarGroup className="px-0 pt-4">
-            <SidebarGroupLabel className="px-2 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+            <SidebarGroupLabel className="mono-label px-2 pb-1">
               Administration
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -184,8 +191,8 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
                     </AvatarFallback>
                   </Avatar>
                   <span className="grid min-w-0 flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
-                    <span className="truncate text-[13px] font-medium">{displayName}</span>
-                    <span className="truncate text-xs text-muted-foreground">
+                    <span className="truncate text-[12px] font-medium">{displayName}</span>
+                    <span className="truncate text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
                       {planName} plan
                     </span>
                   </span>
@@ -246,7 +253,13 @@ function NavItem({
         asChild
         isActive={active}
         tooltip={item.title}
-        className="h-9 gap-2.5 rounded-md px-2 text-[13px] font-medium text-muted-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-sidebar-accent-foreground hover:text-foreground"
+        className={cn(
+          "relative h-8 gap-2.5 rounded-sm px-2 text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground transition-colors hover:text-foreground",
+          "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+          // The active marker is a rule flush against the rail edge, the same
+          // 2px vocabulary as the active tab.
+          "data-[active=true]:before:absolute data-[active=true]:before:-left-3 data-[active=true]:before:top-1 data-[active=true]:before:bottom-1 data-[active=true]:before:w-[2px] data-[active=true]:before:bg-foreground",
+        )}
       >
         <Link href={item.url} aria-current={active ? "page" : undefined}>
           <item.icon className="size-4 shrink-0" aria-hidden="true" />

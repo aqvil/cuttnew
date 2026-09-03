@@ -21,13 +21,17 @@ export function LegalPage({
 
       <main className="flex-1">
         <article className="mx-auto max-w-[68ch] px-5 py-20 sm:px-6">
-          <h1 className="text-4xl font-semibold tracking-[-0.03em]">{title}</h1>
-          <p className="mt-3 text-sm text-muted-foreground">Last updated {updated}</p>
+          <h1 className="text-[30px] font-semibold tracking-[-0.045em]">{title}</h1>
+          <p className="mono-label mt-4">Last updated {updated}</p>
 
           <div
             className={[
-              "mt-12 space-y-6 text-[15px] leading-7 text-muted-foreground",
-              "[&_h2]:mt-12 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:tracking-[-0.01em] [&_h2]:text-foreground",
+              // `prose-sans` opts this block out of the interface mono face.
+              // Terms and privacy copy runs to hundreds of words, and mono
+              // measurably slows that kind of reading — the technical register
+              // belongs on labels and data, not on paragraphs of legal text.
+              "prose-sans mt-12 space-y-6 text-[15px] leading-7 text-muted-foreground",
+              "[&_h2]:mt-12 [&_h2]:font-sans [&_h2]:text-[15px] [&_h2]:font-semibold [&_h2]:uppercase [&_h2]:tracking-[0.1em] [&_h2]:text-foreground",
               "[&_h2:first-child]:mt-0",
               "[&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6",
               "[&_strong]:font-medium [&_strong]:text-foreground",

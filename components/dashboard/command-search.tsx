@@ -134,12 +134,13 @@ export function CommandSearch() {
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          "flex h-9 w-full max-w-xs items-center gap-2 rounded-md border border-border bg-subtle px-3",
-          "text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          "flex h-8 w-full max-w-xs items-center gap-2 rounded-sm border border-border bg-subtle px-2.5",
+          "text-[11px] uppercase tracking-[0.1em] text-muted-foreground transition-colors",
+          "hover:border-foreground/20 hover:text-foreground"
         )}
       >
-        <Search className="size-4 shrink-0" aria-hidden="true" />
-        <span className="flex-1 text-left">Search links…</span>
+        <Search className="size-3.5 shrink-0" aria-hidden="true" />
+        <span className="flex-1 text-left">Search</span>
         <Kbd className="hidden sm:inline-flex">⌘K</Kbd>
       </button>
 
