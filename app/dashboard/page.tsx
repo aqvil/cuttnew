@@ -100,7 +100,7 @@ export default async function DashboardPage() {
             />
           </StatRow>
 
-          <section className="rounded-lg border border-border bg-card p-5">
+          <section className="surface p-6 sm:p-8">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div className="space-y-0.5">
                 <h2 className="h3">Clicks over time</h2>
@@ -140,7 +140,7 @@ export default async function DashboardPage() {
                 }
               />
 
-              <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+              <ul className="divide-y divide-border border-y border-border bg-card">
                 {recentLinks.items.map((link) => (
                   <li key={link.id} className="flex items-center gap-3 p-4">
                     <div className="min-w-0 flex-1 space-y-0.5">
@@ -166,13 +166,13 @@ export default async function DashboardPage() {
               <SectionHeader title="Latest activity" />
 
               {recentClicks.length === 0 ? (
-                <div className="flex h-[calc(100%-3rem)] min-h-[200px] items-center justify-center rounded-lg border border-dashed border-border p-6 text-center">
+                <div className="flex h-[calc(100%-3rem)] min-h-[200px] items-center justify-center border-y border-border bg-subtle p-6 text-center">
                   <p className="text-sm text-muted-foreground">
                     No clicks recorded yet.
                   </p>
                 </div>
               ) : (
-                <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+                <ul className="divide-y divide-border border-y border-border bg-card">
                   {recentClicks.map((click, index) => (
                     <li
                       key={`${click.shortCode}-${index}`}

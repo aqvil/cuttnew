@@ -238,14 +238,14 @@ export function LinksList({ links, appOrigin, isFiltered, totalLinks }: LinksLis
   return (
     <div className={cn("space-y-3", isPending && "pointer-events-none opacity-60")}>
       {/* Selection toolbar — always present so the layout doesn't jump. */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-subtle px-3 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-y border-border bg-subtle px-3 py-2">
         <div className="flex items-center gap-3">
           <Checkbox
             checked={allSelected ? true : someSelected ? "indeterminate" : false}
             onCheckedChange={toggleAll}
             aria-label={allSelected ? "Deselect all links" : "Select all links"}
           />
-          <span className="text-[11px] uppercase tracking-[0.1em] text-muted-foreground" role="status" aria-live="polite">
+          <span className="text-xs text-muted-foreground" role="status" aria-live="polite">
             {selected.size > 0
               ? `${selected.size} selected`
               : `${fullNumber(totalLinks)} link${totalLinks === 1 ? "" : "s"}`}
@@ -306,7 +306,7 @@ export function LinksList({ links, appOrigin, isFiltered, totalLinks }: LinksLis
         </div>
       </div>
 
-      <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+      <ul className="divide-y divide-border border-y border-border bg-card">
         {links.map((link) => (
           <LinkRow
             key={link.id}
@@ -465,7 +465,7 @@ function LinkRow({
   const displayTitle = link.title || displayShortUrl
 
   return (
-    <li className="flex items-start gap-3 p-4 transition-colors hover:bg-subtle">
+    <li className="flex items-start gap-4 p-5 transition-colors hover:bg-subtle">
       <Checkbox
         checked={selected}
         onCheckedChange={onToggle}
@@ -477,7 +477,7 @@ function LinkRow({
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href={`/dashboard/links/${link.id}`}
-            className="truncate text-[13px] font-medium text-foreground hover:underline"
+            className="truncate text-sm font-semibold text-foreground hover:underline"
           >
             {displayTitle}
           </Link>

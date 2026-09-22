@@ -379,11 +379,11 @@
 
   /* The one panel style. Hairline border, near-square, no shadow. */
   .surface {
-    @apply rounded-xl border border-border bg-card;
+    @apply rounded-md border border-border bg-card;
   }
 
   .well {
-    @apply rounded-xl border border-border bg-subtle;
+    @apply rounded-md border border-border bg-subtle;
   }
 
   /*

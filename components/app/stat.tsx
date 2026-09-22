@@ -71,9 +71,9 @@ export function StatRow({ children, className }: { children: ReactNode; classNam
   return (
     <div
       className={cn(
-        "grid grid-cols-2 gap-x-6 gap-y-8 rounded-lg border border-border bg-card p-5",
+        "grid grid-cols-2 gap-x-6 gap-y-8 border-y border-border bg-transparent py-7",
         "lg:grid-cols-4 lg:gap-x-0 lg:divide-x lg:divide-border",
-        "[&>*]:lg:px-6 [&>*:first-child]:lg:pl-0 [&>*:last-child]:lg:pr-0",
+        "[&>*]:lg:px-8 [&>*:first-child]:lg:pl-0 [&>*:last-child]:lg:pr-0",
         className
       )}
     >

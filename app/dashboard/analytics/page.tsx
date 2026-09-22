@@ -119,13 +119,13 @@ export default async function AnalyticsPage({
         />
 
         {topLinks.every((link) => link.clicks === 0) ? (
-          <div className="rounded-lg border border-dashed border-border p-8 text-center">
+          <div className="border-y border-border bg-subtle p-10 text-center">
             <p className="text-sm text-muted-foreground">
               No clicks recorded in this period.
             </p>
           </div>
         ) : (
-          <ol className="divide-y divide-border rounded-lg border border-border bg-card">
+          <ol className="divide-y divide-border border-y border-border bg-card">
             {topLinks
               .filter((link) => link.clicks > 0)
               .map((link, index) => (

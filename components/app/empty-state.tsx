@@ -29,7 +29,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "grid-field flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-16 text-center",
+        "grid-field flex flex-col items-center justify-center border-y border-border bg-subtle px-6 py-20 text-center",
         variant === "filtered" && "py-12",
         className
       )}
@@ -43,7 +43,7 @@ export function EmptyState({
         </div>
       ) : null}
 
-      <h3 className="text-[13px] font-semibold uppercase tracking-[0.1em] text-foreground">
+      <h3 className="text-lg font-semibold tracking-[-0.02em] text-foreground">
         {title}
       </h3>
 
