@@ -94,7 +94,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
             <Link2 className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
           </span>
           <span className="flex items-baseline gap-1.5 group-data-[collapsible=icon]:hidden">
-            <span className="text-[14px] font-semibold uppercase tracking-[0.16em]">
+            <span className="text-[15px] font-semibold tracking-[-0.02em]">
               Cuttly
             </span>
             {/* Build channel, in the register of a status line. */}
@@ -254,7 +254,7 @@ function NavItem({
         isActive={active}
         tooltip={item.title}
         className={cn(
-          "relative h-8 gap-2.5 rounded-sm px-2 text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground transition-colors hover:text-foreground",
+          "relative h-9 gap-2.5 rounded-md px-2.5 text-sm font-medium tracking-normal text-muted-foreground transition-colors hover:text-foreground",
           "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
           // The active marker is a rule flush against the rail edge, the same
           // 2px vocabulary as the active tab.

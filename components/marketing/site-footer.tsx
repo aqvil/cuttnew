@@ -39,7 +39,7 @@ export function SiteFooter() {
           <div className="space-y-3">
             <Link
               href="/"
-              className="flex items-center gap-2.5 text-[13px] font-semibold uppercase tracking-[0.16em]"
+              className="flex items-center gap-2.5 text-[14px] font-semibold tracking-[-0.02em]"
             >
               <span className="flex size-6 items-center justify-center rounded-sm bg-primary text-primary-foreground">
                 <Link2 className="size-3" strokeWidth={2.5} aria-hidden="true" />

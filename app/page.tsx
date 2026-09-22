@@ -81,19 +81,19 @@ export default function LandingPage() {
       <main className="flex-1">
         {/* Hero */}
         <section className="grid-field border-b border-border">
-          <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 lg:py-28">
+          <div className="mx-auto max-w-6xl px-5 py-24 sm:px-6 lg:py-32">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="eyebrow mb-6 flex items-center justify-center gap-2">
+              <p className="eyebrow mb-7 flex items-center justify-center gap-2">
                 <span aria-hidden="true" className="inline-block h-px w-5 bg-border" />
                 Link infrastructure
                 <span aria-hidden="true" className="inline-block h-px w-5 bg-border" />
               </p>
-              <h1 className="text-[34px] font-semibold leading-[1.08] tracking-[-0.045em] sm:text-[44px] lg:text-[52px]">
-                Short links you can change your mind about.
+              <h1 className="text-[42px] font-semibold leading-[1.02] tracking-[-0.06em] sm:text-[58px] lg:text-[72px]">
+                The short link that keeps working.
               </h1>
-              <p className="mx-auto mt-5 max-w-xl text-[15px] leading-7 text-muted-foreground">
-                Shorten a URL, print it, share it — then edit the destination later without
-                breaking a thing. And see exactly who clicked.
+              <p className="mx-auto mt-6 max-w-xl text-[16px] leading-7 text-muted-foreground sm:text-lg">
+                Share one clean URL everywhere. Change the destination, measure every click, and
+                keep your campaigns tidy from the first post to the final report.
               </p>
 
               <div className="mt-9 flex justify-center">
@@ -101,7 +101,7 @@ export default function LandingPage() {
               </div>
 
               <p className="mt-4 text-[12px] text-muted-foreground">
-                Works without an account. Free plan includes{" "}
+                No credit card required. Free plan includes{" "}
                 {PLANS.free.linksPerMonth} links a month.
               </p>
             </div>
@@ -114,8 +114,8 @@ export default function LandingPage() {
             <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
               <div>
                 <p className="eyebrow">Analytics</p>
-                <h2 className="mt-3 text-[26px] font-semibold tracking-[-0.04em] sm:text-[32px]">
-                  Real numbers, not a wall of charts.
+                <h2 className="mt-3 text-[30px] font-semibold leading-tight tracking-[-0.045em] sm:text-[40px]">
+                  Know what happens after you share.
                 </h2>
                 <p className="mt-4 text-[13px] leading-7 text-muted-foreground">
                   Every redirect records where the visitor came from, what they used and roughly
@@ -151,7 +151,7 @@ export default function LandingPage() {
 
               {/* An illustration of the interface, clearly labelled as an
                   example rather than presented as live data. */}
-              <div className="overflow-hidden rounded-lg border border-border bg-card">
+              <div className="overflow-hidden rounded-xl border border-border bg-card shadow-[0_18px_60px_-28px_rgba(0,0,0,0.35)]">
                 <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
                   <div className="min-w-0">
                     <p className="truncate text-[13px] font-medium">{origin}/l/spring25</p>
@@ -206,7 +206,7 @@ export default function LandingPage() {
           <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 lg:py-24">
             <div className="max-w-2xl">
               <p className="eyebrow">Features</p>
-              <h2 className="mt-3 text-[26px] font-semibold tracking-[-0.04em] sm:text-[32px]">
+              <h2 className="mt-3 text-[30px] font-semibold tracking-[-0.045em] sm:text-[40px]">
                 Everything a link needs. Nothing it doesn&apos;t.
               </h2>
             </div>
@@ -220,7 +220,7 @@ export default function LandingPage() {
                   >
                     <feature.icon className="size-4" />
                   </span>
-                  <h3 className="mt-4 text-[12px] font-semibold uppercase tracking-[0.1em]">
+                  <h3 className="mt-4 text-base font-semibold tracking-[-0.02em]">
                     {feature.title}
                   </h3>
                   <p className="mt-2 text-[13px] leading-6 text-muted-foreground">

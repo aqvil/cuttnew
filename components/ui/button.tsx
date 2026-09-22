@@ -5,7 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 /**
- * Buttons in the technical register.
+ * Buttons use normal product language; mono remains reserved for data.
  *
  * The committing variants (default, secondary, destructive, outline) set
  * their label in small uppercase with wide tracking — the same treatment as
@@ -19,13 +19,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground uppercase tracking-[0.08em] text-[11px] hover:bg-primary/88 active:bg-primary',
+          'bg-primary text-primary-foreground text-sm hover:bg-primary/88 active:bg-primary',
         destructive:
-          'bg-destructive text-destructive-foreground uppercase tracking-[0.08em] text-[11px] hover:bg-destructive/88',
+          'bg-destructive text-destructive-foreground text-sm hover:bg-destructive/88',
         outline:
-          'border border-input bg-card uppercase tracking-[0.08em] text-[11px] text-foreground hover:border-foreground/30 hover:bg-subtle',
+          'border border-input bg-card text-sm text-foreground hover:border-foreground/30 hover:bg-subtle',
         secondary:
-          'bg-secondary text-secondary-foreground uppercase tracking-[0.08em] text-[11px] hover:bg-secondary/70',
+          'bg-secondary text-secondary-foreground text-sm hover:bg-secondary/70',
         ghost:
           'text-[13px] text-muted-foreground hover:bg-accent hover:text-foreground',
         link: 'text-[13px] text-brand underline-offset-4 hover:underline',

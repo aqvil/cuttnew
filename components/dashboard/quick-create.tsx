@@ -87,13 +87,16 @@ export function QuickCreate({ appOrigin }: { appOrigin: string }) {
   }
 
   return (
-    <section className="rounded-lg border border-border bg-card p-5">
+    <section className="surface relative overflow-hidden p-6 sm:p-8">
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-1/3 opacity-60 [background-image:linear-gradient(135deg,transparent_0%,var(--color-brand-subtle)_100%)]" />
       <form onSubmit={handleSubmit} noValidate>
-        <Label htmlFor="quick-url" className="text-sm font-semibold">
-          Shorten a link
-        </Label>
+        <div className="relative">
+          <p className="eyebrow">Start here</p>
+          <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] sm:text-2xl">Shorten a link</h2>
+          <p className="mt-1 max-w-xl text-sm text-muted-foreground">Paste a long URL and get a shareable link in seconds. You can add a custom alias, password, or expiry afterward.</p>
+        </div>
 
-        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+        <div className="relative mt-6 flex flex-col gap-2 sm:flex-row">
           <Input
             id="quick-url"
             value={url}
@@ -103,9 +106,9 @@ export function QuickCreate({ appOrigin }: { appOrigin: string }) {
             autoComplete="url"
             aria-invalid={Boolean(error)}
             aria-describedby={error ? "quick-url-error" : undefined}
-            className="h-10 flex-1"
+            className="h-12 flex-1 bg-background text-base"
           />
-          <Button type="submit" className="h-10 shrink-0" disabled={isPending}>
+          <Button type="submit" className="h-12 shrink-0 px-6" disabled={isPending}>
             {isPending ? (
               <>
                 <Loader2 className="size-4 animate-spin" aria-hidden="true" />
@@ -115,7 +118,7 @@ export function QuickCreate({ appOrigin }: { appOrigin: string }) {
               "Shorten"
             )}
           </Button>
-          <Button asChild type="button" variant="outline" className="h-10 shrink-0">
+          <Button asChild type="button" variant="outline" className="h-12 shrink-0">
             <Link href="/dashboard/links/new">
               <Settings2 className="size-4" aria-hidden="true" />
               <span className="sm:sr-only lg:not-sr-only">More options</span>

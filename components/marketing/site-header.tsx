@@ -23,7 +23,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5 sm:px-6">
         <Link
           href="/"
-          className="flex items-center gap-2.5 text-[14px] font-semibold uppercase tracking-[0.16em]"
+          className="flex items-center gap-2.5 text-[15px] font-semibold tracking-[-0.02em]"
         >
           <span className="flex size-7 items-center justify-center rounded-sm bg-primary text-primary-foreground">
             <Link2 className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
@@ -37,7 +37,7 @@ export function SiteHeader() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-foreground"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {item.label}
                 </Link>

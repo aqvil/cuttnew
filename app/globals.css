@@ -25,9 +25,8 @@
    ------------------------------------------------------------
    One visual language, stated once:
 
-   - Monospace is the *interface* typeface, not a decoration. Every
-     label, number, heading and control is set in it, so columns line
-     up by default and data never reflows as it updates.
+   - Sans-serif carries the interface. Monospace is reserved for URLs,
+     codes and metrics where alignment is useful.
    - Geometry is near-square. 2–4px radii and hairline rules, so
      surfaces read as panels in an instrument rather than cards in a
      feed. Shadows exist only for things that float above the page.
@@ -45,8 +44,8 @@
    * (legal pages, marketing body copy) where a mono paragraph would
    * cost real reading speed.
    */
-  --font-sans: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
-    Consolas, "Liberation Mono", monospace;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
     Consolas, "Liberation Mono", monospace;
   --font-prose: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
@@ -86,9 +85,9 @@
    * A single hue, used sparingly. Everything else is neutral, so this
    * always reads as "this is interactive" or "this is the metric".
    */
-  --color-brand: #1a4dff;
+  --color-brand: #171719;
   --color-brand-foreground: #ffffff;
-  --color-brand-subtle: #edf1ff;
+  --color-brand-subtle: #eeeeef;
 
   /* --- Semantic ---
    * Rendered as small text on both the page and a 10% tint of
@@ -101,7 +100,7 @@
 
   --color-border: #e4e4e7;
   --color-input: #d9d9de;
-  --color-ring: #1a4dff;
+  --color-ring: #171719;
 
   /* --- Sidebar --- */
   --color-sidebar: #f7f7f8;
@@ -111,11 +110,11 @@
   --color-sidebar-border: #e4e4e7;
 
   /* --- Chart series (colour-blind safe ordering) --- */
-  --color-chart-1: #1a4dff;
-  --color-chart-2: #7c3aed;
-  --color-chart-3: #0891b2;
-  --color-chart-4: #ea580c;
-  --color-chart-5: #65a30d;
+  --color-chart-1: #171719;
+  --color-chart-2: #56565d;
+  --color-chart-3: #7a7a82;
+  --color-chart-4: #a1a1a8;
+  --color-chart-5: #c8c8cd;
 
   /* --- Radius: near-square, deliberately.
    * `sm` is 2px rather than 0 so hairline borders do not fray at the
@@ -139,7 +138,7 @@
      * `currentColor`, which is why focus outlines were rendering in the
      * element's own text colour instead of the ring colour.
      */
-    --focus-ring: #1a4dff;
+    --focus-ring: #171719;
     /* Painted between the control and the ring to create the offset gap. */
     --focus-ring-offset: #ffffff;
 
@@ -185,9 +184,9 @@
     --color-accent: #1a1b1f;
     --color-accent-foreground: #ededf0;
 
-    --color-brand: #6b9bff;
+    --color-brand: #f2f2f3;
     --color-brand-foreground: #08090a;
-    --color-brand-subtle: #141c30;
+    --color-brand-subtle: #202124;
 
     --color-destructive: #f05252;
     --color-destructive-foreground: #ffffff;
@@ -196,7 +195,7 @@
 
     --color-border: #1f2124;
     --color-input: #2a2c30;
-    --color-ring: #6b9bff;
+    --color-ring: #f2f2f3;
 
     --color-sidebar: #0b0c0d;
     --color-sidebar-foreground: #ededf0;
@@ -204,17 +203,17 @@
     --color-sidebar-accent-foreground: #ffffff;
     --color-sidebar-border: #1f2124;
 
-    --focus-ring: #6b9bff;
+    --focus-ring: #f2f2f3;
     --focus-ring-offset: #08090a;
 
     --rule: #1f2124;
     --rule-strong: #2a2c30;
 
-    --color-chart-1: #6b9bff;
-    --color-chart-2: #a78bfa;
-    --color-chart-3: #22d3ee;
-    --color-chart-4: #fb923c;
-    --color-chart-5: #a3e635;
+    --color-chart-1: #f2f2f3;
+    --color-chart-2: #b9b9bf;
+    --color-chart-3: #92939a;
+    --color-chart-4: #6f7077;
+    --color-chart-5: #4b4c52;
 
     --shadow-subtle: 0 1px 0 0 rgb(0 0 0 / 0.5);
     --shadow-raised: 0 1px 2px 0 rgb(0 0 0 / 0.6);
@@ -239,7 +238,7 @@
      * labels running long, and tabular figures everywhere so no number
      * in the product shifts its neighbours as it updates.
      */
-    letter-spacing: -0.005em;
+    letter-spacing: 0;
     font-variant-numeric: tabular-nums;
     font-feature-settings: "ss01", "zero";
     text-rendering: optimizeLegibility;
@@ -362,7 +361,7 @@
   /* ─── Page scaffolding ──────────────────────────────────── */
 
   .page {
-    @apply mx-auto w-full max-w-[1200px] px-4 py-8 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[1280px] px-5 py-10 sm:px-8 lg:px-12 lg:py-12;
     animation: fade-in 0.15s ease-out;
   }
 
@@ -372,7 +371,7 @@
   }
 
   .page-wide {
-    @apply mx-auto w-full max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[1480px] px-5 py-10 sm:px-8 lg:px-12 lg:py-12;
     animation: fade-in 0.15s ease-out;
   }
 
@@ -380,11 +379,11 @@
 
   /* The one panel style. Hairline border, near-square, no shadow. */
   .surface {
-    @apply rounded-lg border border-border bg-card;
+    @apply rounded-xl border border-border bg-card;
   }
 
   .well {
-    @apply rounded-lg border border-border bg-subtle;
+    @apply rounded-xl border border-border bg-subtle;
   }
 
   /*
@@ -414,11 +413,11 @@
    * size and tracking rather than from weight alone.
    */
   .h1 {
-    @apply text-[22px] font-semibold leading-tight tracking-[-0.03em] text-foreground sm:text-[26px];
+    @apply text-[28px] font-semibold leading-[1.05] tracking-[-0.045em] text-foreground sm:text-[36px];
   }
 
   .h2 {
-    @apply text-base font-semibold leading-snug tracking-[-0.02em] text-foreground;
+    @apply text-lg font-semibold leading-snug tracking-[-0.025em] text-foreground;
   }
 
   .h3 {
@@ -426,7 +425,7 @@
   }
 
   .lede {
-    @apply text-[13px] leading-6 text-muted-foreground;
+    @apply text-[15px] leading-7 text-muted-foreground;
   }
 
   /*
@@ -436,7 +435,7 @@
    */
   .eyebrow,
   .mono-label {
-    @apply text-[10px] font-medium uppercase leading-none tracking-[0.14em] text-muted-foreground;
+    @apply font-mono text-[10px] font-medium uppercase leading-none tracking-[0.14em] text-muted-foreground;
   }
 
   /* A key/value line, as in a spec sheet. */

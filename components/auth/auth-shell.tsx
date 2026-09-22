@@ -39,7 +39,7 @@ export function AuthShell({
         <div className="mx-auto w-full max-w-sm">
           <Link
             href="/"
-            className="mb-10 flex items-center gap-2.5 text-[14px] font-semibold uppercase tracking-[0.16em]"
+            className="mb-10 flex items-center gap-2.5 text-[15px] font-semibold tracking-[-0.02em]"
           >
             <span className="flex size-7 items-center justify-center rounded-sm bg-primary text-primary-foreground">
               <Link2 className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
@@ -48,9 +48,9 @@ export function AuthShell({
           </Link>
 
           <div className="mb-8 space-y-1.5">
-            <h1 className="text-[22px] font-semibold tracking-[-0.03em]">{title}</h1>
+            <h1 className="text-[30px] font-semibold leading-tight tracking-[-0.045em]">{title}</h1>
             {description ? (
-              <p className="text-[13px] leading-6 text-muted-foreground">{description}</p>
+              <p className="text-[15px] leading-7 text-muted-foreground">{description}</p>
             ) : null}
           </div>
 
