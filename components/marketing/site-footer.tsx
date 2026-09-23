@@ -9,7 +9,7 @@ const GROUPS = [
   {
     heading: "Product",
     links: [
-      { label: "Features", href: "/#features" },
+      { label: "Features", href: "/features" },
       { label: "Pricing", href: "/pricing" },
       { label: "API", href: "/#api" },
     ],

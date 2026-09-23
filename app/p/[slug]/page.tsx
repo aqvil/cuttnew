@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { EmailCaptureForm } from "@/components/bio/email-capture-form"
 import { LinkTracker } from "@/components/bio/link-tracker"
+import { getCardStyle } from "@/lib/bio/card-style"
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -175,11 +176,12 @@ function PublicBlock({
   switch (block.type) {
     case "link": {
       const content = block.content
+      const card = getCardStyle(theme?.style, { text: pageText })
       return (
         <LinkTracker blockId={block.id} url={content.url || "#"}>
           <div
-            className="flex items-center justify-center relative w-full rounded-xl p-4 transition-transform hover:scale-[1.02] shadow-sm hover:shadow-md cursor-pointer"
-            style={buttonStyle}
+            className={`flex items-center justify-center relative w-full p-4 transition-transform hover:scale-[1.02] cursor-pointer ${card.className}`}
+            style={{ ...buttonStyle, ...card.style }}
           >
             <span className="font-semibold text-center text-lg">{content.title || "Link"}</span>
           </div>
@@ -219,11 +221,12 @@ function PublicBlock({
     case "social": {
       const content = block.content
       const Icon = socialIcons[content.platform] || ExternalLink
+      const card = getCardStyle(theme?.style, { text: pageText })
       return (
         <LinkTracker blockId={block.id} url={content.url || "#"}>
           <div
-            className="flex items-center justify-center w-full rounded-xl p-4 transition-transform hover:scale-[1.02] shadow-sm hover:shadow-md cursor-pointer"
-            style={buttonStyle}
+            className={`flex items-center justify-center w-full p-4 transition-transform hover:scale-[1.02] cursor-pointer ${card.className}`}
+            style={{ ...buttonStyle, ...card.style }}
           >
             <Icon className="h-6 w-6" />
             <span className="ml-3 font-semibold capitalize text-lg">{content.platform}</span>
@@ -234,8 +237,12 @@ function PublicBlock({
 
     case "email-capture": {
       const content = block.content
+      const card = getCardStyle(theme?.style, { text: pageText })
       return (
-        <div className="rounded-xl p-6 shadow-sm border" style={{ backgroundColor: `${theme?.accent || '#1d4ed8'}10`, borderColor: `${theme?.accent || '#1d4ed8'}20` }}>
+        <div
+          className={`p-6 ${card.className}`}
+          style={{ backgroundColor: `${theme?.accent || '#1d4ed8'}10`, ...card.style }}
+        >
           <p 
             className="text-lg font-bold text-center mb-4"
             style={{ color: pageText }}

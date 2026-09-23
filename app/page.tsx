@@ -3,11 +3,15 @@ import {
   ArrowRight,
   BarChart3,
   Check,
+  Code2,
   Globe,
   Link2,
   Lock,
+  Megaphone,
   QrCode,
   Smartphone,
+  Sparkles,
+  Store,
   Tags,
   Timer,
 } from "lucide-react"
@@ -17,6 +21,7 @@ import { SiteHeader } from "@/components/marketing/site-header"
 import { SiteFooter } from "@/components/marketing/site-footer"
 import { SignalMotif } from "@/components/marketing/signal-motif"
 import { HeroScene } from "@/components/marketing/hero-scene"
+import { Faq, PRODUCT_FAQ } from "@/components/marketing/faq"
 import { HeroShortenForm } from "./hero-shorten-form"
 import { PLANS } from "@/lib/plans"
 import { appOrigin } from "@/lib/app-url"
@@ -70,6 +75,34 @@ const FEATURES = [
     icon: Globe,
     title: "REST API",
     body: "Create, update and delete links programmatically with a scoped API key. Rate limited and documented.",
+  },
+  {
+    icon: Sparkles,
+    title: "Bio pages",
+    body: "Turn one link into a page of destinations — a profile, launch or menu — with reorderable blocks and its own theme.",
+  },
+]
+
+const PERSONAS = [
+  {
+    icon: Megaphone,
+    title: "Marketers & growth teams",
+    body: "Tag links by campaign, watch clicks and QR scans roll in per channel, and know which post actually drove traffic — not which one you think did.",
+  },
+  {
+    icon: Store,
+    title: "Agencies & freelancers",
+    body: "Keep every client's links organized by tag, gate the ones that aren't public yet behind a password, and hand off a CSV instead of a screenshot.",
+  },
+  {
+    icon: Code2,
+    title: "Developers & product teams",
+    body: "Provision links from your own code with a scoped API key, run it on your own domain, and let the dashboard be for everyone who doesn't want the API.",
+  },
+  {
+    icon: Sparkles,
+    title: "Creators & small business",
+    body: "One bio page for your whole profile, a QR code on the flyer or the menu, and a link that still works after you change what it points to.",
   },
 ]
 
@@ -209,13 +242,21 @@ export default function LandingPage() {
         {/* Features */}
         <section id="features" className="border-b border-border scroll-mt-20">
           <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 lg:py-24">
-            <div className="max-w-2xl">
-              <h2 className="font-display text-[32px] font-semibold tracking-[-0.02em] sm:text-[42px]">
-                Everything a link needs. Nothing it doesn&apos;t.
-              </h2>
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div className="max-w-2xl">
+                <h2 className="font-display text-[32px] font-semibold tracking-[-0.02em] sm:text-[42px]">
+                  Everything a link needs. Nothing it doesn&apos;t.
+                </h2>
+              </div>
+              <Button asChild variant="outline">
+                <Link href="/features">
+                  See every feature
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </Button>
             </div>
 
-            <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
               {FEATURES.map((feature) => (
                 <div key={feature.title}>
                   <span
@@ -272,6 +313,48 @@ export default function LandingPage() {
 }`}</code>
                 </pre>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Who it's for */}
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 lg:py-24">
+            <div className="max-w-2xl">
+              <h2 className="font-display text-[32px] font-semibold tracking-[-0.02em] sm:text-[42px]">
+                Built for how you actually work.
+              </h2>
+            </div>
+
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {PERSONAS.map((persona) => (
+                <div key={persona.title} className="surface p-6">
+                  <span
+                    aria-hidden="true"
+                    className="flex size-10 items-center justify-center rounded-full border border-border bg-subtle text-brand"
+                  >
+                    <persona.icon className="size-4" />
+                  </span>
+                  <h3 className="mt-4 font-display text-base font-semibold tracking-[-0.01em]">
+                    {persona.title}
+                  </h3>
+                  <p className="mt-2 text-[13px] leading-6 text-muted-foreground">
+                    {persona.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="border-b border-border bg-subtle">
+          <div className="mx-auto max-w-3xl px-5 py-20 sm:px-6 lg:py-24">
+            <h2 className="font-display text-[32px] font-semibold tracking-[-0.02em] sm:text-[42px]">
+              Questions, answered honestly.
+            </h2>
+            <div className="mt-10">
+              <Faq items={PRODUCT_FAQ} />
             </div>
           </div>
         </section>

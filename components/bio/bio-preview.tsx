@@ -1,6 +1,7 @@
 'use client'
 
 import { BioBlock, BioPageTheme, LinkBlockContent, HeaderBlockContent, TextBlockContent, SocialBlockContent, EmailCaptureBlockContent } from "@/lib/types/database"
+import { getCardStyle } from "@/lib/bio/card-style"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { 
   Twitter, 
@@ -129,13 +130,14 @@ function PreviewBlock({
   switch (block.type) {
     case "link": {
       const content = block.content as LinkBlockContent
+      const card = getCardStyle(theme.style, theme)
       return (
         <a
           href={content.url || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between rounded-xl p-3 shadow-sm transition-transform hover:scale-[1.02]"
-          style={buttonStyle}
+          className={`flex items-center justify-between p-3 transition-transform hover:scale-[1.02] ${card.className}`}
+          style={{ ...buttonStyle, ...card.style }}
         >
           <span className="font-medium">{content.title || "Link"}</span>
           <ExternalLink className="h-4 w-4 opacity-70" />
@@ -175,13 +177,14 @@ function PreviewBlock({
     case "social": {
       const content = block.content as SocialBlockContent
       const Icon = socialIcons[content.platform] || ExternalLink
+      const card = getCardStyle(theme.style, theme)
       return (
         <a
           href={content.url || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center rounded-xl p-3 shadow-sm transition-transform hover:scale-[1.02]"
-          style={buttonStyle}
+          className={`flex items-center justify-center p-3 transition-transform hover:scale-[1.02] ${card.className}`}
+          style={{ ...buttonStyle, ...card.style }}
         >
           <Icon className="h-5 w-5" />
           <span className="ml-2 font-medium capitalize">{content.platform}</span>
@@ -191,8 +194,12 @@ function PreviewBlock({
 
     case "email-capture": {
       const content = block.content as EmailCaptureBlockContent
+      const card = getCardStyle(theme.style, theme)
       return (
-        <div className="rounded-xl p-4" style={{ backgroundColor: `${theme.accent}10` }}>
+        <div
+          className={`p-4 ${card.className}`}
+          style={{ backgroundColor: `${theme.accent}10`, ...card.style }}
+        >
           <p
             className="text-sm font-medium text-center mb-3"
             style={{ color: theme.text }}

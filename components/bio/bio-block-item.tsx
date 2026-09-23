@@ -48,7 +48,7 @@ export function BioBlockItem({
         return (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Title</Label>
+              <Label>Title</Label>
               <Input
                 value={content.title || ""}
                 onChange={(e) => onUpdate(block.id, { ...content, title: e.target.value })}
@@ -57,7 +57,7 @@ export function BioBlockItem({
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">URL</Label>
+              <Label>URL</Label>
               <Input
                 value={content.url || ""}
                 onChange={(e) => onUpdate(block.id, { ...content, url: e.target.value })}
@@ -74,7 +74,7 @@ export function BioBlockItem({
         return (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Text</Label>
+              <Label>Text</Label>
               <Input
                 value={content.text || ""}
                 onChange={(e) => onUpdate(block.id, { ...content, text: e.target.value })}
@@ -83,7 +83,7 @@ export function BioBlockItem({
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Size</Label>
+              <Label>Size</Label>
               <Select
                 value={content.size || "medium"}
                 onValueChange={(value) => onUpdate(block.id, { ...content, size: value })}
@@ -106,7 +106,7 @@ export function BioBlockItem({
         const content = block.content
         return (
           <div className="space-y-2">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Text</Label>
+            <Label>Text</Label>
             <Textarea
               value={content.text || ""}
               onChange={(e) => onUpdate(block.id, { ...content, text: e.target.value })}
@@ -123,7 +123,7 @@ export function BioBlockItem({
         return (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Platform</Label>
+              <Label>Platform</Label>
               <Select
                 value={content.platform || "twitter"}
                 onValueChange={(value) => onUpdate(block.id, { ...content, platform: value })}
@@ -144,7 +144,7 @@ export function BioBlockItem({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">URL</Label>
+              <Label>URL</Label>
               <Input
                 value={content.url || ""}
                 onChange={(e) => onUpdate(block.id, { ...content, url: e.target.value })}
@@ -161,7 +161,7 @@ export function BioBlockItem({
         return (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Title</Label>
+              <Label>Title</Label>
               <Input
                 value={content.title || ""}
                 onChange={(e) => onUpdate(block.id, { ...content, title: e.target.value })}
@@ -170,7 +170,7 @@ export function BioBlockItem({
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Button Text</Label>
+              <Label>Button Text</Label>
               <Input
                 value={content.button_text || ""}
                 onChange={(e) => onUpdate(block.id, { ...content, button_text: e.target.value })}

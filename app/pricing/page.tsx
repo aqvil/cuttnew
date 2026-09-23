@@ -4,6 +4,7 @@ import { Check, Minus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SiteHeader } from "@/components/marketing/site-header"
 import { SiteFooter } from "@/components/marketing/site-footer"
+import { Faq, PRODUCT_FAQ } from "@/components/marketing/faq"
 import { PLANS } from "@/lib/plans"
 import { cn } from "@/lib/utils"
 
@@ -208,6 +209,15 @@ export default function PricingPage() {
             </Link>{" "}
             and we&apos;ll work it out.
           </p>
+
+          <section className="mx-auto mt-24 max-w-3xl">
+            <h2 className="font-display text-[28px] font-semibold tracking-[-0.02em] sm:text-[34px]">
+              Billing questions
+            </h2>
+            <div className="mt-8">
+              <Faq items={PRODUCT_FAQ} />
+            </div>
+          </section>
         </div>
       </main>
 

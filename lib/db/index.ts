@@ -188,8 +188,8 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 );
 
 -- Present in lib/db/schema.ts (systemSettings) but missing from this
--- bootstrap, which is why the admin settings page failed with
--- `relation "system_settings" does not exist`.
+-- bootstrap, which is why the admin settings page failed with a
+-- "relation system_settings does not exist" error.
 CREATE TABLE IF NOT EXISTS system_settings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   key TEXT UNIQUE NOT NULL,

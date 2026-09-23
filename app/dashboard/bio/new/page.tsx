@@ -61,17 +61,17 @@ export default function NewBioPage() {
   }
 
   return (
-    <div className="page-narrow font-sans">
-      <div className="mb-8 flex flex-col items-center gap-4">
-         <Button variant="ghost" size="icon" className="absolute left-4 top-4 text-muted-foreground hover:bg-muted" asChild>
-          <Link href="/dashboard/bio">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="h1">Create a bio page</h1>
-          <p className="lede">Use this when one short link should open a page of many destinations.</p>
-        </div>
+    <div className="page-narrow">
+      <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4 text-muted-foreground">
+        <Link href="/dashboard/bio">
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Back to bio pages
+        </Link>
+      </Button>
+
+      <div className="mb-8">
+        <h1 className="h1">Create a bio page</h1>
+        <p className="lede mt-2">Use this when one short link should open a page of many destinations.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
@@ -83,7 +83,7 @@ export default function NewBioPage() {
                </div>
                <div className="space-y-6">
                   <div className="space-y-2">
-                     <Label htmlFor="title" className="text-sm font-semibold text-foreground">Profile Name</Label>
+                     <Label htmlFor="title">Profile Name</Label>
                      <Input
                         id="title"
                         placeholder="Your name or brand"
@@ -95,23 +95,23 @@ export default function NewBioPage() {
                   </div>
 
                   <div className="space-y-2">
-                     <Label htmlFor="slug" className="text-sm font-semibold text-foreground">Public bio URL</Label>
+                     <Label htmlFor="slug">Public bio URL</Label>
                      <div className="flex items-center gap-2">
-                        <div className="h-12 px-4 flex items-center bg-background border border-border rounded-md text-muted-foreground font-medium whitespace-nowrap">
-                           cuttly.io/p/
+                        <div className="h-10 px-3 flex items-center bg-subtle border border-border rounded-md text-muted-foreground font-mono text-[13px] whitespace-nowrap">
+                           {(process.env.NEXT_PUBLIC_APP_URL || "").replace(/^https?:\/\//, "") || "cuttly.io"}/p/
                         </div>
                         <Input
                            id="slug"
                            placeholder="my-awesome-bio"
                            value={slug}
                            onChange={(e) => setSlug(generateSlug(e.target.value))}
-                           className="h-10 flex-1"
+                           className="h-10 flex-1 font-mono text-[13px]"
                         />
                      </div>
                   </div>
 
                   <div className="space-y-2">
-                     <Label htmlFor="description" className="text-sm font-semibold text-foreground">Description (optional)</Label>
+                     <Label htmlFor="description">Description (optional)</Label>
                      <Textarea
                         id="description"
                         placeholder="Tell your audience what this page is about..."

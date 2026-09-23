@@ -149,8 +149,8 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
           </Button>
           <div>
             <h1 className="text-xl font-semibold text-foreground leading-none">{title || "Untitled bio page"}</h1>
-            <a href={`${process.env.NEXT_PUBLIC_APP_URL}/p/${page.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1">
-               cuttly.io/p/{page.slug}
+            <a href={`${process.env.NEXT_PUBLIC_APP_URL}/p/${page.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm text-brand hover:underline mt-1 inline-flex items-center gap-1 font-mono">
+               {(process.env.NEXT_PUBLIC_APP_URL || "").replace(/^https?:\/\//, "") || "cuttly.io"}/p/{page.slug}
             </a>
           </div>
         </div>
@@ -163,7 +163,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
            </Button>
 
           <div className="hidden sm:flex items-center gap-3 border border-border px-4 h-10 rounded-md bg-background">
-             <Label htmlFor="publish" className="text-sm font-semibold text-foreground cursor-pointer">Live</Label>
+             <Label htmlFor="publish" className="cursor-pointer">Live</Label>
              <Switch
                id="publish"
                checked={isPublished}
@@ -205,7 +205,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
             <TabsContent value="editor" className="space-y-8 mt-4 focus-visible:outline-none">
                <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-foreground">Profile Title</Label>
+                    <Label>Profile Title</Label>
                     <Input
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
@@ -214,7 +214,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-foreground">Bio description</Label>
+                    <Label>Bio description</Label>
                     <Input
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
@@ -271,7 +271,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                     { label: "Card Color", key: "accent" }
                   ].map((item) => (
                     <div key={item.key} className="space-y-3">
-                      <Label className="text-sm font-semibold text-foreground">{item.label}</Label>
+                      <Label>{item.label}</Label>
                       <div className="relative h-12 w-full border border-border rounded-md flex items-center justify-center overflow-hidden hover:bg-muted transition-colors shadow-sm bg-background">
                         <input
                           type="color"
@@ -316,11 +316,11 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                 <h3 className="h3 mb-6 border-b border-border pb-4">Search Engine Optimization</h3>
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-foreground">SEO Title</Label>
+                    <Label>SEO Title</Label>
                     <Input placeholder="Enter title for search engines" className="h-10" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-semibold text-foreground">Meta Description</Label>
+                    <Label>Meta Description</Label>
                     <Input placeholder="Enter description for search engines" className="h-10" />
                   </div>
                 </div>
