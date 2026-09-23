@@ -84,7 +84,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
-      <SidebarHeader className="h-14 justify-center border-b border-sidebar-border px-4">
+      <SidebarHeader className="h-14 justify-center border-b border-sidebar-border px-4 group-data-[collapsible=icon]:px-2.5">
         <Link
           href="/dashboard"
           className="flex items-center gap-2.5 rounded-md"
@@ -105,13 +105,13 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="gap-0 px-3">
+      <SidebarContent className="gap-0 px-3 group-data-[collapsible=icon]:px-1.5">
         {/* The primary action, always one click away. */}
         <SidebarGroup className="px-0 py-3">
           <SidebarGroupContent>
             <Button
               asChild
-              className="h-9 w-full justify-center gap-2 group-data-[collapsible=icon]:size-9 group-data-[collapsible=icon]:p-0"
+              className="h-9 w-full justify-center gap-2 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:p-0"
             >
               <Link href="/dashboard/links/new">
                 <Plus className="size-4" aria-hidden="true" />
@@ -172,7 +172,7 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-2">
+      <SidebarFooter className="border-t border-sidebar-border p-2 group-data-[collapsible=icon]:px-1.5">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>

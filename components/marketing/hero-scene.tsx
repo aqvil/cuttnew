@@ -25,6 +25,15 @@ export function HeroScene({ className }: { className?: string }) {
           <stop offset="45%" stopColor="var(--color-brand)" stopOpacity="0.22" />
           <stop offset="100%" stopColor="var(--color-brand)" stopOpacity="0" />
         </radialGradient>
+        {/* The disc itself is a soft gradient, not a hard-edged fill, so it
+            dissolves into whichever ground color sits behind it — paper or
+            ink — instead of reading as a flat sticker in either theme. */}
+        <radialGradient id="hs-sun-core" cx="50%" cy="42%" r="16%">
+          <stop offset="0%" stopColor="var(--color-brand)" stopOpacity="1" />
+          <stop offset="55%" stopColor="var(--color-brand)" stopOpacity="0.92" />
+          <stop offset="82%" stopColor="var(--color-brand)" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="var(--color-brand)" stopOpacity="0" />
+        </radialGradient>
         <linearGradient id="hs-tower-far" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="currentColor" stopOpacity="0.14" />
           <stop offset="100%" stopColor="currentColor" stopOpacity="0.1" />
@@ -39,11 +48,12 @@ export function HeroScene({ className }: { className?: string }) {
         </filter>
       </defs>
 
-      {/* Signal disc */}
+      {/* Signal disc — every layer fades to zero opacity at its edge, so
+          nothing here has a hard boundary against the page. */}
       <circle cx="450" cy="330" r="300" fill="url(#hs-sun)" />
-      <circle cx="450" cy="330" r="160" stroke="var(--color-brand)" strokeOpacity="0.35" />
-      <circle cx="450" cy="330" r="230" stroke="var(--color-brand)" strokeOpacity="0.2" />
-      <circle cx="450" cy="330" r="90" fill="var(--color-brand)" fillOpacity="0.9" />
+      <circle cx="450" cy="330" r="160" stroke="var(--color-brand)" strokeOpacity="0.3" />
+      <circle cx="450" cy="330" r="230" stroke="var(--color-brand)" strokeOpacity="0.16" />
+      <circle cx="450" cy="330" r="175" fill="url(#hs-sun-core)" />
 
       {/* Packet trails */}
       <path d="M60 210 Q 300 120 620 190" stroke="currentColor" strokeOpacity="0.25" strokeWidth="1.5" />

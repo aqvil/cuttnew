@@ -2,7 +2,7 @@ import Link from "next/link"
 import {
   ArrowRight,
   BarChart3,
-  Check,
+  CheckCircle2,
   Globe,
   Link2,
   Lock,
@@ -17,8 +17,9 @@ import { Button } from "@/components/ui/button"
 import { SiteHeader } from "@/components/marketing/site-header"
 import { SiteFooter } from "@/components/marketing/site-footer"
 import { SignalMotif } from "@/components/marketing/signal-motif"
+import { ClicksChart } from "@/components/analytics/clicks-chart"
+import { QrModule } from "@/components/marketing/qr-module"
 import { appOrigin } from "@/lib/app-url"
-import { cn } from "@/lib/utils"
 
 export const metadata = {
   title: "Features",
@@ -29,86 +30,16 @@ export const metadata = {
 /**
  * Features.
  *
- * One section per real capability, in the order a new user actually reaches
- * for them: make the link, see what happened, print or share it, lock it
- * down, then automate it. Every bullet here maps to something wired up in
- * the product today — nothing is a roadmap item dressed as a feature.
+ * A bento grid, not a stack of alternating sections — each panel proves its
+ * capability with the real component that renders it elsewhere in the
+ * product (the same `ClicksChart`, the same badge and mono vocabulary),
+ * instead of an icon and a paragraph standing in for it.
  */
 
-const SECTIONS = [
-  {
-    id: "links",
-    icon: Link2,
-    title: "One short link, always up to date",
-    body: "Create a short link with a random code or your own custom back-half, then change the destination whenever the campaign moves — the short URL printed on a flyer or posted a year ago keeps working.",
-    points: [
-      "Custom back-halves you choose at creation, or a short random code",
-      "Edit the destination URL at any time without breaking existing links",
-      "Tag links by campaign or client, then search and filter server-side",
-      "Bulk actions — tag, archive or delete many links at once",
-      "Archive links you're done with instead of deleting your history",
-    ],
-  },
-  {
-    id: "analytics",
-    icon: BarChart3,
-    title: "Only what actually happened",
-    body: "Every redirect is logged the moment it happens. Nothing here is modelled, sampled or estimated — if we can't measure it, it doesn't appear on your dashboard.",
-    points: [
-      "Clicks over time, from the last 24 hours to the last 12 months",
-      "Unique visitors, counted by hashed IP rather than a tracking cookie",
-      "Referrer, country, device, browser and operating system breakdowns",
-      "QR scans counted separately from ordinary link clicks",
-      "CSV export of exactly what's on screen, for your own reporting",
-    ],
-  },
-  {
-    id: "qr-codes",
-    icon: QrCode,
-    title: "Codes that report back",
-    body: "Generate a QR code for any link in one click, customize its colors, and download it as PNG or SVG for print. Every scan is tracked as its own event, separate from link clicks.",
-    points: [
-      "One QR code per link, generated instantly",
-      "Foreground/background color and logo customization",
-      "PNG and SVG downloads for both screen and print",
-      "Scans tracked separately, with the same breakdown as link clicks",
-    ],
-  },
-  {
-    id: "control",
-    icon: Lock,
-    title: "Decide who gets through, and for how long",
-    body: "Not every link should be open forever. Gate it, expire it, or route different visitors to different places — all without changing the link you've already shared.",
-    points: [
-      "Password protection — the destination is never present in the page until the password verifies",
-      "Expiry by date or after a set number of clicks, with an optional fallback URL",
-      "Device targeting: send iOS and Android visitors to their app stores while everyone else gets the main destination",
-    ],
-  },
-  {
-    id: "bio-pages",
-    icon: Sparkles,
-    title: "When one link needs to open many",
-    body: "A bio page turns a single short link into a page of destinations — a profile, a product launch, a menu, or a campaign with several calls to action — with its own theme and block layout you control.",
-    points: [
-      "One link opens a page of many destinations, each tracked individually",
-      "Reorderable content blocks: links, text, and email capture",
-      "Custom colors and layout per page, independent of your dashboard theme",
-      "Action pages for a single focused landing experience — video, lead form, one clear call to action",
-    ],
-  },
-  {
-    id: "api",
-    icon: Globe,
-    title: "Automate it",
-    body: "Everything you can do by hand in the dashboard, you can do from your own code. Create a scoped API key in Settings and manage links programmatically.",
-    points: [
-      "REST API to create, update and delete links",
-      "Keys are hashed at rest and scoped to your account",
-      "Rate limited per key, with request and response shapes documented",
-    ],
-  },
-]
+const timeline = Array.from({ length: 24 }, (_, i) => ({
+  bucket: new Date(Date.now() - (23 - i) * 3600_000).toISOString(),
+  clicks: Math.round(18 + Math.sin(i / 2.2) * 12 + Math.cos(i / 5) * 6),
+}))
 
 const MORE = [
   { icon: Tags, label: "Tags and saved filters" },
@@ -124,15 +55,20 @@ export default function FeaturesPage() {
       <SiteHeader />
 
       <main className="flex-1">
+        {/* Hero */}
         <section className="relative overflow-hidden border-b border-border">
           <SignalMotif className="pointer-events-none absolute right-[-140px] top-1/2 h-[420px] w-[420px] -translate-y-1/2 text-foreground/[0.05]" />
           <div className="relative mx-auto max-w-3xl px-5 py-20 text-center sm:px-6 lg:py-24">
+            <p className="mono-label mb-5 flex items-center justify-center gap-2">
+              <span className="signal-dot relative flex size-1.5 rounded-full bg-brand" />
+              Six systems, one account
+            </p>
             <h1 className="font-display text-[38px] font-semibold leading-[1.02] tracking-[-0.02em] sm:text-[50px]">
               Everything a link needs. Nothing it doesn&apos;t.
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-[15px] leading-7 text-muted-foreground sm:text-lg">
-              Six real capabilities, wired up end to end — from the first redirect to the CSV
-              export you send your client.
+              Every panel below is the real thing — the same components that render inside your
+              dashboard, not a mockup of what they might look like.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button asChild size="lg">
@@ -148,43 +84,125 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        {SECTIONS.map((section, index) => (
-          <section
-            key={section.id}
-            id={section.id}
-            className={index % 2 === 1 ? "border-b border-border bg-subtle scroll-mt-20" : "border-b border-border scroll-mt-20"}
-          >
-            <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 lg:py-20">
-              <div className="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-16">
-                <div className={index % 2 === 1 ? "lg:order-2" : ""}>
-                  <span
-                    aria-hidden="true"
-                    className="flex size-11 items-center justify-center rounded-full border border-border bg-card text-brand"
-                  >
-                    <section.icon className="size-5" />
-                  </span>
-                  <h2 className="mt-5 font-display text-[26px] font-semibold tracking-[-0.02em] sm:text-[32px]">
-                    {section.title}
-                  </h2>
-                  <p className="mt-3 max-w-lg text-[14px] leading-7 text-muted-foreground">
-                    {section.body}
-                  </p>
+        {/* Bento grid */}
+        <section className="border-b border-border bg-subtle">
+          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 lg:py-20">
+            <div className="grid gap-5 lg:grid-cols-12">
+              {/* Links — rewrite diff */}
+              <FeatureCard
+                className="lg:col-span-5"
+                icon={Link2}
+                title="One short link, always up to date"
+                body="Change the destination whenever the campaign moves — the short URL printed on a flyer a year ago keeps working."
+              >
+                <div className="rounded-lg border border-border bg-background p-4 font-mono text-[12px] leading-6">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <span className="text-destructive">−</span>
+                    <span className="truncate line-through decoration-destructive/50">
+                      {origin}/l/launch → …/2024-preview
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-foreground">
+                    <span className="text-success">+</span>
+                    <span className="truncate">{origin}/l/launch → …/2025-live</span>
+                  </div>
                 </div>
-
-                <ul className={cn("space-y-3.5", index % 2 === 1 ? "lg:order-1" : "")}>
-                  {section.points.map((point) => (
-                    <li key={point} className="flex items-start gap-3 text-[14px] leading-6">
-                      <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
-                      {point}
-                    </li>
+                <div className="mt-4 flex flex-wrap gap-1.5">
+                  {["Custom back-half", "Tags", "Bulk actions"].map((t) => (
+                    <span key={t} className="code-chip">
+                      {t}
+                    </span>
                   ))}
-                </ul>
-              </div>
-            </div>
-          </section>
-        ))}
+                </div>
+              </FeatureCard>
 
-        {/* API example */}
+              {/* Analytics — real mini chart */}
+              <FeatureCard
+                className="lg:col-span-7"
+                icon={BarChart3}
+                title="Only what actually happened"
+                body="Every redirect is logged the moment it happens — referrer, country, device, browser and OS. Nothing here is modelled or estimated."
+              >
+                <div className="rounded-lg border border-border bg-background p-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="mono-label">Clicks — last 24h</p>
+                    <p className="mono-label text-brand">Live</p>
+                  </div>
+                  <ClicksChart data={timeline} range="24h" height={110} />
+                  <div className="mt-1 grid grid-cols-3 gap-2 border-t border-border pt-3">
+                    {[
+                      { label: "Clicks", value: "412" },
+                      { label: "Unique", value: "298" },
+                      { label: "Countries", value: "19" },
+                    ].map((s) => (
+                      <div key={s.label}>
+                        <p className="tabular text-[16px] font-semibold leading-none">{s.value}</p>
+                        <p className="mono-label mt-1.5">{s.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </FeatureCard>
+
+              {/* QR codes — module grid */}
+              <FeatureCard
+                className="lg:col-span-4"
+                icon={QrCode}
+                title="Codes that report back"
+                body="Generate, customize and download as PNG or SVG. Scans are tracked separately from link clicks."
+              >
+                <div className="flex items-center justify-center rounded-lg border border-border bg-background p-6">
+                  <QrModule className="size-28 text-foreground" accentClassName="text-brand" />
+                </div>
+              </FeatureCard>
+
+              {/* Security & control — masked field */}
+              <FeatureCard
+                className="lg:col-span-4"
+                icon={Lock}
+                title="Decide who gets through"
+                body="Password-gate a link, expire it by date or click count, or route by device — without changing the URL."
+              >
+                <div className="space-y-2.5 rounded-lg border border-border bg-background p-4">
+                  <div className="flex items-center justify-between font-mono text-[12px]">
+                    <span className="text-muted-foreground">Password</span>
+                    <span className="tracking-[0.3em]">••••••••</span>
+                  </div>
+                  <div className="flex items-center justify-between font-mono text-[12px]">
+                    <span className="text-muted-foreground">Expires</span>
+                    <span>2026-01-01</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 border-t border-border pt-2.5 text-[12px] text-success">
+                    <CheckCircle2 className="size-3.5" aria-hidden="true" />
+                    Destination hidden until verified
+                  </div>
+                </div>
+              </FeatureCard>
+
+              {/* Bio pages — stacked blocks */}
+              <FeatureCard
+                className="lg:col-span-4"
+                icon={Sparkles}
+                title="One link, many destinations"
+                body="A bio page turns a single link into a profile, launch or menu — with reorderable blocks and its own theme."
+              >
+                <div className="space-y-2 rounded-lg border border-border bg-background p-4">
+                  {["Portfolio", "Book a call", "Instagram"].map((label) => (
+                    <div
+                      key={label}
+                      className="flex items-center justify-between rounded-full bg-brand/10 px-3.5 py-2 text-[12px] font-medium text-foreground"
+                    >
+                      {label}
+                      <ArrowRight className="size-3 text-brand" aria-hidden="true" />
+                    </div>
+                  ))}
+                </div>
+              </FeatureCard>
+            </div>
+          </div>
+        </section>
+
+        {/* API — terminal window */}
         <section className="ink-band dark border-b border-border">
           <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 lg:py-20">
             <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
@@ -197,13 +215,27 @@ export default function FeaturesPage() {
                   The same endpoint the dashboard itself uses — nothing held back for a
                   separate &quot;enterprise API&quot;.
                 </p>
+                <Button asChild variant="outline" className="mt-7">
+                  <Link href="/auth/sign-up">Get an API key</Link>
+                </Button>
               </div>
-              <div className="overflow-x-auto rounded-xl border border-border bg-card">
-                <pre className="p-5 font-mono text-xs leading-6">
-                  <code>{`curl -X POST https://${origin}/api/v1/links \\
-  -H "Authorization: Bearer ck_live_…" \\
-  -H "Content-Type: application/json" \\
-  -d '{ "url": "https://example.com/launch", "alias": "launch" }'`}</code>
+
+              <div className="overflow-hidden rounded-xl border border-border bg-card">
+                <div className="flex items-center gap-1.5 border-b border-border px-4 py-3">
+                  <span className="size-2.5 rounded-full bg-destructive/60" />
+                  <span className="size-2.5 rounded-full bg-warning/60" />
+                  <span className="size-2.5 rounded-full bg-success/60" />
+                  <span className="mono-label ml-2">POST /api/v1/links</span>
+                </div>
+                <pre className="overflow-x-auto p-5 font-mono text-xs leading-6">
+                  <code>
+                    <span className="text-brand">curl</span> -X POST https://{origin}/api/v1/links \{"\n"}
+                    {"  "}-H &quot;Authorization: Bearer ck_live_…&quot; \{"\n"}
+                    {"  "}-H &quot;Content-Type: application/json&quot; \{"\n"}
+                    {"  "}-d &apos;{`{ "url": "https://example.com/launch", "alias": "launch" }`}&apos;
+                    {"\n\n"}
+                    <span className="text-muted-foreground">{`{ "data": { "shortCode": "launch", "clickCount": 0 } }`}</span>
+                  </code>
                 </pre>
               </div>
             </div>
@@ -253,3 +285,30 @@ export default function FeaturesPage() {
   )
 }
 
+function FeatureCard({
+  icon: Icon,
+  title,
+  body,
+  children,
+  className,
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  title: string
+  body: string
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={`surface flex flex-col p-6 ${className || ""}`}>
+      <span
+        aria-hidden="true"
+        className="flex size-9 items-center justify-center rounded-full border border-border bg-subtle text-brand"
+      >
+        <Icon className="size-4" />
+      </span>
+      <h2 className="mt-4 font-display text-[19px] font-semibold tracking-[-0.01em]">{title}</h2>
+      <p className="mt-1.5 text-[13px] leading-6 text-muted-foreground">{body}</p>
+      <div className="mt-5">{children}</div>
+    </div>
+  )
+}
