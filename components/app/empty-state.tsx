@@ -37,13 +37,13 @@ export function EmptyState({
       {Icon ? (
         <div
           aria-hidden="true"
-          className="mb-4 flex size-10 items-center justify-center rounded-sm border border-border bg-card text-muted-foreground"
+          className="mb-4 flex size-11 items-center justify-center rounded-full border border-border bg-card text-brand"
         >
-          <Icon className="size-4" />
+          <Icon className="size-4.5" />
         </div>
       ) : null}
 
-      <h3 className="text-lg font-semibold tracking-[-0.02em] text-foreground">
+      <h3 className="font-display text-lg font-semibold tracking-[-0.01em] text-foreground">
         {title}
       </h3>
 

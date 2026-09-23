@@ -95,11 +95,14 @@ function statusOf(link: LinkListItem): LinkStatus {
   return "active"
 }
 
-const STATUS_META: Record<LinkStatus, { label: string; className: string }> = {
-  active: { label: "Active", className: "border-success/30 bg-success/10 text-success" },
-  archived: { label: "Archived", className: "border-border bg-muted text-muted-foreground" },
-  expired: { label: "Expired", className: "border-warning/30 bg-warning/10 text-warning" },
-  inactive: { label: "Paused", className: "border-border bg-muted text-muted-foreground" },
+const STATUS_META: Record<
+  LinkStatus,
+  { label: string; variant: "success" | "warning" | "secondary" }
+> = {
+  active: { label: "Active", variant: "success" },
+  archived: { label: "Archived", variant: "secondary" },
+  expired: { label: "Expired", variant: "warning" },
+  inactive: { label: "Paused", variant: "secondary" },
 }
 
 function toCsv(rows: LinkListItem[], origin: string): string {
@@ -482,7 +485,7 @@ function LinkRow({
             {displayTitle}
           </Link>
 
-          <Badge variant="outline" className={cn("h-5 shrink-0 text-[11px]", meta.className)}>
+          <Badge variant={meta.variant} className="h-5 shrink-0">
             {meta.label}
           </Badge>
 
@@ -520,7 +523,7 @@ function LinkRow({
             type="button"
             onClick={() => copy(fullShortUrl, "Short link copied")}
             aria-label={`Copy ${displayShortUrl}`}
-            className="shrink-0 rounded-sm p-1 text-muted-foreground transition-colors hover:text-foreground"
+            className="shrink-0 rounded-full p-1 text-muted-foreground transition-colors hover:bg-subtle hover:text-foreground"
           >
             {copied ? (
               <Check className="size-3.5 text-success" aria-hidden="true" />

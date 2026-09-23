@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { SiteHeader } from "@/components/marketing/site-header"
 import { SiteFooter } from "@/components/marketing/site-footer"
 import { SignalMotif } from "@/components/marketing/signal-motif"
+import { HeroScene } from "@/components/marketing/hero-scene"
 import { HeroShortenForm } from "./hero-shorten-form"
 import { PLANS } from "@/lib/plans"
 import { appOrigin } from "@/lib/app-url"
@@ -82,11 +83,13 @@ export default function LandingPage() {
       <main className="flex-1">
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-border">
-          <SignalMotif className="pointer-events-none absolute right-[-120px] top-1/2 h-[560px] w-[560px] -translate-y-1/2 text-foreground/[0.05] sm:right-[-60px] lg:right-[6%]" />
+          <HeroScene className="pointer-events-none absolute inset-y-0 right-[-8%] h-full w-[64%] text-foreground/90 opacity-[0.9] mix-blend-normal sm:right-[-4%] lg:right-0 lg:w-[52%]" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-[52%] bg-gradient-to-r from-background via-background/70 to-transparent lg:from-transparent lg:via-transparent" />
 
-          <div className="relative mx-auto max-w-6xl px-5 py-24 sm:px-6 lg:py-32">
-            <div className="max-w-2xl">
-              <h1 className="font-display text-[44px] font-semibold leading-[0.96] tracking-[-0.03em] sm:text-[62px] lg:text-[78px]">
+          <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-20 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-28">
+            <div className="max-w-xl">
+              <p className="mono-label mb-5">Est. 2026 — link infrastructure</p>
+              <h1 className="font-display text-[44px] font-semibold leading-[0.96] tracking-[-0.03em] sm:text-[60px] lg:text-[68px]">
                 The short link
                 <br />
                 that keeps <span className="text-brand">working.</span>
@@ -105,6 +108,9 @@ export default function LandingPage() {
                 {PLANS.free.linksPerMonth} links a month.
               </p>
             </div>
+
+            {/* Spacer column on large screens — the scene bleeds into it. */}
+            <div aria-hidden="true" className="hidden lg:block" />
           </div>
         </section>
 
