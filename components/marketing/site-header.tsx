@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Link2, Menu, X } from "lucide-react"
+import { ArrowUpRight, Link2, Menu, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -19,25 +19,25 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5 sm:px-6">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 sm:px-6">
         <Link
           href="/"
-          className="flex items-center gap-2.5 text-[15px] font-semibold tracking-[-0.02em]"
+          className="flex items-center gap-2.5 font-display text-[17px] font-bold tracking-[-0.02em]"
         >
-          <span className="flex size-7 items-center justify-center rounded-sm bg-primary text-primary-foreground">
-            <Link2 className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
+          <span className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+            <Link2 className="size-4" strokeWidth={2.5} aria-hidden="true" />
           </span>
           Cuttly
         </Link>
 
         <nav aria-label="Main" className="hidden md:block">
-          <ul className="flex items-center gap-7">
+          <ul className="flex items-center gap-8">
             {NAV.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {item.label}
                 </Link>
@@ -51,8 +51,13 @@ export function SiteHeader() {
           <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
             <Link href="/auth/login">Sign in</Link>
           </Button>
-          <Button asChild size="sm">
-            <Link href="/auth/sign-up">Get started</Link>
+          <Button asChild size="sm" className="pl-4 pr-1.5">
+            <Link href="/auth/sign-up">
+              Get started
+              <span className="flex size-6 items-center justify-center rounded-full bg-brand-foreground/15">
+                <ArrowUpRight className="size-3.5" aria-hidden="true" />
+              </span>
+            </Link>
           </Button>
 
           <Button

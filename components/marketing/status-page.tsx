@@ -31,19 +31,19 @@ export function StatusPage({
       <div className="w-full max-w-md text-center">
         <Link
           href="/"
-          className="mb-10 inline-flex items-center gap-2.5 text-sm font-semibold"
+          className="mb-10 inline-flex items-center gap-2.5 font-display text-sm font-bold"
         >
-          <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+          <span className="flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <Link2 className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
           </span>
           Cuttly
         </Link>
 
-        <div className="rounded-lg border border-border bg-card p-8">
+        <div className="rounded-xl border border-border bg-card p-8">
           {Icon ? (
             <div
               aria-hidden="true"
-              className="mx-auto mb-5 flex size-10 items-center justify-center rounded-lg border border-border bg-subtle text-muted-foreground"
+              className="mx-auto mb-5 flex size-10 items-center justify-center rounded-full border border-border bg-subtle text-brand"
             >
               <Icon className="size-4" />
             </div>
@@ -53,7 +53,7 @@ export function StatusPage({
             <p className="mb-2 font-mono text-xs text-muted-foreground">{code}</p>
           ) : null}
 
-          <h1 className="text-xl font-semibold tracking-[-0.02em]">{title}</h1>
+          <h1 className="font-display text-xl font-semibold tracking-[-0.01em]">{title}</h1>
           <p className="mx-auto mt-2.5 max-w-sm text-sm leading-6 text-muted-foreground">
             {description}
           </p>

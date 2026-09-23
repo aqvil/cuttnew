@@ -7,18 +7,19 @@ import { cn } from '@/lib/utils'
 /**
  * Buttons use normal product language; mono remains reserved for data.
  *
- * The committing variants (default, secondary, destructive, outline) set
- * their label in small uppercase with wide tracking — the same treatment as
- * every other micro-label in the product, so a control reads as a control at
- * a glance. `ghost` and `link` keep sentence case on purpose: they appear
- * inside menus and prose, where uppercase would shout.
+ * Every committing variant rounds all the way to a pill — the product's one
+ * borrowed gesture from its reference world, reserved for controls so it
+ * never competes with the rectilinear panels around it. `ghost` and `link`
+ * stay unrounded and low-key on purpose: they appear inside menus and prose.
  */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm text-sm font-medium transition-all duration-100 disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-3.5 shrink-0 [&_svg]:shrink-0 outline-none aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all duration-150 disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-3.5 shrink-0 [&_svg]:shrink-0 outline-none aria-invalid:border-destructive",
   {
     variants: {
       variant: {
         default:
+          'bg-brand text-brand-foreground text-sm shadow-[0_4px_14px_-4px_rgb(212_80_30_/_0.45)] hover:bg-brand/90 active:bg-brand',
+        dark:
           'bg-primary text-primary-foreground text-sm hover:bg-primary/88 active:bg-primary',
         destructive:
           'bg-destructive text-destructive-foreground text-sm hover:bg-destructive/88',
@@ -27,13 +28,13 @@ const buttonVariants = cva(
         secondary:
           'bg-secondary text-secondary-foreground text-sm hover:bg-secondary/70',
         ghost:
-          'text-[13px] text-muted-foreground hover:bg-accent hover:text-foreground',
-        link: 'text-[13px] text-brand underline-offset-4 hover:underline',
+          'rounded-md text-[13px] text-muted-foreground hover:bg-accent hover:text-foreground',
+        link: 'rounded-none text-[13px] text-brand underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-9 px-3.5 has-[>svg]:px-3',
-        sm: 'h-8 gap-1.5 px-3 has-[>svg]:px-2.5',
-        lg: 'h-10 px-5 has-[>svg]:px-4',
+        default: 'h-9 px-4 has-[>svg]:px-3.5',
+        sm: 'h-8 gap-1.5 px-3.5 has-[>svg]:px-3',
+        lg: 'h-11 px-6 text-[15px] has-[>svg]:px-5',
         icon: 'size-9',
         'icon-sm': 'size-8',
         'icon-lg': 'size-10',

@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { SiteHeader } from "@/components/marketing/site-header"
 import { SiteFooter } from "@/components/marketing/site-footer"
+import { SignalMotif } from "@/components/marketing/signal-motif"
 import { HeroShortenForm } from "./hero-shorten-form"
 import { PLANS } from "@/lib/plans"
 import { appOrigin } from "@/lib/app-url"
@@ -80,23 +81,22 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="grid-field border-b border-border">
-          <div className="mx-auto max-w-6xl px-5 py-24 sm:px-6 lg:py-32">
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="eyebrow mb-7 flex items-center justify-center gap-2">
-                <span aria-hidden="true" className="inline-block h-px w-5 bg-border" />
-                Link infrastructure
-                <span aria-hidden="true" className="inline-block h-px w-5 bg-border" />
-              </p>
-              <h1 className="text-[42px] font-semibold leading-[1.02] tracking-[-0.06em] sm:text-[58px] lg:text-[72px]">
-                The short link that keeps working.
+        <section className="relative overflow-hidden border-b border-border">
+          <SignalMotif className="pointer-events-none absolute right-[-120px] top-1/2 h-[560px] w-[560px] -translate-y-1/2 text-foreground/[0.05] sm:right-[-60px] lg:right-[6%]" />
+
+          <div className="relative mx-auto max-w-6xl px-5 py-24 sm:px-6 lg:py-32">
+            <div className="max-w-2xl">
+              <h1 className="font-display text-[44px] font-semibold leading-[0.96] tracking-[-0.03em] sm:text-[62px] lg:text-[78px]">
+                The short link
+                <br />
+                that keeps <span className="text-brand">working.</span>
               </h1>
-              <p className="mx-auto mt-6 max-w-xl text-[16px] leading-7 text-muted-foreground sm:text-lg">
+              <p className="mt-7 max-w-lg text-[17px] leading-7 text-muted-foreground sm:text-lg">
                 Share one clean URL everywhere. Change the destination, measure every click, and
                 keep your campaigns tidy from the first post to the final report.
               </p>
 
-              <div className="mt-9 flex justify-center">
+              <div className="mt-9 max-w-xl">
                 <HeroShortenForm />
               </div>
 
@@ -113,8 +113,7 @@ export default function LandingPage() {
           <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 lg:py-24">
             <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
               <div>
-                <p className="eyebrow">Analytics</p>
-                <h2 className="mt-3 text-[30px] font-semibold leading-tight tracking-[-0.045em] sm:text-[40px]">
+                <h2 className="font-display text-[32px] font-semibold leading-[1.02] tracking-[-0.02em] sm:text-[42px]">
                   Know what happens after you share.
                 </h2>
                 <p className="mt-4 text-[13px] leading-7 text-muted-foreground">
@@ -175,7 +174,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="space-y-3 p-5">
-                  <p className="eyebrow">Top referrers</p>
+                  <p className="mono-label">Top referrers</p>
                   {[
                     { label: "Direct", pct: 42 },
                     { label: "linkedin.com", pct: 27 },
@@ -187,9 +186,9 @@ export default function LandingPage() {
                         <span>{row.label}</span>
                         <span className="text-muted-foreground tabular">{row.pct}%</span>
                       </div>
-                      <div className="h-1 overflow-hidden rounded-none bg-muted">
+                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                         <div
-                          className="h-full bg-chart-1"
+                          className="h-full rounded-full bg-chart-1"
                           style={{ width: `${row.pct}%` }}
                         />
                       </div>
@@ -205,8 +204,7 @@ export default function LandingPage() {
         <section id="features" className="border-b border-border scroll-mt-20">
           <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 lg:py-24">
             <div className="max-w-2xl">
-              <p className="eyebrow">Features</p>
-              <h2 className="mt-3 text-[30px] font-semibold tracking-[-0.045em] sm:text-[40px]">
+              <h2 className="font-display text-[32px] font-semibold tracking-[-0.02em] sm:text-[42px]">
                 Everything a link needs. Nothing it doesn&apos;t.
               </h2>
             </div>
@@ -216,11 +214,11 @@ export default function LandingPage() {
                 <div key={feature.title}>
                   <span
                     aria-hidden="true"
-                    className="flex size-9 items-center justify-center rounded-sm border border-border bg-subtle text-muted-foreground"
+                    className="flex size-10 items-center justify-center rounded-full border border-border bg-subtle text-brand"
                   >
                     <feature.icon className="size-4" />
                   </span>
-                  <h3 className="mt-4 text-base font-semibold tracking-[-0.02em]">
+                  <h3 className="mt-4 font-display text-base font-semibold tracking-[-0.01em]">
                     {feature.title}
                   </h3>
                   <p className="mt-2 text-[13px] leading-6 text-muted-foreground">
@@ -232,13 +230,12 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* API */}
-        <section id="api" className="border-b border-border bg-subtle scroll-mt-20">
+        {/* API — the first ink band, punctuating the paper sections above. */}
+        <section id="api" className="ink-band dark scroll-mt-20 border-b border-border">
           <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 lg:py-24">
             <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
               <div>
-                <p className="eyebrow">API</p>
-                <h2 className="mt-3 text-[26px] font-semibold tracking-[-0.04em] sm:text-[32px]">
+                <h2 className="font-display text-[28px] font-semibold tracking-[-0.02em] sm:text-[34px]">
                   Automate it.
                 </h2>
                 <p className="mt-4 text-[13px] leading-7 text-muted-foreground">
@@ -250,7 +247,7 @@ export default function LandingPage() {
                 </Button>
               </div>
 
-              <div className="overflow-x-auto rounded-lg border border-border bg-card">
+              <div className="overflow-x-auto rounded-xl border border-border bg-card">
                 <pre className="p-5 font-mono text-xs leading-6">
                   <code>{`curl -X POST https://${origin}/api/v1/links \\
   -H "Authorization: Bearer ck_live_…" \\
@@ -274,9 +271,10 @@ export default function LandingPage() {
         </section>
 
         {/* CTA */}
-        <section>
-          <div className="mx-auto max-w-3xl px-5 py-20 text-center sm:px-6 lg:py-28">
-            <h2 className="text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
+        <section className="relative overflow-hidden">
+          <SignalMotif className="pointer-events-none absolute left-1/2 top-0 h-[900px] w-[900px] -translate-x-1/2 -translate-y-[62%] text-foreground/[0.035]" />
+          <div className="relative mx-auto max-w-3xl px-5 py-20 text-center sm:px-6 lg:py-28">
+            <h2 className="font-display text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
               Make your first link in about ten seconds.
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-muted-foreground">

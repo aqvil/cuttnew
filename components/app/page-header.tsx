@@ -7,22 +7,18 @@ import { cn } from "@/lib/utils"
  * Every page previously rolled its own heading with slightly different sizes,
  * weights and spacing. One component means one answer.
  *
- * The optional `eyebrow` is the technical register's locator — a short
- * uppercase string naming the section the page belongs to — and the header
- * closes with a hairline so the title band reads as a plate above the
- * content rather than as floating text.
+ * The header closes with a hairline so the title band reads as a plate
+ * above the content rather than as floating text.
  */
 export function PageHeader({
   title,
   description,
   actions,
-  eyebrow,
   className,
 }: {
   title: string
   description?: ReactNode
   actions?: ReactNode
-  eyebrow?: string
   className?: string
 }) {
   return (
@@ -33,12 +29,6 @@ export function PageHeader({
       )}
     >
       <div className="min-w-0 space-y-2">
-        {eyebrow ? (
-          <p className="mono-label flex items-center gap-2">
-            <span aria-hidden="true" className="inline-block h-px w-4 bg-border" />
-            {eyebrow}
-          </p>
-        ) : null}
         <h1 className="h1">{title}</h1>
         {description ? <p className="lede max-w-2xl">{description}</p> : null}
       </div>

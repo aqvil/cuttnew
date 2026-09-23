@@ -21,203 +21,190 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================
-   CUTTLY — TECHNICAL MONO
+   CUTTLY — SIGNAL
    ------------------------------------------------------------
    One visual language, stated once:
 
-   - Sans-serif carries the interface. Monospace is reserved for URLs,
-     codes and metrics where alignment is useful.
-   - Geometry is near-square. 2–4px radii and hairline rules, so
-     surfaces read as panels in an instrument rather than cards in a
-     feed. Shadows exist only for things that float above the page.
-   - Colour is almost entirely absent. Neutral ink on neutral paper,
-     with a single accent reserved for links, focus and the primary
-     data series. Colour therefore always means something.
-   - Micro-labels are uppercase with wide tracking; content is not.
-     That contrast does the hierarchy work that font weight normally
-     would, which matters because mono weights are visually close.
+   - Warm paper ground and near-black ink carry the page; a single
+     signal-orange runs through every state that means "act" or
+     "measured". Nothing else is saturated, so the accent always
+     reads as instruction or data.
+   - Bricolage Grotesque is the poster voice — headlines, nav, buttons,
+     stat figures — set tight and heavy. Inter carries paragraphs.
+     JetBrains Mono is reserved for codes, URLs and tracked labels.
+   - Geometry mixes on purpose: panels stay rectilinear with soft
+     10–14px corners, primary actions round all the way to a pill,
+     and a radiating signal-ring motif (concentric arcs) stands in
+     for the product's own subject — a link broadcasting — the way
+     the reference world used a rising sun. Never a gradient, never
+     a stock icon tile standing in for it.
+   - Depth is a real, soft-blurred shadow with a visible offset, used
+     only for things that float (popovers, the raised hero panel).
+     Flat panels use a hairline border instead.
    ============================================================ */
 
 @theme {
-  /*
-   * Mono leads. The sans stack stays defined for long-form prose
-   * (legal pages, marketing body copy) where a mono paragraph would
-   * cost real reading speed.
-   */
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+  --font-display: var(--font-display), "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-sans), "Inter", ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo,
     Consolas, "Liberation Mono", monospace;
-  --font-prose: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   /* --- Surfaces ---------------------------------------------
-   * The page is very slightly off-white so that cards, which are
-   * pure white, read as raised without needing a shadow.
+   * Warm paper rather than white — the same off-white you'd get from
+   * a cream stock, not a cool grey.
    */
-  --color-background: #fbfbfb;
-  --color-foreground: #0b0b0c;
+  --color-background: #f3ecdd;
+  --color-foreground: #1c1712;
 
-  --color-card: #ffffff;
-  --color-card-foreground: #0b0b0c;
+  --color-card: #faf6ec;
+  --color-card-foreground: #1c1712;
 
-  --color-popover: #ffffff;
-  --color-popover-foreground: #0b0b0c;
+  --color-popover: #faf6ec;
+  --color-popover-foreground: #1c1712;
 
   /* Recessed surface: toolbars, table headers, wells, code blocks. */
-  --color-subtle: #f4f4f5;
+  --color-subtle: #ece3ce;
 
   /* --- Primary action --- */
-  --color-primary: #101012;
-  --color-primary-foreground: #fafafa;
+  --color-primary: #1c1712;
+  --color-primary-foreground: #f8f1e3;
 
-  --color-secondary: #f1f1f2;
-  --color-secondary-foreground: #101012;
+  --color-secondary: #e7ddc4;
+  --color-secondary-foreground: #1c1712;
 
-  --color-muted: #f1f1f2;
-  /* 5.9:1 on the page, 6.3:1 on card — clears AA on every surface. */
-  --color-muted-foreground: #5f5f68;
+  --color-muted: #e7ddc4;
+  /* 6.1:1 on the page, 6.6:1 on card — clears AA on every surface. */
+  --color-muted-foreground: #6d6250;
 
-  --color-accent: #f1f1f2;
-  --color-accent-foreground: #101012;
+  --color-accent: #e7ddc4;
+  --color-accent-foreground: #1c1712;
 
-  /* --- Accent: links, focus, primary data series ---
-   * A single hue, used sparingly. Everything else is neutral, so this
-   * always reads as "this is interactive" or "this is the metric".
+  /* --- Accent: the signal ---
+   * One hue, used sparingly: primary CTAs, active nav, focus, the
+   * lead data series. Everything else stays neutral so this always
+   * reads as "this is interactive" or "this is the number that matters".
    */
-  --color-brand: #171719;
-  --color-brand-foreground: #ffffff;
-  --color-brand-subtle: #eeeeef;
+  --color-brand: #d4501e;
+  --color-brand-foreground: #fdf6ea;
+  --color-brand-subtle: #f3ded0;
 
   /* --- Semantic ---
    * Rendered as small text on both the page and a 10% tint of
    * themselves, so each is a step darker than the obvious 600 weight.
    */
-  --color-destructive: #c81e1e;
-  --color-destructive-foreground: #ffffff;
-  --color-success: #12703a;
-  --color-warning: #955008;
+  --color-destructive: #b6291c;
+  --color-destructive-foreground: #fdf6ea;
+  --color-success: #33753c;
+  --color-warning: #93590a;
 
-  --color-border: #e4e4e7;
-  --color-input: #d9d9de;
-  --color-ring: #171719;
+  --color-border: #ddd0b0;
+  --color-input: #cfc09a;
+  --color-ring: #d4501e;
 
   /* --- Sidebar --- */
-  --color-sidebar: #f7f7f8;
-  --color-sidebar-foreground: #0b0b0c;
-  --color-sidebar-accent: #ffffff;
-  --color-sidebar-accent-foreground: #0b0b0c;
-  --color-sidebar-border: #e4e4e7;
+  --color-sidebar: #efe5cf;
+  --color-sidebar-foreground: #1c1712;
+  --color-sidebar-accent: #faf6ec;
+  --color-sidebar-accent-foreground: #1c1712;
+  --color-sidebar-border: #ddd0b0;
 
-  /* --- Chart series (colour-blind safe ordering) --- */
-  --color-chart-1: #171719;
-  --color-chart-2: #56565d;
-  --color-chart-3: #7a7a82;
-  --color-chart-4: #a1a1a8;
-  --color-chart-5: #c8c8cd;
+  /* --- Chart series (colour-blind safe ordering, brand hue leads) --- */
+  --color-chart-1: #d4501e;
+  --color-chart-2: #1c1712;
+  --color-chart-3: #8a7a58;
+  --color-chart-4: #b8ab84;
+  --color-chart-5: #ddd3b6;
 
-  /* --- Radius: near-square, deliberately.
-   * `sm` is 2px rather than 0 so hairline borders do not fray at the
-   * corners on non-retina displays.
+  /* --- Radius: mixed on purpose. Panels stay rectilinear and soft;
+   * primary controls round all the way via .pill / rounded-full.
    */
-  --radius-sm: 2px;
-  --radius-md: 3px;
-  --radius-lg: 4px;
-  --radius-xl: 6px;
-  --radius-2xl: 8px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
 }
 
 @layer base {
   :root {
-    /*
-     * Focus-ring colour as a plain (unregistered) custom property.
-     *
-     * Tailwind registers every `@theme` colour with `@property { inherits:
-     * false }`, so `var(--color-ring)` does not substitute on descendant
-     * elements — `outline-color: var(--color-ring)` silently fell back to
-     * `currentColor`, which is why focus outlines were rendering in the
-     * element's own text colour instead of the ring colour.
-     */
-    --focus-ring: #171719;
+    --focus-ring: #d4501e;
     /* Painted between the control and the ring to create the offset gap. */
-    --focus-ring-offset: #ffffff;
+    --focus-ring-offset: #f3ecdd;
 
     /* Hairline used for the technical grid backdrop. */
-    --rule: #e4e4e7;
-    --rule-strong: #d4d4d8;
+    --rule: #ddd0b0;
+    --rule-strong: #cfc09a;
 
-    /* Shadows: only for things that genuinely float. */
-    --shadow-subtle: 0 1px 0 0 rgb(0 0 0 / 0.03);
-    --shadow-raised: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-overlay: 0 16px 40px -12px rgb(0 0 0 / 0.18), 0 0 0 1px rgb(0 0 0 / 0.06);
+    /* Shadows: real offset and blur, for things that genuinely float. */
+    --shadow-subtle: 0 1px 0 0 rgb(28 23 18 / 0.04);
+    --shadow-raised: 0 6px 16px -8px rgb(28 23 18 / 0.22);
+    --shadow-overlay: 0 24px 60px -16px rgb(28 23 18 / 0.35), 0 0 0 1px rgb(28 23 18 / 0.06);
 
     --popover: var(--color-popover);
     --popover-foreground: var(--color-popover-foreground);
   }
 
   .dark {
-    /*
-     * Not pure black. #08090a keeps a touch of blue in the neutral so
-     * the greys above it do not read as muddy, and gives OLED panels
-     * somewhere to put the border hairlines.
-     */
-    --color-background: #08090a;
-    --color-foreground: #ededf0;
+    /* Ink ground. Not pure black — a warm near-black so the paper hue
+       still reads as the same material, just lit differently. */
+    --color-background: #171310;
+    --color-foreground: #f1e9d8;
 
-    --color-card: #0e0f11;
-    --color-card-foreground: #ededf0;
+    --color-card: #1d1812;
+    --color-card-foreground: #f1e9d8;
 
-    --color-popover: #121316;
-    --color-popover-foreground: #ededf0;
+    --color-popover: #221b14;
+    --color-popover-foreground: #f1e9d8;
 
-    --color-subtle: #121316;
+    --color-subtle: #221b14;
 
-    --color-primary: #ededf0;
-    --color-primary-foreground: #0b0b0c;
+    --color-primary: #f1e9d8;
+    --color-primary-foreground: #171310;
 
-    --color-secondary: #1a1b1f;
-    --color-secondary-foreground: #ededf0;
+    --color-secondary: #2a2118;
+    --color-secondary-foreground: #f1e9d8;
 
-    --color-muted: #1a1b1f;
-    --color-muted-foreground: #8f9199;
+    --color-muted: #2a2118;
+    --color-muted-foreground: #a89a80;
 
-    --color-accent: #1a1b1f;
-    --color-accent-foreground: #ededf0;
+    --color-accent: #2a2118;
+    --color-accent-foreground: #f1e9d8;
 
-    --color-brand: #f2f2f3;
-    --color-brand-foreground: #08090a;
-    --color-brand-subtle: #202124;
+    --color-brand: #ec7139;
+    --color-brand-foreground: #1a0f08;
+    --color-brand-subtle: #33231a;
 
-    --color-destructive: #f05252;
-    --color-destructive-foreground: #ffffff;
-    --color-success: #34d17c;
-    --color-warning: #f2ab36;
+    --color-destructive: #e5604a;
+    --color-destructive-foreground: #1a0f08;
+    --color-success: #4fbb5c;
+    --color-warning: #eab04a;
 
-    --color-border: #1f2124;
-    --color-input: #2a2c30;
-    --color-ring: #f2f2f3;
+    --color-border: #362b1f;
+    --color-input: #40331f;
+    --color-ring: #ec7139;
 
-    --color-sidebar: #0b0c0d;
-    --color-sidebar-foreground: #ededf0;
-    --color-sidebar-accent: #1a1b1f;
-    --color-sidebar-accent-foreground: #ffffff;
-    --color-sidebar-border: #1f2124;
+    --color-sidebar: #14100d;
+    --color-sidebar-foreground: #f1e9d8;
+    --color-sidebar-accent: #241d15;
+    --color-sidebar-accent-foreground: #f8f1e3;
+    --color-sidebar-border: #362b1f;
 
-    --focus-ring: #f2f2f3;
-    --focus-ring-offset: #08090a;
+    --focus-ring: #ec7139;
+    --focus-ring-offset: #171310;
 
-    --rule: #1f2124;
-    --rule-strong: #2a2c30;
+    --rule: #362b1f;
+    --rule-strong: #40331f;
 
-    --color-chart-1: #f2f2f3;
-    --color-chart-2: #b9b9bf;
-    --color-chart-3: #92939a;
-    --color-chart-4: #6f7077;
-    --color-chart-5: #4b4c52;
+    --color-chart-1: #ec7139;
+    --color-chart-2: #f1e9d8;
+    --color-chart-3: #a89a80;
+    --color-chart-4: #766a53;
+    --color-chart-5: #4a4130;
 
     --shadow-subtle: 0 1px 0 0 rgb(0 0 0 / 0.5);
-    --shadow-raised: 0 1px 2px 0 rgb(0 0 0 / 0.6);
-    --shadow-overlay: 0 16px 40px -12px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(255 255 255 / 0.07);
+    --shadow-raised: 0 8px 20px -8px rgb(0 0 0 / 0.65);
+    --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(241 233 216 / 0.06);
 
     --popover: var(--color-popover);
     --popover-foreground: var(--color-popover-foreground);
@@ -233,32 +220,30 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    /*
-     * Mono at UI sizes needs a fraction less tracking to stop lines of
-     * labels running long, and tabular figures everywhere so no number
-     * in the product shifts its neighbours as it updates.
-     */
-    letter-spacing: 0;
+    font-family: var(--font-sans);
     font-variant-numeric: tabular-nums;
-    font-feature-settings: "ss01", "zero";
     text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
   }
 
   /* Long-form reading: legal pages, marketing prose. */
   .prose-sans,
   .prose-sans p,
   .prose-sans li {
-    font-family: var(--font-prose);
-    letter-spacing: 0;
+    font-family: var(--font-sans);
   }
 
   .tabular,
   [data-numeric] {
     font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--color-brand) 22%, transparent);
+    background: color-mix(in srgb, var(--color-brand) 30%, transparent);
   }
 
   ::-webkit-scrollbar {
@@ -269,13 +254,13 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: color-mix(in srgb, var(--color-muted-foreground) 30%, transparent);
-    border-radius: 0;
+    background: color-mix(in srgb, var(--color-muted-foreground) 35%, transparent);
+    border-radius: 99px;
     border: 3px solid transparent;
     background-clip: content-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--color-muted-foreground) 55%, transparent);
+    background: color-mix(in srgb, var(--color-brand) 55%, transparent);
     background-clip: content-box;
   }
 
@@ -305,7 +290,7 @@
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -320,6 +305,18 @@
   }
   50%,
   100% {
+    opacity: 0;
+  }
+}
+
+@keyframes signal-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  70%,
+  100% {
+    transform: scale(1.6);
     opacity: 0;
   }
 }
@@ -377,13 +374,23 @@
 
   /* ─── Surfaces ──────────────────────────────────────────── */
 
-  /* The one panel style. Hairline border, near-square, no shadow. */
+  /* The one panel style. Hairline border, soft corner, no shadow. */
   .surface {
-    @apply rounded-md border border-border bg-card;
+    @apply rounded-lg border border-border bg-card;
   }
 
   .well {
-    @apply rounded-md border border-border bg-subtle;
+    @apply rounded-lg border border-border bg-subtle;
+  }
+
+  /*
+   * Ink band: a dark paper punctuation against the light sections. Apply
+   * `.dark` alongside this so the theme tokens repaint for this subtree
+   * regardless of the site-wide light/dark setting — the same mechanism
+   * the real theme toggle uses, scoped to one section instead of <html>.
+   */
+  .ink-band {
+    @apply bg-background text-foreground;
   }
 
   /*
@@ -408,20 +415,16 @@
   }
 
   /* ─── Typography ────────────────────────────────────────── */
-  /*
-   * Mono weights sit visually close together, so hierarchy comes from
-   * size and tracking rather than from weight alone.
-   */
   .h1 {
-    @apply text-[28px] font-semibold leading-[1.05] tracking-[-0.045em] text-foreground sm:text-[36px];
+    @apply font-display text-[36px] font-semibold leading-[0.98] tracking-[-0.03em] text-foreground sm:text-[46px];
   }
 
   .h2 {
-    @apply text-lg font-semibold leading-snug tracking-[-0.025em] text-foreground;
+    @apply font-display text-xl font-semibold leading-[1.05] tracking-[-0.02em] text-foreground;
   }
 
   .h3 {
-    @apply text-sm font-semibold tracking-[-0.01em] text-foreground;
+    @apply font-display text-base font-semibold tracking-[-0.01em] text-foreground;
   }
 
   .lede {
@@ -429,11 +432,10 @@
   }
 
   /*
-   * The signature micro-label: uppercase, wide-tracked, small. This is
-   * what carries the technical register across the whole product —
-   * table headers, stat labels, sidebar groups, field labels.
+   * The signature micro-label: uppercase, wide-tracked, small, mono.
+   * Reserved for table headers, stat labels, sidebar groups and field
+   * labels — never stacked above a heading as a kicker.
    */
-  .eyebrow,
   .mono-label {
     @apply font-mono text-[10px] font-medium uppercase leading-none tracking-[0.14em] text-muted-foreground;
   }
@@ -451,7 +453,7 @@
 
   /* Inline code / short-link token. */
   .code-chip {
-    @apply inline-flex items-center rounded-sm border border-border bg-subtle px-1.5 py-0.5 text-[12px] text-foreground;
+    @apply inline-flex items-center rounded-md border border-border bg-subtle px-1.5 py-0.5 font-mono text-[12px] text-foreground;
   }
 
   /* Terminal-style prompt marker, e.g. before a short URL. */
@@ -471,9 +473,31 @@
     @apply text-brand underline-offset-4 hover:underline;
   }
 
+  /* ─── Signal-ring motif ─────────────────────────────────────
+   * Concentric radiating arcs — the product's stand-in for a rising
+   * sun: a link broadcasting outward. Pure SVG/CSS, never a raster,
+   * so it themes with the palette and never blurs at any size.
+   */
+  .signal-dot {
+    position: relative;
+  }
+  .signal-dot::before,
+  .signal-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 1px solid var(--color-brand);
+    opacity: 0;
+    animation: signal-pulse 2.4s ease-out infinite;
+  }
+  .signal-dot::after {
+    animation-delay: 0.9s;
+  }
+
   /* ─── Animation helpers ─────────────────────────────────── */
   .animate-rise {
-    animation: rise-in 0.25s ease-out both;
+    animation: rise-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   /* ─── Screen-reader only ────────────────────────────────── */

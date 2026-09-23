@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import Link from "next/link"
 import { BarChart3, Link2, Lock, QrCode } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { SignalMotif } from "@/components/marketing/signal-motif"
 
 /**
  * Shared frame for every authentication screen.
@@ -39,16 +40,16 @@ export function AuthShell({
         <div className="mx-auto w-full max-w-sm">
           <Link
             href="/"
-            className="mb-10 flex items-center gap-2.5 text-[15px] font-semibold tracking-[-0.02em]"
+            className="mb-10 flex items-center gap-2.5 font-display text-[15px] font-bold tracking-[-0.02em]"
           >
-            <span className="flex size-7 items-center justify-center rounded-sm bg-primary text-primary-foreground">
+            <span className="flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
               <Link2 className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
             </span>
             Cuttly
           </Link>
 
           <div className="mb-8 space-y-1.5">
-            <h1 className="text-[30px] font-semibold leading-tight tracking-[-0.045em]">{title}</h1>
+            <h1 className="font-display text-[30px] font-semibold leading-tight tracking-[-0.02em]">{title}</h1>
             {description ? (
               <p className="text-[15px] leading-7 text-muted-foreground">{description}</p>
             ) : null}
@@ -61,10 +62,13 @@ export function AuthShell({
       </main>
 
       {/* Decorative side panel — hidden rather than stacked on small screens,
-          where it would push the actual form below the fold. */}
-      <aside className="grid-field hidden border-l border-border bg-subtle lg:flex lg:flex-col lg:justify-center lg:px-12">
-        <div className="max-w-md">
-          <h2 className="text-xl font-semibold tracking-[-0.03em]">
+          where it would push the actual form below the fold. Always the ink
+          theme, regardless of the site-wide light/dark setting, so the form
+          panel and the statement panel read as day and night. */}
+      <aside className="ink-band dark relative hidden overflow-hidden border-l border-border lg:flex lg:flex-col lg:justify-center lg:px-12">
+        <SignalMotif className="pointer-events-none absolute -right-40 top-1/2 h-[520px] w-[520px] -translate-y-1/2 text-foreground/[0.06]" />
+        <div className="relative max-w-md">
+          <h2 className="font-display text-2xl font-semibold tracking-[-0.02em]">
             Links that keep working, and tell you what happened.
           </h2>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
@@ -77,7 +81,7 @@ export function AuthShell({
               <li key={item.text} className="flex items-center gap-3 text-[13px]">
                 <span
                   aria-hidden="true"
-                  className="flex size-8 shrink-0 items-center justify-center rounded-sm border border-border bg-card text-muted-foreground"
+                  className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-card text-brand"
                 >
                   <item.icon className="size-4" />
                 </span>

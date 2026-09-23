@@ -91,7 +91,11 @@ export function HeroShortenForm() {
 
   return (
     <div className="w-full max-w-xl space-y-2">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row" noValidate>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-2 rounded-full border border-border bg-card p-1.5 shadow-[0_8px_28px_-14px_rgb(28_23_18_/_0.35)] sm:flex-row sm:items-center"
+        noValidate
+      >
         <label htmlFor="hero-url" className="sr-only">
           URL to shorten
         </label>
@@ -104,9 +108,9 @@ export function HeroShortenForm() {
           autoComplete="url"
           aria-invalid={Boolean(error)}
           aria-describedby={error ? "hero-url-error" : undefined}
-          className="h-12 flex-1 text-base sm:text-sm"
+          className="h-11 flex-1 rounded-full border-none bg-transparent px-4 text-base shadow-none focus-visible:ring-0 sm:text-sm"
         />
-        <Button type="submit" size="lg" className="h-12 shrink-0" disabled={isPending}>
+        <Button type="submit" size="lg" className="h-11 shrink-0" disabled={isPending}>
           {isPending ? (
             <>
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />

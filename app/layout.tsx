@@ -1,18 +1,27 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Bricolage_Grotesque, Inter, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+// Display face: carries every headline and control label. Chosen for its
+// condensed, high-contrast grotesk character — the poster weight a system
+// sans can't reach — self-hosted rather than left to a platform default.
+const display = Bricolage_Grotesque({
+  variable: '--font-display',
   subsets: ['latin'],
   display: 'swap',
 })
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const sans = Inter({
+  variable: '--font-sans',
+  subsets: ['latin'],
+  display: 'swap',
+})
+
+const mono = JetBrains_Mono({
+  variable: '--font-mono',
   subsets: ['latin'],
   display: 'swap',
 })
@@ -42,8 +51,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   // Matches the light/dark canvas so mobile browser chrome doesn't flash.
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#09090b' },
+    { media: '(prefers-color-scheme: light)', color: '#f3ecdd' },
+    { media: '(prefers-color-scheme: dark)', color: '#171310' },
   ],
 }
 
@@ -56,7 +65,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${display.variable} ${sans.variable} ${mono.variable}`}
     >
       <body className="min-h-screen bg-background font-sans antialiased">
         <ThemeProvider

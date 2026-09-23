@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Loader2, LayoutTemplate, SlidersHorizontal } from "lucide-react"
+import { ArrowLeft, Loader2, SlidersHorizontal } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -69,10 +69,6 @@ export default function NewBioPage() {
           </Link>
         </Button>
         <div>
-          <div className="eyebrow mb-3">
-            <LayoutTemplate className="size-3.5" />
-            New profile page
-          </div>
           <h1 className="h1">Create a bio page</h1>
           <p className="lede">Use this when one short link should open a page of many destinations.</p>
         </div>

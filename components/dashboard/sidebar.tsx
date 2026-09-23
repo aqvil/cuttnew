@@ -90,11 +90,11 @@ export function DashboardSidebar({ user, profile }: DashboardSidebarProps) {
           className="flex items-center gap-2.5 rounded-md"
           aria-label="Cuttly dashboard"
         >
-          <span className="flex size-7 shrink-0 items-center justify-center rounded-sm bg-primary text-primary-foreground">
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <Link2 className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
           </span>
           <span className="flex items-baseline gap-1.5 group-data-[collapsible=icon]:hidden">
-            <span className="text-[15px] font-semibold tracking-[-0.02em]">
+            <span className="font-display text-[15px] font-bold tracking-[-0.02em]">
               Cuttly
             </span>
             {/* Build channel, in the register of a status line. */}
@@ -258,7 +258,7 @@ function NavItem({
           "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
           // The active marker is a rule flush against the rail edge, the same
           // 2px vocabulary as the active tab.
-          "data-[active=true]:before:absolute data-[active=true]:before:-left-3 data-[active=true]:before:top-1 data-[active=true]:before:bottom-1 data-[active=true]:before:w-[2px] data-[active=true]:before:bg-foreground",
+          "data-[active=true]:before:absolute data-[active=true]:before:-left-3 data-[active=true]:before:top-1 data-[active=true]:before:bottom-1 data-[active=true]:before:w-[2px] data-[active=true]:before:rounded-full data-[active=true]:before:bg-brand",
         )}
       >
         <Link href={item.url} aria-current={active ? "page" : undefined}>

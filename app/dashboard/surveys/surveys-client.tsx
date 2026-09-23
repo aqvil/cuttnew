@@ -111,11 +111,10 @@ export function SurveysClient({ initialSurveys }: SurveysClientProps) {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
-          <div className="eyebrow mb-2">Surveys & Polls</div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          <h1 className="h1 text-2xl sm:text-3xl">
             Surveys & Feedback Studio
           </h1>
-          <p className="text-xs text-muted-foreground mt-1 max-w-xl font-mono">
+          <p className="mt-1.5 max-w-xl text-[13px] text-muted-foreground">
             Build up to 50 custom surveys and collect up to 5,000 responses with real-time analytics.
           </p>
         </div>

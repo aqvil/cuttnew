@@ -21,7 +21,7 @@ export function LegalPage({
 
       <main className="flex-1">
         <article className="mx-auto max-w-[68ch] px-5 py-20 sm:px-6">
-          <h1 className="text-[30px] font-semibold tracking-[-0.045em]">{title}</h1>
+          <h1 className="font-display text-[30px] font-semibold tracking-[-0.02em]">{title}</h1>
           <p className="mono-label mt-4">Last updated {updated}</p>
 
           <div

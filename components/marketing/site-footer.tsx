@@ -33,16 +33,16 @@ const GROUPS = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border">
+    <footer className="ink-band dark border-t border-border">
       <div className="mx-auto max-w-6xl px-5 py-14 sm:px-6">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-3">
             <Link
               href="/"
-              className="flex items-center gap-2.5 text-[14px] font-semibold tracking-[-0.02em]"
+              className="flex items-center gap-2.5 font-display text-[15px] font-bold tracking-[-0.02em]"
             >
-              <span className="flex size-6 items-center justify-center rounded-sm bg-primary text-primary-foreground">
-                <Link2 className="size-3" strokeWidth={2.5} aria-hidden="true" />
+              <span className="flex size-7 items-center justify-center rounded-full bg-brand text-brand-foreground">
+                <Link2 className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
               </span>
               Cuttly
             </Link>
@@ -53,7 +53,7 @@ export function SiteFooter() {
 
           {GROUPS.map((group) => (
             <nav key={group.heading} aria-label={group.heading}>
-              <h2 className="eyebrow mb-4">{group.heading}</h2>
+              <h2 className="mono-label mb-4">{group.heading}</h2>
               <ul className="space-y-2.5">
                 {group.links.map((link) => (
                   <li key={link.href}>

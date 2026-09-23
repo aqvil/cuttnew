@@ -12,12 +12,12 @@ import { cn } from '@/lib/utils'
  * saturated block of colour there pulls the eye away from the numbers.
  */
 const badgeVariants = cva(
-  'inline-flex items-center justify-center rounded-sm border px-1.5 py-0.5 text-[10px] font-medium uppercase leading-none tracking-[0.1em] w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none aria-invalid:border-destructive transition-colors overflow-hidden',
+  'inline-flex items-center justify-center rounded-full border px-2 py-0.5 font-mono text-[10px] font-medium uppercase leading-none tracking-[0.1em] w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none aria-invalid:border-destructive transition-colors overflow-hidden',
   {
     variants: {
       variant: {
         default:
-          'border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/88',
+          'border-transparent bg-brand text-brand-foreground [a&]:hover:bg-brand/88',
         secondary:
           'border-border bg-subtle text-muted-foreground [a&]:hover:text-foreground',
         destructive:

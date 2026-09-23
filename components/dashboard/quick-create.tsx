@@ -91,9 +91,8 @@ export function QuickCreate({ appOrigin }: { appOrigin: string }) {
       <div className="pointer-events-none absolute inset-y-0 right-0 w-1/3 opacity-60 [background-image:linear-gradient(135deg,transparent_0%,var(--color-brand-subtle)_100%)]" />
       <form onSubmit={handleSubmit} noValidate>
         <div className="relative">
-          <p className="eyebrow">Start here</p>
-          <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] sm:text-2xl">Shorten a link</h2>
-          <p className="mt-1 max-w-xl text-sm text-muted-foreground">Paste a long URL and get a shareable link in seconds. You can add a custom alias, password, or expiry afterward.</p>
+          <h2 className="h2 text-xl sm:text-2xl">Shorten a link</h2>
+          <p className="mt-1.5 max-w-xl text-sm text-muted-foreground">Paste a long URL and get a shareable link in seconds. You can add a custom alias, password, or expiry afterward.</p>
         </div>
 
         <div className="relative mt-6 flex flex-col gap-2 sm:flex-row">
