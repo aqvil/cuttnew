@@ -65,7 +65,7 @@ export default function NewBioPage() {
   }
 
   return (
-    <div className="page-narrow">
+    <div className="page">
       <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4 text-muted-foreground">
         <Link href="/dashboard/bio">
           <ArrowLeft className="size-4" aria-hidden="true" />
@@ -78,8 +78,8 @@ export default function NewBioPage() {
         <p className="lede mt-2">Use this when one short link should open a page of many destinations.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
-         <div className="lg:col-span-2 space-y-6">
+      <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[1fr_320px]">
+         <div className="max-w-xl space-y-6">
             <div className="surface p-6 sm:p-8">
                <div className="mb-6">
                   <h2 className="h3">Page identity</h2>

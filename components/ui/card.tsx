@@ -5,17 +5,17 @@ import { cn } from '@/lib/utils'
 /**
  * A panel, not a card.
  *
- * Hairline border, near-square corners, no shadow — depth comes from the
- * card sitting a shade lighter than the page, not from a drop shadow. The
- * header is separated by a rule rather than by whitespace alone, which is
- * what gives the instrument-panel feel.
+ * Hairline border, soft corner, and a real raised shadow — depth comes from
+ * the card sitting a shade lighter than the page *and* lifting off it, not
+ * from the border alone. The header is separated by a rule rather than by
+ * whitespace alone, which is what gives the instrument-panel feel.
  */
 function Card({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card"
       className={cn(
-        'bg-card text-card-foreground flex flex-col rounded-lg border border-border',
+        'bg-card text-card-foreground flex flex-col rounded-lg border border-border shadow-[var(--shadow-raised)]',
         // Whatever follows the header is separated by a hairline rather than
         // by whitespace, so every panel reads as header + body.
         '[&>[data-slot=card-header]+*]:border-t [&>[data-slot=card-header]+*]:border-border',

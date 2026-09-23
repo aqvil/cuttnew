@@ -148,27 +148,27 @@
   .dark {
     /* Ink ground. Not pure black — a warm near-black so the paper hue
        still reads as the same material, just lit differently. */
-    --color-background: #171310;
+    --color-background: #120e0b;
     --color-foreground: #f1e9d8;
 
-    --color-card: #1d1812;
+    --color-card: #241c14;
     --color-card-foreground: #f1e9d8;
 
-    --color-popover: #221b14;
+    --color-popover: #2b2117;
     --color-popover-foreground: #f1e9d8;
 
-    --color-subtle: #221b14;
+    --color-subtle: #1a140e;
 
     --color-primary: #f1e9d8;
     --color-primary-foreground: #171310;
 
-    --color-secondary: #2a2118;
+    --color-secondary: #322718;
     --color-secondary-foreground: #f1e9d8;
 
-    --color-muted: #2a2118;
-    --color-muted-foreground: #a89a80;
+    --color-muted: #2c2317;
+    --color-muted-foreground: #ac9d80;
 
-    --color-accent: #2a2118;
+    --color-accent: #322718;
     --color-accent-foreground: #f1e9d8;
 
     --color-brand: #ec7139;
@@ -374,9 +374,11 @@
 
   /* ─── Surfaces ──────────────────────────────────────────── */
 
-  /* The one panel style. Hairline border, soft corner, no shadow. */
+  /* The one panel style: hairline border, soft corner, and a real raised
+   * shadow so it lifts off the page rather than leaning on the border
+   * alone to read as a separate surface. */
   .surface {
-    @apply rounded-lg border border-border bg-card;
+    @apply rounded-lg border border-border bg-card shadow-[var(--shadow-raised)];
   }
 
   .well {
