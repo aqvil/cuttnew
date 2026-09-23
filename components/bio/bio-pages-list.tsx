@@ -24,7 +24,6 @@ import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/app/empty-state"
 import { DeleteBioPageItem } from "@/components/bio/delete-bio-page-item"
 import { formatDate, fullNumber } from "@/lib/format"
-import { cn } from "@/lib/utils"
 
 interface BioPageRow {
   id: string
@@ -103,13 +102,8 @@ export function BioPagesList({ pages, appUrl }: { pages: BioPageRow[]; appUrl: s
                       {page.title || "Untitled page"}
                     </Link>
                     <Badge
-                      variant="outline"
-                      className={cn(
-                        "h-5 text-[11px]",
-                        page.isPublished
-                          ? "border-success/30 bg-success/10 text-success"
-                          : "border-border bg-muted text-muted-foreground"
-                      )}
+                      variant={page.isPublished ? "success" : "secondary"}
+                      className="h-5"
                     >
                       {page.isPublished ? "Published" : "Draft"}
                     </Badge>

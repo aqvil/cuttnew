@@ -21,6 +21,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { CopyButton } from "@/components/app/copy-button"
+import { EmptyState } from "@/components/app/empty-state"
 import { Stat, StatRow, percentChange } from "@/components/app/stat"
 import { RangeSelector } from "@/components/analytics/range-selector"
 import { AnalyticsBreakdowns, ClicksOverTime } from "@/components/analytics/analytics-panels"
@@ -70,12 +71,12 @@ export function LinkDetail({ link, summary, range, appOrigin, qrCodes }: LinkDet
     (link.maxClicks != null && (link.clickCount ?? 0) >= link.maxClicks)
 
   const status = link.archivedAt
-    ? { label: "Archived", tone: "border-border bg-muted text-muted-foreground" }
+    ? { label: "Archived", variant: "secondary" as const }
     : link.isActive === false
-      ? { label: "Paused", tone: "border-border bg-muted text-muted-foreground" }
+      ? { label: "Paused", variant: "secondary" as const }
       : isExpired
-        ? { label: "Expired", tone: "border-warning/30 bg-warning/10 text-warning" }
-        : { label: "Active", tone: "border-success/30 bg-success/10 text-success" }
+        ? { label: "Expired", variant: "warning" as const }
+        : { label: "Active", variant: "success" as const }
 
   const trend = percentChange(summary.totalClicks, summary.previousClicks)
 
@@ -104,7 +105,7 @@ export function LinkDetail({ link, summary, range, appOrigin, qrCodes }: LinkDet
         <div className="min-w-0 space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="h1 truncate">{link.title || displayShortUrl}</h1>
-            <Badge variant="outline" className={cn("h-6", status.tone)}>
+            <Badge variant={status.variant} className="h-6">
               {status.label}
             </Badge>
             {link.hasPassword ? (
@@ -251,25 +252,19 @@ export function LinkDetail({ link, summary, range, appOrigin, qrCodes }: LinkDet
 
         <TabsContent value="qr" className="space-y-4">
           {qrCodes.length === 0 ? (
-            <div className="flex flex-col items-center rounded-lg border border-dashed border-border px-6 py-16 text-center">
-              <div
-                aria-hidden="true"
-                className="mb-4 flex size-10 items-center justify-center rounded-lg border border-border bg-subtle text-muted-foreground"
-              >
-                <QrCode className="size-4" />
-              </div>
-              <h3 className="text-sm font-semibold">No QR code for this link yet</h3>
-              <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-                Generate one for print, packaging or signage. Scans are counted separately from
-                clicks, so you can tell the two apart.
-              </p>
-              <Button asChild className="mt-6">
-                <Link href={`/dashboard/qr-codes/new?link=${link.id}`}>
-                  <Plus className="size-4" aria-hidden="true" />
-                  Create QR code
-                </Link>
-              </Button>
-            </div>
+            <EmptyState
+              icon={QrCode}
+              title="No QR code for this link yet"
+              description="Generate one for print, packaging or signage. Scans are counted separately from clicks, so you can tell the two apart."
+              action={
+                <Button asChild>
+                  <Link href={`/dashboard/qr-codes/new?link=${link.id}`}>
+                    <Plus className="size-4" aria-hidden="true" />
+                    Create QR code
+                  </Link>
+                </Button>
+              }
+            />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {qrCodes.map((code) => (

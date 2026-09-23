@@ -34,13 +34,16 @@ export function SettingsNav() {
                 href={section.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-2.5 rounded-sm px-3 py-2 text-[11px] font-medium uppercase tracking-[0.1em] transition-colors",
+                  "flex items-center gap-2.5 rounded-md border-b-2 px-3 py-2 text-[11px] font-medium uppercase tracking-[0.1em] transition-colors lg:border-b-0 lg:border-l-2",
                   active
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground hover:bg-subtle hover:text-foreground"
+                    ? "border-brand bg-subtle text-foreground"
+                    : "border-transparent text-muted-foreground hover:bg-subtle hover:text-foreground"
                 )}
               >
-                <section.icon className="size-4 shrink-0" aria-hidden="true" />
+                <section.icon
+                  className={cn("size-4 shrink-0", active && "text-brand")}
+                  aria-hidden="true"
+                />
                 {section.label}
               </Link>
             </li>

@@ -42,7 +42,7 @@ export function RangeSelector({ value }: { value: AnalyticsRange }) {
       role="group"
       aria-label="Select time range"
       className={cn(
-        "inline-flex items-center rounded-sm border border-border bg-subtle p-0.5",
+        "inline-flex items-center rounded-full border border-border bg-subtle p-0.5",
         isPending && "opacity-70"
       )}
     >
@@ -56,9 +56,9 @@ export function RangeSelector({ value }: { value: AnalyticsRange }) {
             aria-pressed={active}
             title={RANGE_LABELS[range]}
             className={cn(
-              "rounded-[2px] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] transition-colors",
+              "rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] transition-colors",
               active
-                ? "border border-border bg-card text-foreground"
+                ? "border border-border bg-card text-foreground shadow-sm"
                 : "border border-transparent text-muted-foreground hover:text-foreground"
             )}
           >

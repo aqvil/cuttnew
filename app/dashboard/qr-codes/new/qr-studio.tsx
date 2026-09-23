@@ -165,7 +165,7 @@ export function QrStudio({
         </div>
 
         <fieldset className="space-y-4">
-          <legend className="mb-1 text-sm font-semibold">Appearance</legend>
+          <legend className="h3 mb-1">Appearance</legend>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <ColorField
@@ -271,7 +271,7 @@ export function QrStudio({
 
       <aside className="lg:sticky lg:top-24 lg:self-start">
         <div className="space-y-3 rounded-lg border border-border bg-card p-4">
-          <p className="text-sm font-semibold">Preview</p>
+          <h3 className="h3">Preview</h3>
           <QrPreview
             value={previewUrl}
             size={200}

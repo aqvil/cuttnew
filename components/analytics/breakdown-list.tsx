@@ -46,12 +46,12 @@ export function BreakdownList({
               </span>
             </div>
             <div
-              className="h-1 overflow-hidden rounded-none bg-muted"
+              className="h-1.5 overflow-hidden rounded-full bg-muted"
               role="img"
               aria-label={`${item.label}: ${item.value} of ${total}, ${share.toFixed(0)} percent`}
             >
               <div
-                className="h-full bg-chart-1"
+                className="h-full rounded-full bg-chart-1"
                 style={{ width: `${(item.value / largest) * 100}%` }}
               />
             </div>

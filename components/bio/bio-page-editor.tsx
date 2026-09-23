@@ -90,10 +90,10 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
         slug: page.slug
       })
       await saveBioBlocks(page.id, blocks)
-      toast.success("Design published successfully")
+      toast.success(isPublished ? "Changes saved and live" : "Changes saved as draft")
       router.refresh()
     } catch (error) {
-      toast.error("Failed to publish design")
+      toast.error("Couldn't save your changes. Please try again.")
     } finally {
       setIsSaving(false)
     }
@@ -171,11 +171,11 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
              />
           </div>
           
-          <Button onClick={handleSave} disabled={isSaving} className="">
+          <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? (
                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
-            Publish changes
+            {isSaving ? "Saving…" : "Save changes"}
           </Button>
         </div>
       </div>
@@ -194,7 +194,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                 <TabsTrigger 
                   key={tab.id} 
                   value={tab.id}
-                  className="h-10 px-4 bg-transparent border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-primary rounded-none font-semibold text-sm transition-all text-muted-foreground"
+                  className="h-10 px-4 bg-transparent border-b-2 border-transparent data-[state=active]:border-brand data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground rounded-none font-semibold text-sm transition-all text-muted-foreground hover:text-foreground"
                 >
                   <tab.icon className="mr-2 h-4 w-4" />
                   {tab.label}
@@ -233,8 +233,11 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                 <div className="mt-8 space-y-4">
                   {blocks.length === 0 ? (
                     <div className="flex flex-col items-center rounded-lg border border-dashed border-border px-6 py-16 text-center">
-                      <p className="text-sm font-medium text-muted-foreground">You don't have any links yet.</p>
-                      <p className="text-sm text-muted-foreground mt-1">Add your first link to get started.</p>
+                      <div className="mb-3 flex size-10 items-center justify-center rounded-full border border-border bg-subtle text-brand">
+                        <LinkIcon className="size-4" aria-hidden="true" />
+                      </div>
+                      <p className="text-sm font-medium text-foreground">You don't have any links yet</p>
+                      <p className="mt-1 text-sm text-muted-foreground">Add your first link or block to get started.</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -295,10 +298,10 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                     <button
                       key={style.id}
                       onClick={() => setTheme({ ...theme, style: style.id })}
-                      className={`h-14 px-4 text-sm font-bold transition-all rounded-sm border ${
+                      className={`h-14 px-4 text-sm font-semibold transition-colors rounded-lg border ${
                         theme.style === style.id
-                          ? "bg-foreground text-background border-foreground"
-                          : "bg-background text-muted-foreground border-border hover:text-foreground"
+                          ? "border-brand bg-brand/10 text-foreground"
+                          : "bg-background text-muted-foreground border-border hover:border-foreground/30 hover:text-foreground"
                       }`}
                     >
                       {style.label}
@@ -344,7 +347,7 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
            {/* Phone Frame */}
            <div className="relative w-[340px] h-[720px] rounded-[1.5rem] border-8 border-foreground shadow-2xl shadow-foreground/20 overflow-hidden bg-card shrink-0">
              <div className="absolute top-0 inset-x-0 h-6 bg-foreground rounded-b-3xl w-40 mx-auto z-50 flex items-center justify-center">
-                 <div className="h-2 w-12 bg-background/30 rounded-sm"></div>
+                 <div className="h-2 w-12 bg-background/30 rounded-full"></div>
              </div>
              <BioPreview
                title={title}

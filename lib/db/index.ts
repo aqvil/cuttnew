@@ -187,6 +187,16 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Present in lib/db/schema.ts (systemSettings) but missing from this
+-- bootstrap, which is why the admin settings page failed with
+-- `relation "system_settings" does not exist`.
+CREATE TABLE IF NOT EXISTS system_settings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  key TEXT UNIQUE NOT NULL,
+  value JSONB NOT NULL,
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
 -- Indexes. Without these the links list and every analytics aggregate is a
 -- sequential scan over the whole table.
 CREATE INDEX IF NOT EXISTS short_links_user_created_idx ON short_links (user_id, created_at DESC);

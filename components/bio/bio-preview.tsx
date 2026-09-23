@@ -134,7 +134,7 @@ function PreviewBlock({
           href={content.url || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between rounded-sm p-3 transition-transform hover:scale-[1.02]"
+          className="flex items-center justify-between rounded-xl p-3 shadow-sm transition-transform hover:scale-[1.02]"
           style={buttonStyle}
         >
           <span className="font-medium">{content.title || "Link"}</span>
@@ -180,7 +180,7 @@ function PreviewBlock({
           href={content.url || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center rounded-sm p-3 transition-transform hover:scale-[1.02]"
+          className="flex items-center justify-center rounded-xl p-3 shadow-sm transition-transform hover:scale-[1.02]"
           style={buttonStyle}
         >
           <Icon className="h-5 w-5" />
@@ -192,8 +192,8 @@ function PreviewBlock({
     case "email-capture": {
       const content = block.content as EmailCaptureBlockContent
       return (
-        <div className="rounded-sm p-4" style={{ backgroundColor: `${theme.accent}10` }}>
-          <p 
+        <div className="rounded-xl p-4" style={{ backgroundColor: `${theme.accent}10` }}>
+          <p
             className="text-sm font-medium text-center mb-3"
             style={{ color: theme.text }}
           >
@@ -203,11 +203,11 @@ function PreviewBlock({
             <input
               type="email"
               placeholder={content.placeholder || "Enter your email"}
-              className="flex-1 rounded-sm px-3 py-2 text-sm border"
+              className="flex-1 rounded-lg px-3 py-2 text-sm border"
               style={{ backgroundColor: theme.background, color: theme.text }}
             />
             <button
-              className="rounded-sm px-4 py-2 text-sm font-medium"
+              className="rounded-lg px-4 py-2 text-sm font-medium"
               style={buttonStyle}
             >
               {content.button_text || "Subscribe"}
