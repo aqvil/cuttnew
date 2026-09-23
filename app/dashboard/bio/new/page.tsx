@@ -7,9 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Loader2, SlidersHorizontal } from "lucide-react"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { PhoneFrame } from "@/components/bio/phone-frame"
+import { BioPreview } from "@/components/bio/bio-preview"
+
+const DEFAULT_THEME = { background: "#f3ecdd", text: "#1c1712", accent: "#d4501e", style: "minimal" as const }
 
 export default function NewBioPage() {
   const [title, setTitle] = useState("")
@@ -78,7 +82,7 @@ export default function NewBioPage() {
          <div className="lg:col-span-2 space-y-6">
             <div className="surface p-6 sm:p-8">
                <div className="mb-6">
-                  <h2 className="h3">1. Page identity</h2>
+                  <h2 className="h3">Page identity</h2>
                   <p className="mt-1 text-sm text-muted-foreground">Name the page and reserve the public URL. Links and design come next.</p>
                </div>
                <div className="space-y-6">
@@ -132,17 +136,23 @@ export default function NewBioPage() {
          </div>
 
          <div className="lg:col-span-1">
-            <div className="sticky top-24">
-               <div className="surface p-6">
-                  <div className="mb-4 flex items-center gap-3 text-sm font-semibold text-muted-foreground">
-                    <SlidersHorizontal className="size-4" />
-                     2. Create page
-                  </div>
-                  <Button type="submit" disabled={isLoading} className="w-full h-12 text-base">
+            <div className="sticky top-24 flex flex-col items-center">
+               <p className="mono-label mb-5">Preview</p>
+               <PhoneFrame>
+                 <BioPreview
+                   title={title}
+                   description={description}
+                   blocks={[]}
+                   theme={DEFAULT_THEME}
+                 />
+               </PhoneFrame>
+
+               <div className="mt-8 w-full max-w-[300px] space-y-2">
+                  <Button type="submit" disabled={isLoading} className="w-full h-11">
                      {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                      Create bio page
                   </Button>
-                  <Button type="button" variant="ghost" className="w-full mt-2 text-muted-foreground" asChild>
+                  <Button type="button" variant="ghost" className="w-full text-muted-foreground" asChild>
                      <Link href="/dashboard/bio">Cancel</Link>
                   </Button>
                </div>

@@ -31,6 +31,9 @@ import { QrCodeCard } from "@/components/ui/qr-code-card"
 import { BioBlockItem } from "./bio-block-item"
 import { BioPreview } from "./bio-preview"
 import { AddBlockDialog } from "./add-block-dialog"
+import { PhoneFrame } from "./phone-frame"
+import { ColorSwatchInput } from "./color-swatch-input"
+import { CardStylePicker } from "./card-style-picker"
 import { toast } from "sonner"
 
 interface BioPageEditorProps {
@@ -77,6 +80,8 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
   const [showAddBlock, setShowAddBlock] = useState(false)
   const [activeTab, setActiveTab] = useState("editor")
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false)
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [overIndex, setOverIndex] = useState<number | null>(null)
   const router = useRouter()
 
   const handleSave = async () => {
@@ -140,40 +145,42 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col bg-background overflow-hidden font-sans">
       {/* Editor Header */}
-      <div className="shrink-0 flex items-center justify-between border-b border-border px-4 sm:px-6 py-4 bg-card/90 backdrop-blur-xl z-10">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:bg-muted" asChild>
+      <div className="shrink-0 flex items-center justify-between gap-4 border-b border-border px-4 sm:px-6 py-3.5 bg-card/90 backdrop-blur-xl z-10">
+        <div className="flex min-w-0 items-center gap-3">
+          <Button variant="ghost" size="icon" className="size-9 shrink-0 text-muted-foreground" asChild>
             <Link href="/dashboard/bio">
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
-          <div>
-            <h1 className="text-xl font-semibold text-foreground leading-none">{title || "Untitled bio page"}</h1>
-            <a href={`${process.env.NEXT_PUBLIC_APP_URL}/p/${page.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm text-brand hover:underline mt-1 inline-flex items-center gap-1 font-mono">
+          <div className="min-w-0">
+            <h1 className="font-display truncate text-base font-semibold leading-none text-foreground">{title || "Untitled bio page"}</h1>
+            <a href={`${process.env.NEXT_PUBLIC_APP_URL}/p/${page.slug}`} target="_blank" rel="noopener noreferrer" className="mt-1.5 inline-flex items-center gap-1 truncate font-mono text-[12px] text-muted-foreground hover:text-brand">
                {(process.env.NEXT_PUBLIC_APP_URL || "").replace(/^https?:\/\//, "") || "cuttly.io"}/p/{page.slug}
             </a>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex shrink-0 items-center gap-3">
            {/* Mobile Preview Toggle (visible only on small screens) */}
-           <Button variant="secondary" className="md:hidden" onClick={() => setMobilePreviewOpen(!mobilePreviewOpen)}>
-              {mobilePreviewOpen ? <ArrowLeft className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+           <Button variant="secondary" size="sm" className="md:hidden" onClick={() => setMobilePreviewOpen(!mobilePreviewOpen)}>
+              {mobilePreviewOpen ? <ArrowLeft className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               {mobilePreviewOpen ? "Editor" : "Preview"}
            </Button>
 
-          <div className="hidden sm:flex items-center gap-3 border border-border px-4 h-10 rounded-md bg-background">
-             <Label htmlFor="publish" className="cursor-pointer">Live</Label>
+          <div className="hidden sm:flex items-center gap-2.5 rounded-full border border-border bg-background px-3.5 h-9">
+             <Label htmlFor="publish" className="cursor-pointer text-[13px] font-medium">
+               {isPublished ? "Live" : "Draft"}
+             </Label>
              <Switch
                id="publish"
                checked={isPublished}
                onCheckedChange={setIsPublished}
              />
           </div>
-          
-          <Button onClick={handleSave} disabled={isSaving}>
+
+          <Button onClick={handleSave} disabled={isSaving} size="sm">
             {isSaving ? (
-               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+               <Loader2 className="size-4 animate-spin" />
             ) : null}
             {isSaving ? "Saving…" : "Save changes"}
           </Button>
@@ -242,18 +249,42 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
                   ) : (
                     <div className="space-y-4">
                       {blocks.map((block, index) => (
-                        <BioBlockItem
-                           key={block.id}
-                           block={block}
-                           index={index}
-                           totalBlocks={blocks.length}
-                           icon={blockTypeIcons[block.type]}
-                           onUpdate={handleUpdateBlock}
-                           onDelete={handleDeleteBlock}
-                           onToggleVisibility={handleToggleVisibility}
-                           onMoveUp={() => index > 0 && moveBlock(index, index - 1)}
-                           onMoveDown={() => index < blocks.length - 1 && moveBlock(index, index + 1)}
-                        />
+                        <div
+                          key={block.id}
+                          onDragOver={(e) => {
+                            e.preventDefault()
+                            if (overIndex !== index) setOverIndex(index)
+                          }}
+                          onDrop={(e) => e.preventDefault()}
+                        >
+                          <BioBlockItem
+                             block={block}
+                             index={index}
+                             totalBlocks={blocks.length}
+                             icon={blockTypeIcons[block.type]}
+                             onUpdate={handleUpdateBlock}
+                             onDelete={handleDeleteBlock}
+                             onToggleVisibility={handleToggleVisibility}
+                             onMoveUp={() => index > 0 && moveBlock(index, index - 1)}
+                             onMoveDown={() => index < blocks.length - 1 && moveBlock(index, index + 1)}
+                             isDragging={dragIndex === index}
+                             isDropTarget={overIndex === index && dragIndex !== null && dragIndex !== index}
+                             dragHandleProps={{
+                               draggable: true,
+                               onDragStart: (e) => {
+                                 e.dataTransfer.effectAllowed = "move"
+                                 setDragIndex(index)
+                               },
+                               onDragEnd: () => {
+                                 if (dragIndex !== null && overIndex !== null && dragIndex !== overIndex) {
+                                   moveBlock(dragIndex, overIndex)
+                                 }
+                                 setDragIndex(null)
+                                 setOverIndex(null)
+                               },
+                             }}
+                          />
+                        </div>
                       ))}
                     </div>
                   )}
@@ -264,50 +295,32 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
             <TabsContent value="design" className="space-y-8 mt-4 focus-visible:outline-none">
                <div className="surface p-6">
                 <h3 className="h3 mb-6 border-b border-border pb-4">Colors</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {[
-                    { label: "Background", key: "background" },
-                    { label: "Card Text", key: "text" },
-                    { label: "Card Color", key: "accent" }
-                  ].map((item) => (
-                    <div key={item.key} className="space-y-3">
-                      <Label>{item.label}</Label>
-                      <div className="relative h-12 w-full border border-border rounded-md flex items-center justify-center overflow-hidden hover:bg-muted transition-colors shadow-sm bg-background">
-                        <input
-                          type="color"
-                          value={theme[item.key]}
-                          onChange={(e) => setTheme({ ...theme, [item.key]: e.target.value })}
-                          className="absolute inset-0 opacity-0 cursor-pointer"
-                        />
-                        <span className="text-sm font-medium text-foreground font-mono">{theme[item.key]}</span>
-                      </div>
-                    </div>
-                  ))}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <ColorSwatchInput
+                    label="Background"
+                    value={theme.background}
+                    onChange={(value) => setTheme({ ...theme, background: value })}
+                  />
+                  <ColorSwatchInput
+                    label="Text"
+                    value={theme.text}
+                    onChange={(value) => setTheme({ ...theme, text: value })}
+                  />
+                  <ColorSwatchInput
+                    label="Accent"
+                    value={theme.accent}
+                    onChange={(value) => setTheme({ ...theme, accent: value })}
+                  />
                 </div>
               </div>
 
               <div className="surface p-6">
-                <h3 className="h3 mb-6 border-b border-border pb-4">Card Style</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    { id: "minimal", label: "Minimal" },
-                    { id: "bold", label: "Bold Shadow" },
-                    { id: "elegant", label: "Elegant Rounded" },
-                    { id: "playful", label: "Pill Shape" }
-                  ].map((style) => (
-                    <button
-                      key={style.id}
-                      onClick={() => setTheme({ ...theme, style: style.id })}
-                      className={`h-14 px-4 text-sm font-semibold transition-colors rounded-lg border ${
-                        theme.style === style.id
-                          ? "border-brand bg-brand/10 text-foreground"
-                          : "bg-background text-muted-foreground border-border hover:border-foreground/30 hover:text-foreground"
-                      }`}
-                    >
-                      {style.label}
-                    </button>
-                  ))}
-                </div>
+                <h3 className="h3 mb-6 border-b border-border pb-4">Card style</h3>
+                <CardStylePicker
+                  value={theme.style}
+                  accent={theme.accent}
+                  onChange={(style) => setTheme({ ...theme, style })}
+                />
               </div>
             </TabsContent>
 
@@ -338,24 +351,20 @@ export function BioPageEditor({ page, initialBlocks }: BioPageEditorProps) {
         </div>
 
         {/* Right Panel - Phone Preview */}
-        <div className={`w-full md:w-[40%] lg:w-[45%] bg-background overflow-y-auto p-10 flex flex-col items-center border-l border-border ${mobilePreviewOpen ? 'block' : 'hidden md:flex'}`}>
-           <div className="mb-6 flex items-center justify-center gap-2 text-sm font-semibold text-muted-foreground">
-             <Smartphone className="h-4 w-4" />
-             Live Preview
+        <div className={`w-full md:w-[40%] lg:w-[45%] overflow-y-auto p-10 flex flex-col items-center bg-subtle border-l border-border ${mobilePreviewOpen ? 'flex' : 'hidden md:flex'}`}>
+           <div className="mono-label mb-6 flex items-center justify-center gap-2">
+             <Smartphone className="h-3.5 w-3.5" />
+             Live preview
            </div>
-           
-           {/* Phone Frame */}
-           <div className="relative w-[340px] h-[720px] rounded-[1.5rem] border-8 border-foreground shadow-2xl shadow-foreground/20 overflow-hidden bg-card shrink-0">
-             <div className="absolute top-0 inset-x-0 h-6 bg-foreground rounded-b-3xl w-40 mx-auto z-50 flex items-center justify-center">
-                 <div className="h-2 w-12 bg-background/30 rounded-full"></div>
-             </div>
+
+           <PhoneFrame>
              <BioPreview
                title={title}
                description={description}
                blocks={blocks}
                theme={theme}
              />
-           </div>
+           </PhoneFrame>
         </div>
       </div>
 

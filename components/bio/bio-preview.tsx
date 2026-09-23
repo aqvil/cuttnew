@@ -30,7 +30,11 @@ const socialIcons: Record<string, React.ElementType> = {
 }
 
 export function BioPreview({ title, description, blocks, theme }: BioPreviewProps) {
-  const visibleBlocks = blocks.filter(block => block.is_visible)
+  // Blocks arrive from Drizzle (camelCase: `isVisible`) everywhere this
+  // component is actually used, not the snake_case `BioBlock` type below —
+  // filtering on `is_visible` silently matched nothing, so the live preview
+  // never showed a single block regardless of what the editor contained.
+  const visibleBlocks = blocks.filter((block: any) => block.isVisible ?? block.is_visible)
 
   const getTextColor = (color: string) => {
     // Simple contrast check
@@ -48,12 +52,8 @@ export function BioPreview({ title, description, blocks, theme }: BioPreviewProp
   }
 
   return (
-    <div className="mx-auto max-w-sm">
-      <div 
-        className="rounded-md overflow-hidden shadow-lg"
-        style={{ backgroundColor: theme.background }}
-      >
-        <div className="p-6 space-y-6">
+    <div className="min-h-full" style={{ backgroundColor: theme.background }}>
+      <div className="p-6 pt-10 space-y-6">
           {/* Profile Header */}
           <div className="text-center space-y-3">
             <Avatar className="h-20 w-20 mx-auto">
@@ -112,7 +112,6 @@ export function BioPreview({ title, description, blocks, theme }: BioPreviewProp
               Powered by Cuttly
             </p>
           </div>
-        </div>
       </div>
     </div>
   )

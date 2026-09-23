@@ -26,6 +26,9 @@ interface BioBlockItemProps {
   onToggleVisibility: (id: string) => void
   onMoveUp: () => void
   onMoveDown: () => void
+  dragHandleProps?: React.HTMLAttributes<HTMLSpanElement>
+  isDragging?: boolean
+  isDropTarget?: boolean
 }
 
 export function BioBlockItem({
@@ -38,6 +41,9 @@ export function BioBlockItem({
   onToggleVisibility,
   onMoveUp,
   onMoveDown,
+  dragHandleProps,
+  isDragging,
+  isDropTarget,
 }: BioBlockItemProps) {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -212,12 +218,20 @@ export function BioBlockItem({
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <div className={`surface overflow-hidden transition-opacity ${!block.isVisible ? "opacity-40" : "opacity-100"}`}>
+      <div
+        className={`surface overflow-hidden transition-all ${!block.isVisible ? "opacity-40" : "opacity-100"} ${isDragging ? "opacity-30" : ""} ${isDropTarget ? "border-brand ring-1 ring-brand" : ""}`}
+      >
         <CollapsibleTrigger asChild>
-          <div className="flex items-center gap-4 p-4 cursor-pointer hover:bg-muted/50 transition-colors">
-            <GripVertical className="h-4 w-4 text-muted-foreground" />
-            <div className="flex items-center justify-center rounded-md border border-border bg-subtle text-muted-foreground">
-              <Icon className="h-5 w-5" />
+          <div className="flex items-center gap-3 p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+            <span
+              {...dragHandleProps}
+              className="cursor-grab touch-none text-muted-foreground/60 hover:text-foreground active:cursor-grabbing"
+              aria-label="Drag to reorder"
+            >
+              <GripVertical className="h-4 w-4" />
+            </span>
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-subtle text-brand">
+              <Icon className="h-4 w-4" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate">{getBlockTitle()}</p>
